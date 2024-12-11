@@ -9,7 +9,7 @@ Hi {{ user.username }}!
   {% csrf_token %}
   <button type="submit">Log Out</button>
 </form>
-<button onclick="window.location.href='{% url 'daily_report_form' %}'">
+<button onclick="window.location.href='{% url 'report_form' %}'">
     Fill Out Daily Produce Report
 </button>
 {% else %}
