@@ -34,6 +34,12 @@ To deploy the web app locally, follow the steps below:
     make sure to run these commands **inside the repository**
 
 4. Initialize the database:
+    Firstly, go into the `src` directory:
+    ```bash
+    cd src
+    ```
+    Then, run the following commands:
+
     ```bash
     pixi run python manage.py makemigrations
     pixi run python manage.py migrations
