@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Produce Report</title>
+    <script>
+        function addItem() {
+            const container = document.getElementById('items-container');
+            const itemIndex = container.children.length;
+            const itemDiv = document.createElement('div');
+
+            const itemNames = JSON.parse(document.getElementById('item-names').textContent);
+
+            let options = '<option value="">Select an item</option>';
+            itemNames.forEach(name => {
+                options += `<option value="${name}">${name}</option>`;
+            });
+
+            itemDiv.innerHTML = `
+                <label>Item:</label>
+                <select name="items[${itemIndex}][item_name]" onchange="showOptions(this, ${itemIndex})">
+                ${options}
+                </select>
+                <div id="options-${itemIndex}"></div>
+            `;
+
+            container.appendChild(itemDiv);
+        }
+
+        function showOptions(select, index) {
+            const optionsDiv = document.getElementById(`options-${index}`);
+            optionsDiv.innerHTML = '';
+
+            if (select.value) {
+                optionsDiv.innerHTML = `
+                    <label>Location:</label>
+                    <input type="text" name="items[${index}][location]" />
+
+                    <label>Type:</label>
+                    <input type="text" name="items[${index}][type]" />
+
+                    <label>Quantity:</label>
+                    <input type="number" name="items[${index}][quantity]" step="0.01" />
+                `;
+            }
+        }
+
+        function submitForm() {
+
+            const startDateInput = document.querySelector('#id_start_date');
+            const endDateInput = document.querySelector('#id_end_date');
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            if (!startDateInput || !endDateInput) {
+                alert('Please ensure the date fields are correctly filled out.');
+                return;
+            }
+
+
+            const startDate = document.querySelector('#id_start_date').value;
+            const endDate = document.querySelector('#id_end_date').value;
+            const items = [];
+            document.querySelectorAll('#items-container > div').forEach((itemDiv, index) => {
+                const itemName = itemDiv.querySelector(`select[name='items[${index}][item_name]']`).value;
+                const location = itemDiv.querySelector(`input[name='items[${index}][location]']`)?.value;
+                const type = itemDiv.querySelector(`input[name='items[${index}][type]']`)?.value;
+                const quantity = itemDiv.querySelector(`input[name='items[${index}][quantity]']`)?.value;
+                
+                items.push({
+                    item_name: itemName,
+                    location: location,
+                    type: type,
+                    quantity: parseFloat(quantity) || 0,
+                });
+            });
+
+            fetch('', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 
+                          'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({start_date: startDate, end_date: endDate, items}),
+            }).then(response => response.json()).then(data => {
+                alert('Report submitted successfully!');
+                location.reload();
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Farming Report</h1>
+    <form id="farming-report-form" onsubmit="event.preventDefault(); submitForm();">
+        {% csrf_token %}
+        <label for="id_start_date">Start Date:</label>
+        <input type="date" id="id_start_date" name="start_date" required>
+
+        <label for="id_end_date">End Date:</label>
+        <input type="date" id="id_end_date" name="end_date" required>
+        
+        <div id="items-container"></div>
+        <button type="button" onclick="addItem()">Add Item</button>
+        <button type="submit">Submit</button>
+    </form>
+    <script type="application/json" id="item-names">{{ item_names|safe }}</script>
+</body>
+</html>
