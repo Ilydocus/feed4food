@@ -42,7 +42,7 @@ To deploy the web app locally, follow the steps below:
 
     ```bash
     pixi run python manage.py makemigrations
-    pixi run python manage.py migrations
+    pixi run python manage.py migration
     ```
     That will create the database file `db.sqlite3` which will store all application data.
 
