@@ -7,6 +7,28 @@ The web app is built using Django and the data is stored in a SQLite database.
 
 To deploy the web app locally, follow the steps below:
 
+0. Prerequisites:
+    - Python 3.8 or higher
+    - Git
+    - A terminal
+    - Google Maps API key
+        - Store it in environment variable `GOOGLE_MAPS_API_KEY`:
+        ```bash
+        export GOOGLE_MAPS_API_KEY="your_api_key"
+        ```
+    - SpatialLite to handle spatial SQL data for [GeoDjango](https://docs.djangoproject.com/en/5.1/ref/contrib/gis/install/spatialite/#installing-spatialite)
+        - On Ubuntu, run the following command:
+        ```bash
+        sudo apt-get install libsqlite3-mod-spatialite gdal-bin
+        ```
+    - [Optional] If you had a previous version of the project, you may need to delete the `src/db.sqlite3` file to avoid conflicts. 
+    Run the following command:
+    ```bash
+    rm src/db.sqlite3 -f
+    find . -path "*/migrations/*.py" -not -name "__init__.py" -delete 
+    find . -path "*/migrations/*.pyc"  -delete
+    ```
+
 1. Install [pixi](https://pixi.sh/dev/):
 
     Pixi is a snappier replacement to conda/mamba. 
