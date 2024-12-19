@@ -1,8 +1,8 @@
 let map, marker, autocomplete;
 
 async function initMap() {
-  const defaultLocation = { lat: 52.36, lng: 4.85 };
   const markerElement = document.getElementById("markerData");
+  const defaultLocation = { lat: markerElement.dataset.lat, lng: markerElement.dataset.lng };
   
   const { Map } = await google.maps.importLibrary("maps");
   const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
