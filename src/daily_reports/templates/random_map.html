@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Location Autocomplete with Map</title>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATf39BRle6aeU1wMESPYa0Ep7VbFGj61c&loading=async&libraries=places"
+      async
+      defer
+    ></script>
+    <style>
+      /* Add some basic styling */
+      #map {
+        height: 400px;
+        width: 40%;
+      }
+
+      .container {
+        display: flex;
+        gap: 20px;
+      }
+
+      .form-container {
+        flex: 1;
+      }
+
+      .map-container {
+        flex: 2;
+      }
+    </style>
+    {% load static %}
+    <script src="{% static 'location_select.js' %}"></script>
+  </head>
+  <body onload="initMap()">
+    <div class="container">
+      <!-- Form for Location -->
+      <div class="form-container">
+        <h2>Location Selection</h2>
+        <label for="location">Location (Autocomplete):</label>
+        <input type="text" id="location" placeholder="Enter a location" required />
+
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" readonly />
+
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" readonly />
+      </div>
+
+      <!-- Map Container -->
+      <div class="map-container">
+        <h2>Map</h2>
+        <div id="map"></div>
+      </div>
+    </div>
+  </body>
+</html>

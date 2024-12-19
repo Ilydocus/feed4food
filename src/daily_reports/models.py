@@ -1,5 +1,5 @@
 # Create your models here.
-from django.db import models
+from django.contrib.gis.db import models
 from django.contrib.auth.models import User
 
 class Items(models.Model):
@@ -14,9 +14,10 @@ class ProduceReport(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    location = models.CharField(max_length=100, blank=False, null=False)
+    location = models.PointField(geography=True, null=True, blank=True)  # Stores geolocation
 
 class ProduceReportDetails(models.Model):
     item = models.ForeignKey(Items, on_delete=models.CASCADE)
     report = models.ForeignKey(ProduceReport, on_delete=models.CASCADE)
     quantity = models.FloatField()
+

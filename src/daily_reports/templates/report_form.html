@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html>
 {% load static %}
+<script type="application/json" id="item-names">{{ item_names|safe }}</script>
 <script src="{% static 'dynamic_options.js' %}"></script>
+<script src="{% static 'location_select.js' %}"></script>
+<script
+    src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&loading=async&libraries=places"
+    async
+    defer
+></script>
+
 <head>
     <title>Produce Report</title>
 </head>
-<body>
+<body onload="initMap()">
     <h1>Farming Report</h1>
     <form id="farming-report-form" onsubmit="event.preventDefault(); submitForm();">
         {% csrf_token %}
@@ -14,11 +22,24 @@
 
         <label for="id_end_date">End Date:</label>
         <input type="date" id="id_end_date" name="end_date" required>
-    
+        
+        <div class="location-container">
+            <div id="markerData" data-lat="0" data-lng="0" style="display: none;"></div>
+            <label for="location">Location (Autocomplete):</label>
+            <input type="text" id="location" placeholder="Enter a location" required />
+            <div id="map"></div>
+        </div>
+
         <div id="items-container"></div>
         <button type="button" onclick="addItem()">Add Item</button>
         <button type="submit">Submit</button>
+
     </form>
-    <script type="application/json" id="item-names">{{ item_names|safe }}</script>
 </body>
+<style>
+    #map {
+    height: 200px;
+    width: 20%;
+    }
+</style>
 </html>

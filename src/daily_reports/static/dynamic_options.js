@@ -40,7 +40,10 @@ function submitForm() {
 
     const startDate = document.querySelector('#id_start_date');
     const endDate = document.querySelector('#id_end_date');
+    const markerElement = document.getElementById("markerData");
+    const location = [parseFloat(markerElement.dataset.lat), parseFloat(markerElement.dataset.lng)];
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
 
     if (!startDate || !endDate) {
         alert('Please ensure the date fields are correctly filled out.');
@@ -48,7 +51,6 @@ function submitForm() {
     }
     
     const items = [];
-    console.log(document.querySelectorAll('#items-container > div'))
     document.querySelectorAll('#items-container > div').forEach((itemDiv, itemIndex) => {
         const itemName = itemDiv.querySelector(`select[name='item-select']`).value;
         const quantity = itemDiv.querySelector(`input[name='quantity']`).value;
@@ -58,13 +60,12 @@ function submitForm() {
             quantity: quantity,
         })
     });
-
     fetch('', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 
                   'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({start_date: startDate.value, end_date: endDate.value, location: "none", items}),
+        body: JSON.stringify({start_date: startDate.value, end_date: endDate.value, location, items}),
     }).then(response => response.json()).then(data => {
         alert('Report submitted successfully!');
     });
