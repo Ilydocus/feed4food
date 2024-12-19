@@ -15,9 +15,6 @@ def get_item_attributes(request, name):
     item_obj = get_object_or_404(Items, name=name)
     return JsonResponse(model_to_dict(item_obj))
 
-def get_map_test(request):
-    return render(request, 'random_map.html')
-
 def get_post_report(request):
     if request.method == 'GET':
         date_form = DateRangeForm()
