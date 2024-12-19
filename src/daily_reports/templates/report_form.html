@@ -1,45 +1,65 @@
 <!DOCTYPE html>
 <html>
-{% load static %}
-<script type="application/json" id="item-names">{{ item_names|safe }}</script>
-<script src="{% static 'dynamic_options.js' %}"></script>
-<script src="{% static 'location_select.js' %}"></script>
-<script
+<head>
+    <style>
+        #map {
+            height: 250px;
+            width: 45%;
+            margin-left: 10px;
+        }
+    
+        .form-section {
+            margin-bottom: 20px;
+        }
+    
+        .item-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+    </style>
+    {% load static %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script type="application/json" id="item-names">{{ item_names|safe }}</script>
+    <script
     src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&loading=async&libraries=places"
     async
     defer
-></script>
-
-<head>
+    ></script>
+    <script src="{% static 'dynamic_options.js' %}"></script>
+    <script src="{% static 'location_select.js' %}"></script>
     <title>Produce Report</title>
 </head>
 <body onload="initMap()">
-    <h1>Farming Report</h1>
+    <h1>Produce Report</h1>
     <form id="farming-report-form" onsubmit="event.preventDefault(); submitForm();">
         {% csrf_token %}
-        <label for="id_start_date">Start Date:</label>
-        <input type="date" id="id_start_date" name="start_date" required>
 
-        <label for="id_end_date">End Date:</label>
-        <input type="date" id="id_end_date" name="end_date" required>
-        
-        <div class="location-container">
-            <div id="markerData" data-lat="52.36" data-lng="4.85" style="display: none;"></div>
-            <label for="location">Location (Autocomplete):</label>
-            <input type="text" id="location" placeholder="Enter a location" required />
+        <!-- Location Section -->
+        <div id="markerData" data-lat="52.36" data-lng="4.85" style="display: none;"></div>
+        <div class="form-section">
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" placeholder="Enter a location" required />
             <div id="map"></div>
         </div>
 
-        <div id="items-container"></div>
+        <!-- Date Section -->
+        <div class="form-section">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="id_start_date" name="start_date" required>
+
+            <label for="end_date">End Date:</label>
+            <input type="date" id="id_end_date" name="end_date" required>
+        </div>
+        
+        <!-- Items Section -->
+        <div class="form-section" id="items-container"></div>
+        
         <button type="button" onclick="addItem()">Add Item</button>
         <button type="submit">Submit</button>
-
     </form>
 </body>
-<style>
-    #map {
-    height: 200px;
-    width: 20%;
-    }
-</style>
 </html>

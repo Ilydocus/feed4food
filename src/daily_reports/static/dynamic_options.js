@@ -2,6 +2,7 @@ function addItem() {
     const container = document.getElementById('items-container');
     const itemIndex = container.children.length;
     const itemDiv = document.createElement('div');
+    itemDiv.classList.add("item-row");
 
     const itemNames = JSON.parse(document.getElementById('item-names').textContent);
     let options = '<option value="">Select an item</option>';
@@ -17,6 +18,13 @@ function addItem() {
         <div id="item-attributes-${itemIndex}"></div>
     `;
     container.appendChild(itemDiv);
+    enableSearchableDropdown();
+}
+
+function enableSearchableDropdown() {
+    $(document).ready(function() {
+        $('[name="item-select"]').select2();
+    });
 }
 
 async function showOptions(select, itemIndex) {
