@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.utils.safestring import mark_safe
 from django.forms.models import model_to_dict
-from django.contrib.gis.geos import Point
+# from django.contrib.gis.geos import Point
 from django.conf import settings
 import json
 
@@ -27,7 +27,8 @@ def get_post_report(request):
 
     elif request.method == 'POST':
         data = json.loads(request.body)
-        location = Point(*data.get('location'))
+        # location = Point(*data.get('location'))
+        location = 'potato'
         report = ProduceReport.objects.create(
             start_date=data.get('start_date'),
             end_date=data.get('end_date'),
