@@ -1,79 +1,77 @@
 function addItem() {
-    const container = document.getElementById('items-container');
-    const itemIndex = container.children.length;
-    const itemDiv = document.createElement('div');
-    itemDiv.classList.add("item-row");
+    const template = document.getElementById('form-template').textContent;
+    const container = document.getElementById('form-container');
+    const totalForms = document.getElementById('form-TOTAL_FORMS');
+    const formCount = parseInt(totalForms.value, 10);
+    const newFormRow = document.createElement('div');
 
-    const itemNames = JSON.parse(document.getElementById('item-names').textContent);
-    let options = '<option value="">Select an item</option>';
-    itemNames.forEach(name => {
-        options += `<option value="${name}">${name}</option>`;
-    });
+    newFormRow.id = `form-row-${formCount}`;
+    newFormRow.innerHTML = template;
 
-    itemDiv.innerHTML = `
-        <label>Item:</label>
-        <select name="item-select" onchange="showOptions(this, ${itemIndex})">
-        ${options}
-        </select>
-        <div id="item-attributes-${itemIndex}"></div>
-    `;
-    container.appendChild(itemDiv);
-    enableSearchableDropdown();
+    // Append the new row and increment TOTAL_FORMS
+    container.appendChild(newFormRow);
+    totalForms.value = formCount + 1;
 }
 
-function enableSearchableDropdown() {
-    $(document).ready(function() {
-        $('[name="item-select"]').select2();
-    });
+function updateUnit(itemSelect) {
+    // Get the selected option
+    const selectedUnit = itemSelect.options[itemSelect.selectedIndex].getAttribute('data-unit');
+
+    const row = itemSelect.closest('.row');
+    const unitDisplay = row.querySelector('.unit-display');
+    unitDisplay.textContent = selectedUnit;
 }
 
-async function showOptions(select, itemIndex) {
-    const optionsDiv = document.getElementById(`item-attributes-${itemIndex}`);
-    optionsDiv.innerHTML = '';
-    const selectedValue = select.value;
-    if (selectedValue != "") {
-        try {
-            const option_attr = await fetch(`get_item/${selectedValue}`).then(response => response.json());
-            optionsDiv.innerHTML = `
-                <label>Quantity (in ${option_attr.unit}'s):</label>
-                <input type="number" name="quantity" step="0.01" />
-            `;
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    }
+
+function deleteRow(button) {
+    const container = document.getElementById('form-container');
+    const totalForms = document.getElementById('form-TOTAL_FORMS');
+    const formCount = parseInt(totalForms.value, 10);
+
+    // Remove the row
+    button.closest("[id^='form-row-']").remove();
+
+    // Update indices of remaining rows
+    const rows = container.querySelectorAll("[id^='form-row-']");
+    rows.forEach((row, index) => {row.id = `form-row-${index}`;});
+
+    // Decrement TOTAL_FORMS
+    totalForms.value = formCount - 1;
 }
 
 function submitForm() {
+    const startDate = document.getElementById('id_start_date');
+    const endDate = document.getElementById('id_end_date');
 
-    const startDate = document.querySelector('#id_start_date');
-    const endDate = document.querySelector('#id_end_date');
-    const markerElement = document.getElementById("markerData");
-    const location = [parseFloat(markerElement.dataset.lat), parseFloat(markerElement.dataset.lng)];
+    const city = document.getElementById('id_city');
+    const location = document.getElementById('id_location');
+    const garden = document.getElementById('id_garden');
+
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
+
 
     if (!startDate || !endDate) {
         alert('Please ensure the date fields are correctly filled out.');
         return;
     }
-    
+
     const items = [];
-    document.querySelectorAll('#items-container > div').forEach((itemDiv, itemIndex) => {
-        const itemName = itemDiv.querySelector(`select[name='item-select']`).value;
-        const quantity = itemDiv.querySelector(`input[name='quantity']`).value;
+    document.querySelectorAll('#form-container > div').forEach((itemDiv) => {
+        const itemName = itemDiv.querySelector(`#id_item`).value;
+        const quantity = itemDiv.querySelector(`#id_quantity`).value;
         
         items.push({
             item_name: itemName,
             quantity: quantity,
-        })
+        });
     });
     fetch('', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 
-                  'X-CSRFToken': csrftoken,
+                'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({start_date: startDate.value, end_date: endDate.value, location, items}),
+        body: JSON.stringify({start_date: startDate.value, end_date: endDate.value, city : city.value, location : location.value, garden : garden.value, items
+        })
     }).then(response => response.json()).then(data => {
         alert('Report submitted successfully!');
     });

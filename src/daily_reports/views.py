@@ -1,11 +1,12 @@
-from .models import Items, ProduceReport,ProduceReportDetails
-from .forms import DateRangeForm
+from .models import Items, ProduceReportDetails, ProduceReport
+from .forms import ProduceReportForm, ProduceItemForm
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.utils.safestring import mark_safe
 from django.forms.models import model_to_dict
-# from django.contrib.gis.geos import Point
 from django.conf import settings
+from dal import autocomplete
+
 import json
 
 def get_item_attributes(request, name):
@@ -17,23 +18,22 @@ def get_item_attributes(request, name):
 
 def get_post_report(request):
     if request.method == 'GET':
-        date_form = DateRangeForm()
-        item_names = Items.objects.values_list('name', flat=True)
+        report = ProduceReportForm()
+        item_form = ProduceItemForm()
         return render(request, 'report_form.html', {
-            'date_form': date_form,
-            'item_names': mark_safe(json.dumps(list(item_names))),
-            'GOOGLE_MAPS_API_KEY': settings.GOOGLE_MAPS_API_KEY
+            'produce_report_form': report,
+            'formset': item_form,
         })
 
     elif request.method == 'POST':
         data = json.loads(request.body)
-        # location = Point(*data.get('location'))
-        location = 'potato'
         report = ProduceReport.objects.create(
             start_date=data.get('start_date'),
             end_date=data.get('end_date'),
+            city=data.get('city'),
+            location=data.get('location'),
+            garden=data.get('garden'),
             user=request.user,
-            location=location
         )
         for post_item in data.get('items', []):
             itemObject = Items.objects.get(name=post_item.get('item_name'))
@@ -42,9 +42,23 @@ def get_post_report(request):
                 item=itemObject,
                 quantity=post_item.get('quantity'),
             )
-
         return JsonResponse({'status': 'success'})
 
     else:
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
-    
+
+class ItemAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Items.objects.none()
+
+        qs = Items.objects.all()
+
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+
+        return qs
+
+# def preview_form(request):
+#     form = ProduceReportFormTest()
+#     return render(request, 'preview_form.html', {'form': form})

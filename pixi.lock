@@ -10,8 +10,11 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/asgiref-3.8.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-h4bc722e_7.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ca-certificates-2024.8.30-hbcca054_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/crispy-bootstrap5-2024.10-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/cyrus-sasl-2.1.27-h54b06d7_7.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/django-5.1.4-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/django-autocomplete-light-3.11.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/django-crispy-forms-2.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-75.1-he02047a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/keyutils-1.6.1-h166bdaf_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/krb5-1.21.3-h659f571_0.conda
@@ -38,6 +41,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.13.1-ha99a958_102_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python_abi-3.13-5_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.2-h8228510_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sqlparse-0.5.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h4845f30_101.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.12.2-pyha770c72_1.conda
@@ -123,6 +127,23 @@ packages:
   size: 159003
   timestamp: 1725018903918
 - kind: conda
+  name: crispy-bootstrap5
+  version: '2024.10'
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/crispy-bootstrap5-2024.10-pyhd8ed1ab_0.conda
+  sha256: 02b6637bb118658f597ec08776722db43dddca62c87c9f389425a6287697f379
+  md5: 73744d1a0f55248f4d55fb059d1d69bf
+  depends:
+  - django >=3.2
+  - django-crispy-forms >=1.13.0
+  - python >=3.7
+  license: MIT
+  license_family: MIT
+  size: 19418
+  timestamp: 1728143330975
+- kind: conda
   name: cyrus-sasl
   version: 2.1.27
   build: h54b06d7_7
@@ -160,6 +181,39 @@ packages:
   - pkg:pypi/django?source=hash-mapping
   size: 3808158
   timestamp: 1733376933098
+- kind: conda
+  name: django-autocomplete-light
+  version: 3.11.0
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/django-autocomplete-light-3.11.0-pyhd8ed1ab_0.conda
+  sha256: 9cfe84e740875a5a02ff7598b25f6454e990bfbcc29f62047ac0107df4155478
+  md5: 8901d328f47ea833ff8cf399dd53b558
+  depends:
+  - django >=3.2
+  - python >=3.8
+  - six
+  license: MIT
+  license_family: MIT
+  size: 130128
+  timestamp: 1708741234941
+- kind: conda
+  name: django-crispy-forms
+  version: '2.3'
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/django-crispy-forms-2.3-pyhd8ed1ab_0.conda
+  sha256: 75c54976f703716afad2fa2dd042d2ea4ec23fca2e4b527f3843b887f954065f
+  md5: c2f6a980b7ea53d7d18b563a5bc8a912
+  depends:
+  - django >=2.2
+  - python >=3.5
+  license: MIT
+  license_family: MIT
+  size: 31017
+  timestamp: 1721424983541
 - kind: conda
   name: icu
   version: '75.1'
@@ -609,6 +663,21 @@ packages:
   purls: []
   size: 281456
   timestamp: 1679532220005
+- kind: conda
+  name: six
+  version: 1.17.0
+  build: pyhd8ed1ab_0
+  subdir: noarch
+  noarch: python
+  url: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhd8ed1ab_0.conda
+  sha256: 41db0180680cc67c3fa76544ffd48d6a5679d96f4b71d7498a759e94edc9a2db
+  md5: a451d576819089b0d672f18768be0f65
+  depends:
+  - python >=3.9
+  license: MIT
+  license_family: MIT
+  size: 16385
+  timestamp: 1733381032766
 - kind: conda
   name: sqlparse
   version: 0.5.2

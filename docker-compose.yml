@@ -19,7 +19,8 @@ services:
     working_dir: /app
     command: bash -c "
       pixi run python src/manage.py makemigrations &&
-      pixi run python src/manage.py migration &&
+      pixi run python src/manage.py migrate &&
+      pixi run python src/manage.py createsuperuser --noinput;
       pixi run python src/manage.py runserver 0.0.0.0:8000
       "
     volumes:
@@ -30,3 +31,6 @@ services:
       - postgres
     environment:
       - DATABASE_URL=postgres://admin:admin@postgres:5432/feed4food
+      - DJANGO_SUPERUSER_USERNAME
+      - DJANGO_SUPERUSER_PASSWORD
+      - DJANGO_SUPERUSER_EMAIL
