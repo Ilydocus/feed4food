@@ -1,0 +1,7 @@
+# pixi environments
+.pixi
+*.egg-info
+
+# Djano build files
+migrations/
+__pycache__/

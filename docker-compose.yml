@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: feed4food
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: django_container
+    working_dir: /app
+    command: bash -c "
+      pixi run python src/manage.py makemigrations &&
+      pixi run python src/manage.py migrate &&
+      pixi run python src/manage.py createsuperuser --noinput;
+      pixi run python src/manage.py runserver 0.0.0.0:8000
+      "
+    volumes:
+      - ./src/:/app/src/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://admin:admin@postgres:5432/feed4food
+      - DJANGO_SUPERUSER_USERNAME
+      - DJANGO_SUPERUSER_PASSWORD
+      - DJANGO_SUPERUSER_EMAIL

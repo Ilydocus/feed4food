@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Produce Report</title>
+    {% load static %}
+    {% load crispy_forms_tags %}    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="{% static 'dynamic_options.js' %}"></script>
+</head>
+<body >
+    <div class="container mt-5">
+        <h1>Produce Report</h1>
+        <form id="farming-report-form" onsubmit="event.preventDefault(); submitForm();">
+            {% csrf_token %}
+            {% block report_block %} {% crispy report_form %} {% endblock %}
+            <h3>Items</h3>
+            <div id="form-container">
+                <script type="application/json" id="form-template">
+                    {% crispy item_form %}
+                </script>
+                {% block items_block %}
+                <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS">
+                {% endblock %}
+            </div>
+            <button type="button" id="add-item" class="btn btn-secondary" onclick="addItem()">Add Item</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report Details</title>
+</head>
+<body>
+    <h1>Report Details</h1>
+    <p><strong>Start Date:</strong> {{ report.start_date }}</p>
+    <p><strong>End Date:</strong> {{ report.end_date }}</p>
+    <p><strong>Location:</strong> {{ report.location }}</p>
+    <p><strong>City:</strong> {{ report.city }}</p>
+    <p><strong>Garden:</strong> {{ report.garden }}</p>
+    <h2>Items</h2>
+    <ul>
+        {% for report_item in report.details.all %}
+        <li>{{ report_item.item.name }}: {{ report_item.quantity }} {{ report_item.item.unit }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'report_list' %}">Back to List</a>
+    <a href="{% url 'report_edit' report.id %}">Edit</a>
+</body>
+</html>
