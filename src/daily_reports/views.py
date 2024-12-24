@@ -2,11 +2,7 @@ from .models import Items, ProduceReportDetails, ProduceReport
 from .forms import ProduceReportForm, ProduceItemForm
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from django.utils.safestring import mark_safe
 from django.forms.models import model_to_dict
-from django.conf import settings
-from dal import autocomplete
-
 import json
 
 def get_item_attributes(request, name):
@@ -21,8 +17,8 @@ def get_post_report(request):
         report = ProduceReportForm()
         item_form = ProduceItemForm()
         return render(request, 'report_form.html', {
-            'produce_report_form': report,
-            'formset': item_form,
+            'report_form': report,
+            'item_form': item_form,
         })
 
     elif request.method == 'POST':
@@ -46,19 +42,3 @@ def get_post_report(request):
 
     else:
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
-
-class ItemAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
-        if not self.request.user.is_authenticated:
-            return Items.objects.none()
-
-        qs = Items.objects.all()
-
-        if self.q:
-            qs = qs.filter(name__icontains=self.q)
-
-        return qs
-
-# def preview_form(request):
-#     form = ProduceReportFormTest()
-#     return render(request, 'preview_form.html', {'form': form})

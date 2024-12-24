@@ -11,6 +11,13 @@ function addItem() {
     // Append the new row and increment TOTAL_FORMS
     container.appendChild(newFormRow);
     totalForms.value = formCount + 1;
+    enableSearchableDropdown();
+}
+
+function enableSearchableDropdown() {
+    $(document).ready(function() {
+        $('[name="item"]').select2();
+    });
 }
 
 function updateUnit(itemSelect) {

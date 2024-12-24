@@ -1,8 +1,8 @@
-from django import forms
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Div, Button, Field, HTML
 from .models import ProduceReport, Items
+from django import forms
 from django.forms.widgets import Select
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Row, Column, Div, Button, Field
 
 class ProduceReportForm(forms.ModelForm):
     class Meta:
@@ -27,7 +27,7 @@ class ProduceReportForm(forms.ModelForm):
                 Column('end_date'),
             ),
         )
-
+        
 class CustomSelect(Select):
     def __init__(self, *args, **kwargs):
         self.item_units = kwargs.pop('item_units', {})
@@ -37,8 +37,10 @@ class CustomSelect(Select):
         option = super().create_option(name, value, label, selected, index, subindex=subindex, attrs=attrs)
         if value in self.item_units:
             option['attrs']['data-unit'] = self.item_units[value]
+        if value == '':
+            option['attrs']['disabled'] = 'disabled'
         return option
-    
+        
 class ProduceItemForm(forms.Form):
     ITEM_CHOICES = [(item, item) for item in Items.objects.values_list('name', flat=True )]
     ITEM_CHOICES.insert(0, ('', 'Select Item'))
@@ -54,7 +56,7 @@ class ProduceItemForm(forms.Form):
             Row(
                 Column(Field('item', wrapper_class="d-flex align-items-center", onchange="updateUnit(this)", onload="updateUnit(this)"), css_class="col-md-3"),
                 Column(Field('quantity', wrapper_class="d-flex align-items-center"), css_class="col-md-3"),
-                Column(Div(css_class='unit-display'), css_class="col-md-1"),  # Custom HTML content
+                Column(Div(css_class='unit-display'), css_class="col-md-1"),
                 Column(Button('delete', 'Delete', css_class='btn btn-danger', onclick="deleteRow(this)"), css_class="col-md-3"),
             )
         )
