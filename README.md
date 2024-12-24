@@ -21,7 +21,8 @@ git clone git@github.com:Ilydocus/feed4food.git
 ```
 
 
-There are several ways to deploy the web application. 
+There are several ways to deploy the web application: Docker and local deployment.
+In this README, I will only cover the Docker deployment.
 
 ### Docker deployment
 
