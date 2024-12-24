@@ -1,7 +1,7 @@
 # feed4food
 
 The following code deploys a web application that allows to input daily produce reports for registered users. 
-The web app is built using Django and the data is stored in a SQLite database.
+The web app is built using Django and the data is stored in a PostgreSQL database.
 
 ## Deployment
 
