@@ -1,84 +1,47 @@
 # feed4food
 
-The following code deploys a web that allows to input daily produce reports for registered users. 
+The following code deploys a web application that allows to input daily produce reports for registered users. 
 The web app is built using Django and the data is stored in a SQLite database.
 
-## Local deploymennt 
+## Deployment
 
-To deploy the web app locally, follow the steps below:
+### Prerequisites
 
-0. Prerequisites:
-    - Python 3.8 or higher
-    - Git
-    - A terminal
-    - Google Maps API key
-        - Store it in environment variable `GOOGLE_MAPS_API_KEY`:
-        ```bash
-        export GOOGLE_MAPS_API_KEY="your_api_key"
-        ```
-    - SpatialLite to handle spatial SQL data for [GeoDjango](https://docs.djangoproject.com/en/5.1/ref/contrib/gis/install/spatialite/#installing-spatialite)
-        - On Ubuntu, run the following command:
-        ```bash
-        sudo apt-get install libsqlite3-mod-spatialite gdal-bin
-        ```
-    - [Optional] If you had a previous version of the project, you may need to delete the `src/db.sqlite3` file to avoid conflicts. 
-    Run the following command:
-    ```bash
-    rm src/db.sqlite3 -f
-    find . -path "*/migrations/*.py" -not -name "__init__.py" -delete 
-    find . -path "*/migrations/*.pyc"  -delete
-    ```
+There are several prerequisites in order to deploy the web app. 
+* Make sure the following environment variables are defined in your shell:
+```bash
+DJANGO_SUPERUSER_USERNAME="admin_name"
+DJANGO_SUPERUSER_PASSWORD="admin_password"
+DJANGO_SUPERUSER_EMAIL="admin_email"
+```
+* Make sure that no application is running on port 8000 and 5432 (PostgreSQL default port).
+* Git is installed on your machine and you pulled the repository: 
+```bash
+git clone git@github.com:Ilydocus/feed4food.git
+```
 
-1. Install [pixi](https://pixi.sh/dev/):
 
-    Pixi is a snappier replacement to conda/mamba. 
-    It is an easy-to-use tool that simplifies making virtual environments for python projects. 
+There are several ways to deploy the web application. 
 
-    On linux/macOS, run the following command:
-    ```bash
-    curl -fsSL https://pixi.sh/install.sh | bash
-    ```
-    On windows, in powershell:
-    ```powershell
-    iwr -useb https://pixi.sh/install.ps1 | iex
-    ```
+### Docker deployment
 
-2. Clone the repository:
-    ```bash
-    git clone git@github.com:Ilydocus/feed4food.git
-    ```
+Using Docker is the easiest way to deploy the web app.
+Firstly, make sure you have Docker installed on your machine.
+Then inside the repository, run the following command:
+```bash
+sudo docker compose up --build
+```
 
-3. Initialize the virtual environment:
-    ```bash
-    pixi init
-    pixi install
-    ```
-    make sure to run these commands **inside the repository**
+This will build the Docker images for PostgreSQL and Django, and run their respective containers.
+The server will be running on http://127.0.0.1:8000/ by default with PostgreSQL running on port 5432.
 
-4. Initialize the database:
-    Firstly, go into the `src` directory:
-    ```bash
-    cd src
-    ```
-    Then, run the following commands:
-
-    ```bash
-    pixi run python manage.py makemigrations
-    pixi run python manage.py migration
-    ```
-    That will create the database file `db.sqlite3` which will store all application data.
-
-5. Create superuser:
-    ```bash
-    pixi run python manage.py createsuperuser
-    ```
-    This will allow you to access the admin panel with the superuser credentials.
-
-6. Run the server:
-    ```bash
-    pixi run python manage.py runserver
-    ```
-    The server will be running on http://127.0.0.1:8000/ by default. 
+### Possible troubleshooting 
+- Sometimes there are can be issues with database migrations.
+To fix this, run the following commands:
+```bash
+find . -path "*/migrations/*.py" -not -name "__init__.py" -delete 
+find . -path "*/migrations/*.pyc"  -delete
+```
 
 ## Admin Panel
 
@@ -90,6 +53,5 @@ For example, select "+Add" next to "item names" and add a couple of few itmes, l
 
 From the home directory of the website, the user can select "Fill out daily produce report". 
 Here, the user selects the date range for the report, and then selects "Add Item" which will opem up a dropdown menu with the items added to the database ("Apples" and "Potatoes").
-Once selected, additional information can be added, such as the quantity and the type. 
+Once selected, additional information can be added, such as the quantity. 
 Once done, click "submit" and the report will be saved in the database. 
-You can see them by directly querying the database in `/src/db.sqlite3`. 
