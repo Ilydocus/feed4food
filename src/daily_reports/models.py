@@ -21,6 +21,6 @@ class ProduceReport(models.Model):
 
 class ProduceReportDetails(models.Model):
     item = models.ForeignKey(Items, on_delete=models.CASCADE)
-    report = models.ForeignKey(ProduceReport, on_delete=models.CASCADE)
+    report = models.ForeignKey(ProduceReport, on_delete=models.CASCADE, related_name='details')
     quantity = models.FloatField()
 

@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 
-class ReportsConfig(AppConfig):
+
+class ReportViewConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'daily_reports'
+    name = 'report_view'

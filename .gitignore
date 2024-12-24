@@ -2,6 +2,6 @@
 .pixi
 *.egg-info
 
-# django migrations
-*/migrations/*
-*/__pycache__/*
+# Djano build files
+migrations/
+__pycache__/

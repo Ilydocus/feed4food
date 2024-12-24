@@ -1,11 +1,11 @@
 function addItem() {
     const template = document.getElementById('form-template').textContent;
     const container = document.getElementById('form-container');
-    const totalForms = document.getElementById('form-TOTAL_FORMS');
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
     const formCount = parseInt(totalForms.value, 10);
     const newFormRow = document.createElement('div');
 
-    newFormRow.id = `form-row-${formCount}`;
+    newFormRow.class = `row`;
     newFormRow.innerHTML = template;
 
     // Append the new row and increment TOTAL_FORMS
@@ -32,15 +32,11 @@ function updateUnit(itemSelect) {
 
 function deleteRow(button) {
     const container = document.getElementById('form-container');
-    const totalForms = document.getElementById('form-TOTAL_FORMS');
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
     const formCount = parseInt(totalForms.value, 10);
 
     // Remove the row
-    button.closest("[id^='form-row-']").remove();
-
-    // Update indices of remaining rows
-    const rows = container.querySelectorAll("[id^='form-row-']");
-    rows.forEach((row, index) => {row.id = `form-row-${index}`;});
+    button.closest(".row").remove();
 
     // Decrement TOTAL_FORMS
     totalForms.value = formCount - 1;
@@ -64,8 +60,8 @@ function submitForm() {
 
     const items = [];
     document.querySelectorAll('#form-container > div').forEach((itemDiv) => {
-        const itemName = itemDiv.querySelector(`#id_item`).value;
-        const quantity = itemDiv.querySelector(`#id_quantity`).value;
+        const itemName = itemDiv.querySelector('select[name$="item"]').value;
+        const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
         
         items.push({
             item_name: itemName,

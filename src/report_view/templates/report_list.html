@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Reports</title>
+</head>
+<body>
+    <h1>Your Reports</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Location</th>
+                <th>City</th>
+                <th>Garden</th>
+                <th>View Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td>{{ report.id }}</td>
+                <td>{{ report.start_date }}</td>
+                <td>{{ report.end_date }}</td>
+                <td>{{ report.location }}</td>
+                <td>{{ report.city }}</td>
+                <td>{{ report.garden }}</td>
+                <td> 
+                    <a href="{% url 'report_details' report.id %}">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
