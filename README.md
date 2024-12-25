@@ -10,6 +10,9 @@ The web app is built using Django and the data is stored in a PostgreSQL databas
 There are several prerequisites in order to deploy the web app. 
 * Make sure the following environment variables are defined in your shell:
 ```bash
+POSTGRES_DB=db_name
+POSTGRES_USER=db_user
+POSTGRES_PASSWORD=db_password
 DJANGO_SUPERUSER_USERNAME="admin_name"
 DJANGO_SUPERUSER_PASSWORD="admin_password"
 DJANGO_SUPERUSER_EMAIL="admin_email"
