@@ -175,8 +175,6 @@ packages:
   - sqlparse >=0.3.1
   license: BSD-3-Clause
   license_family: BSD
-  purls:
-  - pkg:pypi/django?source=hash-mapping
   size: 3808158
   timestamp: 1733376933098
 - kind: conda

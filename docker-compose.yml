@@ -3,13 +3,19 @@ services:
     image: postgres:latest
     container_name: postgres_container
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: feed4food
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
     volumes:
       - ./db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   django:
     build:
@@ -17,7 +23,9 @@ services:
       dockerfile: Dockerfile
     container_name: django_container
     working_dir: /app
-    command: bash -c "
+    command: >
+      bash -c "
+      export DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB} && 
       pixi run python src/manage.py makemigrations &&
       pixi run python src/manage.py migrate &&
       pixi run python src/manage.py createsuperuser --noinput;
@@ -28,9 +36,12 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
-      - DATABASE_URL=postgres://admin:admin@postgres:5432/feed4food
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
       - DJANGO_SUPERUSER_USERNAME
       - DJANGO_SUPERUSER_PASSWORD
       - DJANGO_SUPERUSER_EMAIL

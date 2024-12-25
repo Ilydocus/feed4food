@@ -46,10 +46,13 @@ class ProduceItemForm(forms.ModelForm):
     class Meta:
         model = ProduceReportDetails
         fields = ['item', 'quantity']
-
-    ITEM_CHOICES = [(item, item) for item in Items.objects.values_list('name', flat=True )]
-    ITEM_CHOICES.insert(0, ('', 'Select Item'))
-    ITEM_UNITS = {item: unit for (item, unit) in Items.objects.values_list('name', 'unit')}
+    try:
+        ITEM_CHOICES = [(item, item) for item in Items.objects.values_list('name', flat=True )]
+        ITEM_CHOICES.insert(0, ('', 'Select Item'))
+        ITEM_UNITS = {item: unit for (item, unit) in Items.objects.values_list('name', 'unit')}
+    except Exception as e:
+        ITEM_CHOICES = [('','Select Item')]
+        ITEM_UNITS = {}
 
     item = forms.ChoiceField(choices=ITEM_CHOICES, label='Item', widget=CustomSelect(item_units=ITEM_UNITS))
     quantity = forms.IntegerField(label='Quantity')
