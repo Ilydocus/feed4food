@@ -3,6 +3,8 @@ environments:
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
+    indexes:
+    - https://pypi.org/simple
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -44,6 +46,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h4845f30_101.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing_extensions-4.12.2-pyha770c72_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2024b-hc8b5060_0.conda
+      - pypi: https://files.pythonhosted.org/packages/3a/75/fb3d4f056f9ed4f8848817d5afd7a1d949632ab117452ccd179e3839cfc4/django_prometheus-2.3.1-py2.py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/ff/c2/ab7d37426c179ceb9aeb109a85cda8948bb269b7561a0be870cc656eefe4/prometheus_client-0.21.1-py3-none-any.whl
 packages:
 - kind: conda
   name: _libgcc_mutex
@@ -193,6 +197,13 @@ packages:
   license_family: MIT
   size: 31017
   timestamp: 1721424983541
+- kind: pypi
+  name: django-prometheus
+  version: 2.3.1
+  url: https://files.pythonhosted.org/packages/3a/75/fb3d4f056f9ed4f8848817d5afd7a1d949632ab117452ccd179e3839cfc4/django_prometheus-2.3.1-py2.py3-none-any.whl
+  sha256: cf9b26f7ba2e4568f08f8f91480a2882023f5908579681bcf06a4d2465f12168
+  requires_dist:
+  - prometheus-client>=0.7
 - kind: conda
   name: icu
   version: '75.1'
@@ -559,6 +570,14 @@ packages:
   purls: []
   size: 2947466
   timestamp: 1731377666602
+- kind: pypi
+  name: prometheus-client
+  version: 0.21.1
+  url: https://files.pythonhosted.org/packages/ff/c2/ab7d37426c179ceb9aeb109a85cda8948bb269b7561a0be870cc656eefe4/prometheus_client-0.21.1-py3-none-any.whl
+  sha256: 594b45c410d6f4f8888940fe80b5cc2521b305a1fafe1c58609ef715a001f301
+  requires_dist:
+  - twisted ; extra == 'twisted'
+  requires_python: '>=3.8'
 - kind: conda
   name: psycopg2
   version: 2.9.9

@@ -1,0 +1,106 @@
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    volumes:
+      - ../db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    network_mode: "host"
+
+
+  django:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    container_name: django_container
+    working_dir: /app
+    command: >
+      bash -c "
+      export DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB} && 
+      pixi run python src/manage.py makemigrations &&
+      pixi run python src/manage.py migrate &&
+      pixi run python src/manage.py createsuperuser --noinput;
+      pixi run python src/manage.py runserver 0.0.0.0:8000
+      "
+    volumes:
+      - ../src/:/app/src/
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - DJANGO_SUPERUSER_USERNAME
+      - DJANGO_SUPERUSER_PASSWORD
+      - DJANGO_SUPERUSER_EMAIL
+    network_mode: "host"
+
+
+  grafana:
+    build:
+      context: ./grafana
+    environment:
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/metrics/scaphandre_dashboard.json
+      - GF_SECURITY_ADMIN_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    depends_on:
+      - prometheus
+    ports: 
+      - "3000:3000"
+    network_mode: "host"
+
+
+  scaphandre:
+    image: hubblo/scaphandre
+    privileged: true
+    ports: 
+      - "8080:8080"
+    volumes:
+      - type: bind
+        source: /proc
+        target: /proc
+      - type: bind
+        source: /sys/class/powercap
+        target: /sys/class/powercap
+    command: ["prometheus"]  
+    network_mode: "host"
+               
+    
+  prometheus:
+    build:
+      context: ./prometheus
+    user: root
+    ports: 
+      - "9090:9090"
+    volumes: 
+      - ../prometheus:/prometheus
+    network_mode: "host"
+
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    network_mode: "host"
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'

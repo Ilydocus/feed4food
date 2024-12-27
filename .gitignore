@@ -5,3 +5,5 @@
 # Djano build files
 migrations/
 __pycache__/
+
+*.env

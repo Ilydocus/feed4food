@@ -8,16 +8,23 @@ The web app is built using Django and the data is stored in a PostgreSQL databas
 ### Prerequisites
 
 There are several prerequisites in order to deploy the web app. 
-* Make sure the following environment variables are defined in your shell:
+* Make sure the following environment variables are defined in your shell or through a `.env` file:
 ```bash
 POSTGRES_DB=db_name
 POSTGRES_USER=db_user
 POSTGRES_PASSWORD=db_password
-DJANGO_SUPERUSER_USERNAME="admin_name"
-DJANGO_SUPERUSER_PASSWORD="admin_password"
-DJANGO_SUPERUSER_EMAIL="admin_email"
+DJANGO_SUPERUSER_USERNAME=admin_name
+DJANGO_SUPERUSER_PASSWORD=admin_password
+DJANGO_SUPERUSER_EMAIL=admin_email
+GF_SECURITY_ADMIN_PASSWORD=grafana_password
 ```
-* Make sure that no application is running on port 8000 and 5432 (PostgreSQL default port).
+* Make sure that **no** application is running on ports:
+    * 3000 Grafana
+    * 5432 PostgreSQL
+    * 8000 Django App 
+    * 8080 Scaphandre power monitor tool
+    * 9090 Prometheus
+    * 9100 Prometheus node exporte
 * Git is installed on your machine and you pulled the repository: 
 ```bash
 git clone git@github.com:Ilydocus/feed4food.git
@@ -29,15 +36,18 @@ In this README, I will only cover the Docker deployment.
 
 ### Docker deployment
 
-Using Docker is the easiest way to deploy the web app.
+The web app is composed of several services, so it is best to deploy it using Docker.
 Firstly, make sure you have Docker installed on your machine.
-Then inside the repository, run the following command:
+Then inside the repository, go to the `docker-compose` folder and build up the docker containers:
 ```bash
+cd docker-compose
 sudo docker compose up --build
 ```
-
-This will build the Docker images for PostgreSQL and Django, and run their respective containers.
-The server will be running on http://127.0.0.1:8000/ by default with PostgreSQL running on port 5432.
+give it around 20-40 secons to build all of the containers.
+The Docker containers built are for PostgreSQL, Django, Grafana, Prometheus and its corresponding data exporters.
+The Django server will be running on http://127.0.0.1:8000/ by default with PostgreSQL running on port 5432.
+A prometheus server will be running on http://127.0.0.1:9090/
+and Grafana will be running on http://127.0.0.1.:3000/.
 
 ### Possible troubleshooting 
 - Sometimes there are can be issues with database migrations.

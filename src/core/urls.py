@@ -26,4 +26,5 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path('report/', include('daily_reports.urls')),
     path('report_list/', include('report_view.urls')),
+    path('', include('django_prometheus.urls')),
 ]
