@@ -40,16 +40,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_prometheus',
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'dpd_static_support',  # For serving Dash assets
     'crispy_forms',
     'crispy_bootstrap5',
     'daily_reports',
     'report_view',
     'accounts',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
+    'django_plotly_dash.middleware.BaseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -82,7 +87,6 @@ STATICFILES_DIRS = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -147,3 +151,5 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'

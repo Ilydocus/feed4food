@@ -27,4 +27,6 @@ urlpatterns = [
     path('report/', include('daily_reports.urls')),
     path('report_list/', include('report_view.urls')),
     path('', include('django_prometheus.urls')),
+    path('django_plotly_dash/', include('django_plotly_dash.urls')),
+    path('dashboard/', include('dashboard.urls')),
 ]

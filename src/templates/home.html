@@ -15,6 +15,9 @@ Hi {{ user.username }}!
 <button onclick="window.location.href='{% url 'report_list' %}'">
   View your reports
 </button>
+<button onclick="window.location.href='{% url 'dashboard' %}'">
+  Dashboard
+</button>
 {% else %}
 <p>You are not logged in</p>
 <a href="{% url 'login' %}">Log In</a>
