@@ -2,7 +2,7 @@ from .models import Items, ProduceReport, ProduceReportDetails
 from django import forms
 from django.forms.widgets import Select
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Div, Button, Field, HTML
+from crispy_forms.layout import Layout, Row, Column, Button, Field, HTML
 
 class ProduceReportForm(forms.ModelForm):
     class Meta:

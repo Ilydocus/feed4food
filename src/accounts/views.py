@@ -1,9 +1,17 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.shortcuts import render, redirect
 
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+            return redirect('pending_activation')  # Redirect here after registration
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
 
-class SignUpView(CreateView):
-    form_class = UserCreationForm
-    success_url = reverse_lazy("login")
-    template_name = "registration/signup.html"
+def pending_activation(request):
+    return render(request, 'pending_activation.html')
