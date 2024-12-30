@@ -36,25 +36,40 @@ class CustomSelect(Select):
 
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option = super().create_option(name, value, label, selected, index, subindex=subindex, attrs=attrs)
-        if value in self.item_units:
-            option['attrs']['data-unit'] = self.item_units[value]
+        # see if its a function or a dictionary
         if value == '':
             option['attrs']['disabled'] = 'disabled'
+        if callable(self.item_units):
+            try:
+                option['attrs']['data-unit'] = self.item_units(value)
+            except Exception as e:
+                option['attrs']['data-unit'] = ''
+        elif value in self.item_units:
+            option['attrs']['data-unit'] = self.item_units[value]
         return option
         
+def get_item_choices():
+    try:
+        ITEM_CHOICES = [(item, item) for item in Items.objects.values_list('name', flat=True )]
+        ITEM_CHOICES.insert(0, ('', 'Select Item'))
+    except Exception as e:
+        ITEM_CHOICES = [('','Select Item')]
+    return ITEM_CHOICES
+
+def get_item_units(value):
+    try:
+        ITEM_UNITS = {item: unit for (item, unit) in Items.objects.values_list('name', 'unit')}
+        return ITEM_UNITS[value]
+    except Exception as e:
+        ITEM_UNITS = {}
+        return ''
+
 class ProduceItemForm(forms.ModelForm):
     class Meta:
         model = ProduceReportDetails
         fields = ['item', 'quantity']
-    try:
-        ITEM_CHOICES = [(item, item) for item in Items.objects.values_list('name', flat=True )]
-        ITEM_CHOICES.insert(0, ('', 'Select Item'))
-        ITEM_UNITS = {item: unit for (item, unit) in Items.objects.values_list('name', 'unit')}
-    except Exception as e:
-        ITEM_CHOICES = [('','Select Item')]
-        ITEM_UNITS = {}
 
-    item = forms.ChoiceField(choices=ITEM_CHOICES, label='Item', widget=CustomSelect(item_units=ITEM_UNITS))
+    item = forms.ChoiceField(choices=get_item_choices, label='Item', widget=CustomSelect(item_units=get_item_units))
     quantity = forms.IntegerField(label='Quantity')
     
     def __init__(self, *args, **kwargs):

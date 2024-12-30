@@ -1,16 +1,8 @@
 from .models import Items, ProduceReportDetails, ProduceReport
 from .forms import ProduceReportForm, ProduceItemForm
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.http import JsonResponse
-from django.forms.models import model_to_dict
 import json
-
-def get_item_attributes(request, name):
-    if request.method != 'GET':
-        return JsonResponse({'error': 'Only GET requests are allowed'}, status=405)
-    
-    item_obj = get_object_or_404(Items, name=name)
-    return JsonResponse(model_to_dict(item_obj))
 
 def get_post_report(request):
     if request.method == 'GET':
