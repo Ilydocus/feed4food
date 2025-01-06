@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -41,18 +42,32 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_prometheus",
     "django_plotly_dash.apps.DjangoPlotlyDashConfig",
+    "channels",
     "dpd_static_support",  # For serving Dash assets
     "crispy_forms",
     "crispy_bootstrap5",
+    "bootstrap4",
     "report",
     "report_view",
     "accounts",
     "dashboard",
 ]
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                ("127.0.0.1", 6379),
+            ],
+        },
+    },
+}
+
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django_plotly_dash.middleware.ExternalRedirectionMiddleware",
     "django_plotly_dash.middleware.BaseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -87,7 +102,26 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "django_plotly_dash.finders.DashAssetFinder",
+    "django_plotly_dash.finders.DashComponentFinder",
+    "django_plotly_dash.finders.DashAppDirectoryFinder",
+]
+
+PLOTLY_COMPONENTS = [
+    # Common components (ie within dash itself) are automatically added
+    # django-plotly-dash components
+    "dpd_components",
+    # static support if serving local assets
+    "dpd_static_support",
+    # Other components, as needed
+    "dash_bootstrap_components",
+]
+
 WSGI_APPLICATION = "core.wsgi.application"
+ASGI_APPLICATION = "core.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

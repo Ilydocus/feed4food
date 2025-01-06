@@ -20,7 +20,6 @@ def fetch_user_data(item, user_id):
             report_id=report_id, name=item
         )
         total_quantity.append(sum([x.quantity for x in detailed_reports]))
-    print(timestamps, total_quantity)
     return timestamps, total_quantity
 
 
@@ -46,6 +45,6 @@ app.layout = html.Div(
 @app.callback(Output("line-chart", "figure"), [Input("item-selector", "value")])
 def update_graph(value, **kwargs):
     dates, quantities = fetch_user_data(value, kwargs["user"].id)
-    print("after fetch", dates, quantities)
     fig = go.Figure(data=go.Scatter(x=dates, y=quantities))
+    fig.update_layout(yaxis=dict(range=[min(quantities), max(quantities)]))
     return fig
