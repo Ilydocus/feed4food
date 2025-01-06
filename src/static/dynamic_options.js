@@ -75,7 +75,10 @@ function submitForm() {
         },
         body: JSON.stringify({start_date: startDate.value, end_date: endDate.value, city : city.value, location : location.value, garden : garden.value, items
         })
-    }).then(response => response.json()).then(data => {
+    })
+    .then(response => response.json())
+    .then(data => {
         alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
     });
 }

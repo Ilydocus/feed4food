@@ -4,5 +4,5 @@ from .views import register, pending_activation
 
 urlpatterns = [
     path("register/", register, name="register"),
-    path('pending_activation/', pending_activation, name='pending_activation'),
+    path("pending_activation/", pending_activation, name="pending_activation"),
 ]
