@@ -22,13 +22,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-c&uqjd=-pjfs8wy__^sz9chcilm_a7zff$05ck375s175*6p&0"
+try:
+    SECRET_KEY = os.environ["SECRET_KEY"]
+except KeyError as e:
+    raise RuntimeError("Could not find a SECRET_KEY in environment")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['feed4food.labs.vu.nl', 'localhost', '130.37.53.146', '127.0.0.1', 'pvsge146.labs.vu.nl']
+CSRF_TRUSTED_ORIGINS = ['https://feed4food.labs.vu.nl']
 
 # Application definition
 

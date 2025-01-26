@@ -29,10 +29,11 @@ services:
     command: >
       bash -c "
       export DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB} && 
-      pixi run python src/manage.py makemigrations &&
-      pixi run python src/manage.py migrate &&
-      pixi run python src/manage.py createsuperuser --noinput;
-      pixi run python src/manage.py runserver 0.0.0.0:8000
+      cd src;
+      pixi run python manage.py makemigrations &&
+      pixi run python manage.py migrate &&
+      pixi run python manage.py createsuperuser --noinput;
+      pixi run gunicorn --bind 0.0.0.0:8000 core.wsgi
       "
     volumes:
       - ../src/:/app/src/
@@ -48,6 +49,7 @@ services:
       - DJANGO_SUPERUSER_USERNAME
       - DJANGO_SUPERUSER_PASSWORD
       - DJANGO_SUPERUSER_EMAIL
+      - SECRET_KEY
     network_mode: "host"
 
 
