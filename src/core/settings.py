@@ -31,7 +31,7 @@ except KeyError as e:
 DEBUG = True
 
 ALLOWED_HOSTS = ['feed4food.labs.vu.nl', 'localhost', '130.37.53.146', '127.0.0.1', 'pvsge146.labs.vu.nl']
-CSRF_TRUSTED_ORIGINS = ['https://feed4food.labs.vu.nl']
+CSRF_TRUSTED_ORIGINS = ['https://feed4food.labs.vu.nl', 'http://feed4food.labs.vu.nl']
 
 # Application definition
 

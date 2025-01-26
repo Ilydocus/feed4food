@@ -26,6 +26,10 @@ DJANGO_SUPERUSER_PASSWORD=admin_password
 DJANGO_SUPERUSER_EMAIL=admin_email
 GF_SECURITY_ADMIN_PASSWORD=grafana_password
 ```
+* You need to pass DJANGO it's `SECRET_KEY`, which is easiest to append to the `.env` file:
+```bash
+echo "SECRET_KEY='$(openssl rand -hex 40)'" >> .env
+```
 * (Optional) If deploying Django app outside Docker, make sure to also define the database environment variable:
 ```bash
 export DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
@@ -70,6 +74,10 @@ To fix this, run the following commands **within `/src`** folder:
 find . -path "*/migrations/*.py" -not -name "__init__.py" -delete 
 find . -path "*/migrations/*.pyc"  -delete
 ```
+
+## Website deployment
+
+The website was deployed by loosely following the instructions here: https://realpython.com/django-nginx-gunicorn/.
 
 ## Admin Panel
 
