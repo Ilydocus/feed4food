@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "dpd_static_support",  # For serving Dash assets
     "crispy_forms",
     "crispy_bootstrap5",
-    "bootstrap4",
+    "django_bootstrap5",
     "report",
     "report_view",
     "accounts",

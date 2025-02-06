@@ -22,10 +22,10 @@ django-extensions = ">=3.2.3,<4"
 pandas = ">=2.2.3,<3"
 whitenoise = ">=6.7.0,<7"
 dash-bootstrap-components = ">=1.6.0,<2"
-django-bootstrap4 = ">=3.0.1,<4"
 flask = ">=2.1.0,<3"
 werkzeug = "==2.2.2"
 gunicorn = ">=23.0.0,<24"
+django-bootstrap5 = ">=24.3,<25"
 
 [pypi-dependencies]
 django-prometheus = ">=2.3.1, <3"
