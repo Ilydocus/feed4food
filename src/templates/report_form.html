@@ -1,7 +1,16 @@
 <!DOCTYPE html>
 <html>
+    {# Load the tag library #}
+    {% load django_bootstrap5 %}
+    
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
 <head>
-    <title>Produce Report</title>
+    <title>Production Report</title>
     {% load static %}
     {% load crispy_forms_tags %}    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -11,8 +20,11 @@
     <script src="{% static 'dynamic_options.js' %}"></script>
 </head>
 <body >
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
+
     <div class="container mt-5">
-        <h1>Produce Report</h1>
+        <h1>Production Report</h1>
         <form id="farming-report-form" onsubmit="event.preventDefault(); submitForm();">
             {% csrf_token %}
             {% block report_block %} {% crispy report_form %} {% endblock %}
@@ -29,5 +41,17 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
+
+
+    <div class="container">
+        <div class="row justify-content-center g-4 mt-4">
+          <p>You are logged in as {{ user.username }}!</p>
+      
+          <!-- Data portal -->
+          <div class="col-6 col-sm-4 col-md-3">
+            {% bootstrap_button "Back to data portal" button_type="link" button_class="btn-custom" href="/data_portal" extra_classes="w-100 py-3"  %}
+          </div>
+        </div>
+      </div>
 </body>
 </html>

@@ -36,7 +36,7 @@ def get_post_report(request):
                 name=itemObject,
                 quantity=post_item.get("quantity"),
             )
-        return JsonResponse({"redirect_url": reverse("home")})
+        return JsonResponse({"redirect_url": reverse("data_portal")})
 
     else:
         return JsonResponse({"error": "Only POST requests are allowed"}, status=405)

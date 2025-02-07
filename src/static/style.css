@@ -14,10 +14,22 @@ h1 {
     font-family: Calibri;
   }
 
+  h3 {
+    color: white;
+    font-family: Calibri;
+  }
+
 p {
     color: white;
     text-align: center;
     font-family: Calibri;
+  }
+
+  .centered-list {
+    color: white;
+    text-align: center;
+    font-family: Calibri;
+    list-style-position: inside;
   }
 
 
@@ -55,4 +67,6 @@ p {
     outline-color: #003399;
     color: #ffffff;            /* text color */
   }
+
+
 
