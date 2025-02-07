@@ -1,11 +1,53 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% load static %}
+
+{% block title %}Feed4Food Dashboard Portal{% endblock %}
 
 {% block content %}
+
+{# Load the tag library #}
+{% load django_bootstrap5 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center"> 
+<h1 class="center">Welcome to the Feed4Food dashboard portal</h1>
+
+<div class="container">
+  <div class="row justify-content-center g-4">
+    <!-- Direct access to dashboard -->
+    <div class="col-6 col-sm-4 col-md-3">
+      {% bootstrap_button "Access the dashboard" button_type="link" button_class="btn-custom" href="dashboard" extra_classes="w-100 py-3"  %}
+    </div>
+  </div>
+
+
+
 {% if user.is_authenticated %}
-Hi {{ user.username }}!
-<form action="{% url 'logout' %}" method="post">
+<div class="container">
+  <div class="row justify-content-center g-4 mt-4">
+    <p>Hi {{ user.username }}!</p>
+
+    <!-- Access data portal -->
+    <div class="col-6 col-sm-4 col-md-3">
+      {% bootstrap_button "Access the data portal" button_type="link" button_class="btn-custom" href="data_portal" extra_classes="w-100 py-3"  %}
+    </div>
+
+    <!-- Log out -->
+    <div class="col-6 col-sm-4 col-md-3">
+      {% bootstrap_button "Log out" button_type="submit" button_class="btn-secondary" extra_classes="w-100 py-3"  %}
+    </div>
+  </div>
+</div>
+
+<!-- <form action="{% url 'logout' %}" method="post">
   {% csrf_token %}
   <button type="submit">Log Out</button>
 </form>
@@ -17,10 +59,26 @@ Hi {{ user.username }}!
 </button>
 <button onclick="window.location.href='{% url 'dashboard' %}'">
   Dashboard
-</button>
+</button> -->
 {% else %}
-<p>You are not logged in</p>
-<a href="{% url 'login' %}">Log In</a>
-<a href="{% url 'register' %}">Sign Up</a>
+
+<div class="container">
+  <div class="row justify-content-center g-4 mt-4">
+    <p>You are not logged in</p>
+    <!-- Login -->
+    <div class="col-6 col-sm-4 col-md-3">
+      <a href="{% url 'login' %}" class="btn btn-primary w-100 py-3">
+        Log in
+      </a>
+    </div>
+
+    <!-- Sign-Up -->
+    <div class="col-6 col-sm-4 col-md-3">
+      <a href="{% url 'register' %}" class="btn btn-secondary w-100 py-3">
+        Sign Up
+      </a>
+    </div>
+  </div>
+</div>
 {% endif %}
 {% endblock %}

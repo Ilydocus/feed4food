@@ -1,0 +1,58 @@
+body {
+    background: #003399;
+  }
+
+h1 {
+    color: white;
+    text-align: center;
+    font-family: Calibri;
+  }
+
+  h2 {
+    color: white;
+    text-align: center;
+    font-family: Calibri;
+  }
+
+p {
+    color: white;
+    text-align: center;
+    font-family: Calibri;
+  }
+
+
+  .center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30%;
+  }
+  .center2 {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 10%;
+  }
+
+  .icon-report {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+  }
+
+  .btn-custom {
+    background-color: #00a651; 
+    color: #ffffff;            /* text color */
+  }
+
+  .bg-success {
+    background-color: #00a651; 
+  }
+
+  .btn-info {
+    background-color: #003399; 
+    outline-color: #003399;
+    color: #ffffff;            /* text color */
+  }
+

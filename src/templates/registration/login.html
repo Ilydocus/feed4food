@@ -1,12 +1,34 @@
 {% extends "base.html" %}
 
-{% block title %}Login{% endblock %}
+{% load static %}
+
+{% block title %}Log in{% endblock %}
 
 {% block content %}
-<h2>Log In</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form }}
-  <button type="submit">Log In</button>
-</form>
+{# Load the tag library #}
+{% load django_bootstrap5 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
+
+<div class="container mt-4">
+  <h2>Enter your credentials</h2>
+</div>
+
+
+<div class="center2">
+  <form method="post">
+    {% csrf_token %}
+    {{ form }}
+    {% bootstrap_button "Log in" button_type="submit" button_class="btn-custom" extra_classes="w-100 py-3 mt-4"  %}
+  </form>
+</div>
+
 {% endblock %}
