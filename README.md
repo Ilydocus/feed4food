@@ -16,6 +16,10 @@ The web app is built using Django and the data is stored in a PostgreSQL databas
 ### Prerequisites
 
 There are several prerequisites in order to deploy the web app. 
+* Git is installed on your machine and you pulled the repository: 
+```bash
+git clone git@github.com:Ilydocus/feed4food.git
+```
 * Make sure the following environment variables are defined in your shell or through a `.env` file:
 ```bash
 POSTGRES_DB=db_name
@@ -28,11 +32,7 @@ GF_SECURITY_ADMIN_PASSWORD=grafana_password
 ```
 * You need to pass DJANGO it's `SECRET_KEY`, which is easiest to append to the `.env` file:
 ```bash
-echo "SECRET_KEY='$(openssl rand -hex 40)'" >> .env
-```
-* (Optional) If deploying Django app outside Docker, make sure to also define the database environment variable:
-```bash
-export DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
+echo "\nSECRET_KEY='$(openssl rand -hex 40)'" >> .env
 ```
 * Make sure that **no** application is running on ports:
     * 3000 Grafana
@@ -41,9 +41,14 @@ export DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5
     * 8080 Scaphandre power monitor tool
     * 9090 Prometheus
     * 9100 Prometheus node exporte
-* Git is installed on your machine and you pulled the repository: 
+One way to ensure these ports are free is to run the following command:
 ```bash
-git clone git@github.com:Ilydocus/feed4food.git
+sudo lsof -ti :<PORT> | sudo xargs -r kill
+```
+where `<PORT>` is the port number you want to free up.
+* (Optional) If deploying Django app outside Docker, make sure to also define the database environment variable:
+```bash
+export DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
 ```
 
 
