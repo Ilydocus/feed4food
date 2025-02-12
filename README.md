@@ -20,7 +20,7 @@ There are several prerequisites in order to deploy the web app.
 ```bash
 git clone git@github.com:Ilydocus/feed4food.git
 ```
-* Make sure the following environment variables are defined in your shell or through a `.env` file:
+* Make sure the following environment variables are defined in your shell or through a `.env` file contained **both** in the `/src` and `/docker-compose` folders:
 ```bash
 POSTGRES_DB=db_name
 POSTGRES_USER=db_user
@@ -33,6 +33,10 @@ GF_SECURITY_ADMIN_PASSWORD=grafana_password
 * You need to pass DJANGO it's `SECRET_KEY`, which is easiest to append to the `.env` file:
 ```bash
 echo "\nSECRET_KEY='$(openssl rand -hex 40)'" >> .env
+```
+After that, make sure to source the `.env` file:
+```bash
+source .env
 ```
 * Make sure that **no** application is running on ports:
     * 3000 Grafana
