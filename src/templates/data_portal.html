@@ -34,6 +34,14 @@
           </div>
       </div>
 
+      <div class="card bg-success text-white text-center mb-4">
+        <img class="card-img-top icon-report" src="{% static 'images/file-form-nofill.png' %}" alt="Measure file icon">
+          <div class="card-body">
+              <h5 class="card-title">Upload file</h5>
+              <!-- <p>Possible help text.</p> -->
+                <a href="#" class="btn btn-info" button_type="link">Select</a>
+          </div>
+      </div>
       <!-- <div class="card bg-info text-white text-end mb-4">
           <div class="card-body">
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
@@ -96,9 +104,18 @@
   <div class="col-lg-4 mb-4 mb-lg-0">
 
     <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/DashboardIcon_lowquality.jpeg' %}" alt="Dashboard icon">
+      <img class="card-img-top icon-report" src="{% static 'images/dashboard-white-small.png' %}" alt="Dashboard icon">
         <div class="card-body">
             <h5 class="card-title">Go to the dashboard display</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'dashboard' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/dashboard-white-small.png' %}" alt="Dashboard icon">
+        <div class="card-body">
+            <h5 class="card-title"> Customized dashboard display</h5>
             <!-- <p>Possible help text.</p> -->
               <a href="{% url 'dashboard' %}" class="btn btn-info" button_type="link">Select</a>
         </div>
