@@ -42,7 +42,11 @@
 
     <!-- Log out -->
     <div class="col-6 col-sm-4 col-md-3">
-      {% bootstrap_button "Log out" button_type="submit" button_class="btn-secondary" extra_classes="w-100 py-3"  %}
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        {% bootstrap_button "Log out" button_type="submit" button_class="btn-secondary" extra_classes="w-100 py-3"  %}
+      </form>
+      <!-- {% bootstrap_button "Log out" button_type="link" button_class="btn-secondary" href="logout" extra_classes="w-100 py-3"  %} -->
     </div>
   </div>
 </div>

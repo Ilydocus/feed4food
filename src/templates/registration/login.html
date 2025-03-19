@@ -22,13 +22,14 @@
   <h2>Enter your credentials</h2>
 </div>
 
-
-<div class="center2">
-  <form method="post">
-    {% csrf_token %}
-    {{ form }}
-    {% bootstrap_button "Log in" button_type="submit" button_class="btn-custom" extra_classes="w-100 py-3 mt-4"  %}
-  </form>
+<div class="form-container">
+  <div class="center2">
+    <form method="post">
+      {% csrf_token %}
+      {{ form }}
+      {% bootstrap_button "Log in" button_type="submit" button_class="btn-custom" extra_classes="w-100 py-3 mt-4"  %}
+    </form>
+  </div>
 </div>
 
 {% endblock %}

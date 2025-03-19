@@ -68,5 +68,13 @@ p {
     color: #ffffff;            /* text color */
   }
 
+  /* Form text styling */
+.styled-form-container label,
+.styled-form-container input,
+.styled-form-container p {
+    color: white;
+}
+
+ 
 
 
