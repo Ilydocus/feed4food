@@ -75,6 +75,14 @@ p {
     color: white;
 }
 
+/*Fix text color inside input fields*/
+.styled-form-container input,
+.styled-form-container select,
+.styled-form-container textarea {
+    color: #212529; /* Dark text color */
+    background-color: #fff; /* White background */
+}
+
  
 
 
