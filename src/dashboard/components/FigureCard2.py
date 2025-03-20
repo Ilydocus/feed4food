@@ -4,7 +4,7 @@ from dash import html, dcc
 import plotly.graph_objs as go
 
 
-class FigureCard(dbc.Card):
+class FigureCard2(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -24,12 +24,11 @@ class FigureCard(dbc.Card):
                     className="d-flex justify-content-between align-center p-3",
                 ),
                 dbc.Spinner(
-                    dcc.Graph(
-                        id={"type": "graph", "index": id},
-                        responsive=True,
-                        style={"height": "100%"},
-                        figure=fig,
-                    ),
+                    dbc.Card(
+        dbc.CardBody(nutrient_indicators),
+        className="shadow-sm",
+        style={"height": "100%"},
+    ),
                     size="lg",
                     color="dark",
                     delay_show=750,
@@ -47,14 +46,45 @@ class FigureCard(dbc.Card):
             className="mb-3 figure-card",
         )
 
-fig = go.Figure(go.Indicator(
-    domain = {'x': [0, 1], 'y': [0, 1]},
-    value = 9,
-    mode = "gauge+number+delta",
-    #title = {'text': "Cultivated varieties"},
-    delta = {'reference': 8},
-    gauge = {'axis': {'range': [None, 20]},
-             #'steps' : [
-             #    {'range': [0, 250], 'color': "lightgray"},
-             #    {'range': [250, 400], 'color': "gray"}],
-             'threshold' : {'line': {'color': "red", 'width': 4}, 'thickness': 0.75, 'value': 15}}))
+# # Sample data
+# food_item = {
+#     "name": "Salmon",
+#     "nutrients": {
+#         "Iron": True,
+#         "B12": True,
+#         "Vitamin D": True,
+#         "Calcium": False
+#     }
+# }
+
+#List of nutrients
+all_nutrients = {
+        "Iron": True,
+        "Calcium": False,
+        "Vitamin B12": True,
+        "Vitamin D": True       
+}
+
+# Create indicators programmatically
+nutrient_indicators = []
+for nutrient, present in all_nutrients.items():
+    color = "success" if present else "danger"
+    
+    indicator = dbc.Row([
+        dbc.Col(
+            html.Div(className="rounded-circle bg-" + color, 
+                    style={"width": "20px", "height": "20px"}),
+            width="auto"
+        ),
+        dbc.Col(nutrient, width="auto")
+    ], className="mb-2 align-items-center")
+    
+    nutrient_indicators.append(indicator)
+
+# app.layout = dbc.Container([
+#     html.H3(f"Nutrient Profile: {food_item['name']}", className="my-4"),
+#     dbc.Card(
+#         dbc.CardBody(nutrient_indicators),
+#         className="shadow-sm"
+#     )
+# ])

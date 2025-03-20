@@ -11,6 +11,8 @@ import plotly.express as px
 from .components.MetricCard import MetricCard
 from .components.MetricCard2 import MetricCard2
 from .components.FigureCard import FigureCard
+from .components.FigureCard2 import FigureCard2
+from .components.FigureCard3 import FigureCard3
 
 # Trying to fix the graph height problem
 #dash.page_container = html.Div([dcc.Location(id='_pages_location', refresh='callback-nav'), html.Div(id='_pages_content', disable_n_clicks=True, style={"height": "100%"}), dcc.Store(id='_pages_store'), html.Div(id='_pages_dummy', disable_n_clicks=True)], style={"height": "100%"}, id="parent_page_content")
@@ -152,8 +154,8 @@ html.Div([
                         md=7,
                     ),
                     dbc.Col(
-                        FigureCard(
-                            "Nutrient covered",
+                        FigureCard2(
+                            "Nutrients coverage",
                             id="nutrients-covered",
                             #description=figure_descriptions.get("title-counts"),
                         ),
@@ -165,7 +167,7 @@ html.Div([
             ),
             dbc.Row(
                 dbc.Col(
-                    FigureCard(
+                    FigureCard3(
                         "Target progress: Native species",
                         id="quality",
                         #description=figure_descriptions.get("quality"),

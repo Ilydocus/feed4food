@@ -4,7 +4,7 @@ from dash import html, dcc
 import plotly.graph_objs as go
 
 
-class FigureCard(dbc.Card):
+class FigureCard3(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -28,7 +28,7 @@ class FigureCard(dbc.Card):
                         id={"type": "graph", "index": id},
                         responsive=True,
                         style={"height": "100%"},
-                        figure=fig,
+                        figure=fig
                     ),
                     size="lg",
                     color="dark",
@@ -48,13 +48,18 @@ class FigureCard(dbc.Card):
         )
 
 fig = go.Figure(go.Indicator(
-    domain = {'x': [0, 1], 'y': [0, 1]},
-    value = 9,
-    mode = "gauge+number+delta",
-    #title = {'text': "Cultivated varieties"},
-    delta = {'reference': 8},
-    gauge = {'axis': {'range': [None, 20]},
-             #'steps' : [
-             #    {'range': [0, 250], 'color': "lightgray"},
-             #    {'range': [250, 400], 'color': "gray"}],
-             'threshold' : {'line': {'color': "red", 'width': 4}, 'thickness': 0.75, 'value': 15}}))
+    mode = "number+gauge+delta", value = 2,
+    domain = {'x': [0.1, 1], 'y': [0, 1]},
+    title = {'text' :"<b>Native species</b>"},
+    delta = {'reference': 1},
+    gauge = {
+        'shape': "bullet",
+        'axis': {'range': [None, 10]},
+        'threshold': {
+            'line': {'color': "red", 'width': 2},
+            'thickness': 0.75,
+            'value': 5},
+        #'steps': [
+         #   {'range': [0, 150], 'color': "lightgray"},
+         #   {'range': [150, 250], 'color': "gray"}]
+         }))
