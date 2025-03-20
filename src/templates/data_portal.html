@@ -106,7 +106,16 @@
     <div class="card bg-success text-white text-center mb-4">
       <img class="card-img-top icon-report" src="{% static 'images/Dashboard-square-black.png' %}" alt="Dashboard icon">
         <div class="card-body">
-            <h5 class="card-title">Go to the dashboard display</h5>
+            <h5 class="card-title">Go to the personal dashboard display</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'personalDashboard' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/Dashboard-square-black.png' %}" alt="Dashboard icon">
+        <div class="card-body">
+            <h5 class="card-title">Go to the KPI dashboard display</h5>
             <!-- <p>Possible help text.</p> -->
               <a href="{% url 'dashboard' %}" class="btn btn-info" button_type="link">Select</a>
         </div>
