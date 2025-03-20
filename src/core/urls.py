@@ -31,5 +31,5 @@ urlpatterns = [
     path("django_plotly_dash/", include("django_plotly_dash.urls")),
     path("dashboard/", include("dashboard.urls")),
     path("personalDashboard/", include("personalDashboard.urls")),
-    path("data_portal/", TemplateView.as_view(template_name="data_portal.html")),
+    path("data_portal/", TemplateView.as_view(template_name="data_portal.html"), name="data_portal"),
 ]
