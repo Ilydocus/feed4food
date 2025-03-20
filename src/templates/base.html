@@ -7,6 +7,23 @@
 </head>
 
 <body>
+  {% if messages %}
+  <div class="message-container" style="position: fixed; top: 10px; right: 10px; z-index: 1050;">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
+  </div>
+  {% endif %}
+  
+  <!-- Feedback Button -->
+  <div style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+      <a href="{% url 'feedback' %}" class="btn btn-custom">
+          Feedback
+      </a>
+  </div>
   <main>
     {% block content %}
     {% endblock %}
