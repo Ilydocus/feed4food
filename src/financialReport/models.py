@@ -15,5 +15,22 @@ class FinancialReport(models.Model):
     city = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
     garden = models.CharField(max_length=100)
-    quantity = models.FloatField()
+
+    #Expenses
+    exp_workforce = models.FloatField()
+    exp_purchase = models.FloatField()
+    exp_others = models.FloatField()
+    exp_others_desc = models.CharField(max_length=500)
+
+    #Funding
+    fun_feed4food = models.FloatField()
+    fun_others = models.FloatField()
+    fun_others_desc = models.CharField(max_length=500)
+
+    #Revenues
+    rev_production = models.FloatField()
+    rev_restaurant = models.FloatField()
+    rev_events = models.FloatField()
+    rev_others = models.FloatField()
+    rev_others_desc = models.CharField(max_length=500)
 

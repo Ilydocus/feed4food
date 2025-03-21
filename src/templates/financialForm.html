@@ -28,17 +28,8 @@
         <div class="styled-form-container">
             <form id="financial-report-form" onsubmit="event.preventDefault(); submitForm();">
                 {% csrf_token %}
-                {% block report_block %} {% crispy report_form %} {% endblock %}
-                <h3>Items</h3>
-                <div id="form-container">
-                    <script type="application/json" id="form-template">
-                        {% crispy item_form %}
-                    </script>
-                    {% block items_block %}
-                    <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS">
-                    {% endblock %}
-                </div>
-                <button type="button" id="add-item" class="btn btn-secondary" onclick="addItem()">Add Item</button>
+                {% block report_block %} {% crispy financialForm %} {% endblock %}
+                
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>    
