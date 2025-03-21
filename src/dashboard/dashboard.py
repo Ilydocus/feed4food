@@ -13,6 +13,9 @@ from .components.MetricCard2 import MetricCard2
 from .components.FigureCard import FigureCard
 from .components.FigureCard2 import FigureCard2
 from .components.FigureCard3 import FigureCard3
+from .components.FigureCard4 import FigureCard4
+from .components.FigureCard5 import FigureCard5
+from .components.FigureCard6 import FigureCard6
 
 # Trying to fix the graph height problem
 #dash.page_container = html.Div([dcc.Location(id='_pages_location', refresh='callback-nav'), html.Div(id='_pages_content', disable_n_clicks=True, style={"height": "100%"}), dcc.Store(id='_pages_store'), html.Div(id='_pages_dummy', disable_n_clicks=True)], style={"height": "100%"}, id="parent_page_content")
@@ -126,11 +129,12 @@ dcc.Dropdown(
             placeholder="Select a KPI to display",
             style={"margin-bottom": "15px"},
             options=[
-                    {'label': 'KS3: Local and nutritious food production', 'value': 'on'},
-                    {'label': 'KA1: Economic viability', 'value': 'off'},
+                    {'label': 'KS3: Local and nutritious food production', 'value': 'ks3'},
+                    {'label': 'KA1: Economic viability', 'value': 'ka1'},
                     #{'label': 'KC1: Efficient trainuWorkforce', 'value': 'off2'}
                 ],
         ),
+#### KS3 KPI dashboard
 html.Div([
     dbc.Row(
     dbc.Col(
@@ -166,15 +170,24 @@ html.Div([
                 className="dashboard-row",
             ),
             dbc.Row(
+                [
                 dbc.Col(
                     FigureCard3(
                         "Target progress: Native species",
-                        id="quality",
+                        id="target-native",
                         #description=figure_descriptions.get("quality"),
                     ),
-                    width=12,
+                    width=6,
                 ),
-                className="dashboard-row",
+                dbc.Col(
+                    FigureCard4(
+                        "Color coverage",
+                        id="colors-covered",
+                        #description=figure_descriptions.get("quality"),
+                    ),
+                    width=6,
+                ),
+                ],className="dashboard-row",
             ),
             # dbc.Row(
             #     [
@@ -217,8 +230,73 @@ html.Div([
     ),
     id="dashboard",
 )
-], style= {'display': 'block'}, # <-- This is the line that will be changed by the dropdown callback
-id="ks3-dashboard")
+], style= {'display': 'block',"background-color":"#003399",}, # <-- This is the line that will be changed by the dropdown callback
+id="ks3-dashboard"),
+#### KA1 KPI dashboard
+html.Div([
+    dbc.Row(
+    dbc.Col(
+        [
+            # dbc.Row(
+            #     [
+            #         dbc.Col(MetricCard("Latest balance", id="species-count"), width=6),
+            #         dbc.Col(MetricCard2("Native species", id="native-count"), width=6),
+                    
+            #     ]
+            # ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        FigureCard5(
+                            "Expenses and revenues",
+                            id="expenses-revenues",
+                            #description=figure_descriptions.get("summary"),
+                        ),
+                        sm=12,
+                        md=12,
+                    ),
+                    # dbc.Col(
+                    #     FigureCard2(
+                    #         "Nutrients coverage",
+                    #         id="nutrients-covered",
+                    #         #description=figure_descriptions.get("title-counts"),
+                    #     ),
+                    #     sm=12,
+                    #     md=5,
+                    # ),
+                ],
+                className="dashboard-row",
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        FigureCard6(
+                            "Balance",
+                            id="balance",
+                            #description=figure_descriptions.get("summary"),
+                        ),
+                        sm=12,
+                        md=12,
+                    ),
+                    # dbc.Col(
+                    #     FigureCard2(
+                    #         "Nutrients coverage",
+                    #         id="nutrients-covered",
+                    #         #description=figure_descriptions.get("title-counts"),
+                    #     ),
+                    #     sm=12,
+                    #     md=5,
+                    # ),
+                ],
+                className="dashboard-row",
+            ),
+        ],
+    ),
+    id="dashboard",
+)
+], style= {'display': 'block',"background-color":"#003399",}, # <-- This is the line that will be changed by the dropdown callback
+id="ka1-dashboard")
+
 ],style={"background-color":"#003399", "height": "100%" })
 
     # Callbacks
@@ -292,16 +370,53 @@ id="ks3-dashboard")
    Output(component_id='ks3-dashboard', component_property='style'),
    [Input(component_id='kpi-selector', component_property='value')])
 def show_hide_element2(visibility_state):
-    if visibility_state == 'on':
+    if visibility_state == 'ks3':
         return {'display': 'block'}
-    if visibility_state == 'off':
-        return {'display': 'none'}
-    if visibility_state is None:
-        return {'display': 'none'}
+    #if visibility_state == 'off':
+    #    return {'display': 'none'}
+    #if visibility_state is None:
+        #return {'display': 'none'}
     else:
         return {'display': 'none'}
 
+@app.callback(
+   Output(component_id='ka1-dashboard', component_property='style'),
+   [Input(component_id='kpi-selector', component_property='value')])
+def show_hide_element2(visibility_state):
+    if visibility_state == 'ka1':
+        return {'display': 'block'}
+    #if visibility_state == 'off':
+    #    return {'display': 'none'}
+    #if visibility_state is None:
+        #return {'display': 'none'}
+    else:
+        return {'display': 'none'}
 
+@app.callback(
+    Output({"type": "metric-value", "index": "species-count"}, "children"),
+    [Input("kpi-selector", "value")]  # Add this input
+)
+def display_species_count(kpi_value, **kwargs):
+    try:
+        # Count unique Items in the database
+        ##TODO:update to have the ones for which at least one report exists
+        species_count = Item.objects.count()
+        return species_count
+    except Exception as e:
+        return 0
+
+@app.callback(
+    Output({"type": "metric-value", "index": "native-count"}, "children"),
+    [Input("kpi-selector", "value")]  # Add this input
+)
+def display_native_count(kpi_value, **kwargs):
+    try:
+        # Count items with the locale flag in the database
+        ##TODO:update to have the ones for which at least one report exists
+        species_count = Item.objects.filter(locale=True).count()
+        return species_count
+    except Exception as e:
+        return 0
 
 # @app.callback(
 #    Output(component_id='kpi-chart', component_property='style'),

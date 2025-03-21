@@ -2,9 +2,11 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import plotly.graph_objs as go
+import pandas as pd
+import plotly.express as px
 
 
-class FigureCard3(dbc.Card):
+class FigureCard6(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -47,19 +49,10 @@ class FigureCard3(dbc.Card):
             className="mb-3 figure-card",
         )
 
-fig = go.Figure(go.Indicator(
-    mode = "number+gauge+delta", value = 2,
-    domain = {'x': [0.1, 1], 'y': [0, 1]},
-    #title = {'text' :"<b>Native species</b>"},
-    delta = {'reference': 1},
-    gauge = {
-        'shape': "bullet",
-        'axis': {'range': [None, 10]},
-        'threshold': {
-            'line': {'color': "red", 'width': 2},
-            'thickness': 0.75,
-            'value': 5},
-        #'steps': [
-         #   {'range': [0, 150], 'color': "lightgray"},
-         #   {'range': [150, 250], 'color': "gray"}]
-         }))
+
+df = pd.DataFrame({
+    "months": ["November", "December", "January", "February"],
+    "balance": [100, 1100, -400, 430]
+})
+
+fig = px.line(df, x='months', y='balance', markers=True)

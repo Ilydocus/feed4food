@@ -4,7 +4,7 @@ from dash import html, dcc
 import plotly.graph_objs as go
 
 
-class FigureCard3(dbc.Card):
+class FigureCard5(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -47,19 +47,17 @@ class FigureCard3(dbc.Card):
             className="mb-3 figure-card",
         )
 
-fig = go.Figure(go.Indicator(
-    mode = "number+gauge+delta", value = 2,
-    domain = {'x': [0.1, 1], 'y': [0, 1]},
-    #title = {'text' :"<b>Native species</b>"},
-    delta = {'reference': 1},
-    gauge = {
-        'shape': "bullet",
-        'axis': {'range': [None, 10]},
-        'threshold': {
-            'line': {'color': "red", 'width': 2},
-            'thickness': 0.75,
-            'value': 5},
-        #'steps': [
-         #   {'range': [0, 150], 'color': "lightgray"},
-         #   {'range': [150, 250], 'color': "gray"}]
-         }))
+months = ['November','December','January','February']
+
+fig = go.Figure()
+fig.add_trace(go.Bar(x=months, y=[-200,-400, -600, -320],
+                #base=[-500,-600,-700],
+                marker_color='crimson',
+                name='expenses'))
+fig.add_trace(go.Bar(x=months, y=[300,1500, 200, 750],
+                #base=0,
+                marker_color='green',
+                name='revenues'
+                ))
+
+fig.update_layout(barmode='relative')

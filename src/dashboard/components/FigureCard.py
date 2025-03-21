@@ -49,10 +49,10 @@ class FigureCard(dbc.Card):
 
 fig = go.Figure(go.Indicator(
     domain = {'x': [0, 1], 'y': [0, 1]},
-    value = 9,
+    value = 5,
     mode = "gauge+number+delta",
     #title = {'text': "Cultivated varieties"},
-    delta = {'reference': 8},
+    delta = {'reference': 4},
     gauge = {'axis': {'range': [None, 20]},
              #'steps' : [
              #    {'range': [0, 250], 'color': "lightgray"},
