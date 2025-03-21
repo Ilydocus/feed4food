@@ -69,12 +69,9 @@ p {
   }
 
   /* Form text styling */
-.styled-form-container label,
-.styled-form-container input,
-.styled-form-container p {
+.styled-form-container label{
     color: white;
 }
-
 /*Fix text color inside input fields*/
 .styled-form-container input,
 .styled-form-container select,
