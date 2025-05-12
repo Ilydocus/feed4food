@@ -17,20 +17,20 @@ class FinancialReport(models.Model):
     garden = models.CharField(max_length=100)
 
     #Expenses
-    exp_workforce = models.FloatField()
-    exp_purchase = models.FloatField()
-    exp_others = models.FloatField()
-    exp_others_desc = models.CharField(max_length=500)
+    exp_workforce = models.FloatField(default=0)
+    exp_purchase = models.FloatField(default=0)
+    exp_others = models.FloatField(default=0)
+    exp_others_desc = models.CharField(max_length=500,default="")
 
     #Funding
-    fun_feed4food = models.FloatField()
-    fun_others = models.FloatField()
-    fun_others_desc = models.CharField(max_length=500)
+    fun_feed4food = models.FloatField(default=0)
+    fun_others = models.FloatField(default=0)
+    fun_others_desc = models.CharField(max_length=500,default="")
 
     #Revenues
-    rev_production = models.FloatField()
-    rev_restaurant = models.FloatField()
-    rev_events = models.FloatField()
-    rev_others = models.FloatField()
-    rev_others_desc = models.CharField(max_length=500)
+    rev_production = models.FloatField(default=0)
+    rev_restaurant = models.FloatField(default=0)
+    rev_events = models.FloatField(default=0)
+    rev_others = models.FloatField(default=0)
+    rev_others_desc = models.CharField(max_length=500,default="")
 
