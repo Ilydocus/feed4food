@@ -18,6 +18,8 @@ services:
       start_period: 30s
       timeout: 10s
     network_mode: "host"
+    restart: unless-stopped
+
 
 
   django:
@@ -51,6 +53,8 @@ services:
       - DJANGO_SUPERUSER_EMAIL
       - SECRET_KEY
     network_mode: "host"
+    restart: unless-stopped
+
 
 
   grafana:
@@ -67,6 +71,8 @@ services:
     ports: 
       - "3000:3000"
     network_mode: "host"
+    restart: unless-stopped
+
 
 
   scaphandre:
@@ -83,6 +89,7 @@ services:
         target: /sys/class/powercap
     command: ["prometheus"]  
     network_mode: "host"
+    restart: unless-stopped
                
     
   prometheus:
@@ -94,6 +101,8 @@ services:
     volumes: 
       - ../prometheus:/prometheus
     network_mode: "host"
+    restart: unless-stopped
+
 
 
   node_exporter:
@@ -103,6 +112,7 @@ services:
       - '--path.rootfs=/host'
     pid: host
     network_mode: "host"
-    restart: unless-stopped
     volumes:
       - '/:/host:ro,rslave'
+    restart: unless-stopped
+
