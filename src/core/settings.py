@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     "feedback",
     "financialReport",
     "wasteReport",
-    "waterReport"
+    "waterReport",
+    "salesReport"
 ]
 
 CHANNEL_LAYERS = {

@@ -35,5 +35,6 @@ urlpatterns = [
     path('feedback/', include('feedback.urls')),
     path("financialReport/", include("financialReport.urls")),
     path("wasteReport/", include("wasteReport.urls")),
-    path("waterReport/", include("waterReport.urls"))
+    path("waterReport/", include("waterReport.urls")),
+    path("salesReport/", include("salesReport.urls"))
 ]

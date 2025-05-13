@@ -1,0 +1,45 @@
+from .models import SalesReportDetails, SalesReport
+from report.models import Item
+from .forms import SalesReportForm, SalesActionForm
+from django.shortcuts import render
+from django.urls import reverse
+from django.http import JsonResponse
+import json
+
+
+def get_post_report(request):
+    if request.method == "GET":
+        report = SalesReportForm()
+        item_form = SalesActionForm()
+        return render(
+            request,
+            "salesForm.html",
+            {
+                "sales_form": report,
+                "salesList_form": item_form,
+            },
+        )
+
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        report = SalesReport.objects.create(
+            city=data.get("city"),
+            location=data.get("location"),
+            garden=data.get("garden"),
+            user=request.user,
+        )
+        for post_item in data.get("items", []):
+            itemObject = Item.objects.get(name=post_item.get("what"))
+            SalesReportDetails.objects.create(
+                sale_date=data.get("sale_date"),
+                report_id=report,
+                product=itemObject,
+                quantity=post_item.get("quantity"),
+                price=post_item.get("price"),
+                currency=post_item.get("currency"),
+                sale_location=post_item.get("sale_location"),
+            )
+        return JsonResponse({"redirect_url": reverse("data_portal")})
+
+    else:
+        return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
