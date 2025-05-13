@@ -34,5 +34,6 @@ urlpatterns = [
     path("data_portal/", TemplateView.as_view(template_name="data_portal.html"), name="data_portal"),
     path('feedback/', include('feedback.urls')),
     path("financialReport/", include("financialReport.urls")),
-    path("wasteReport/", include("wasteReport.urls"))
+    path("wasteReport/", include("wasteReport.urls")),
+    path("waterReport/", include("waterReport.urls"))
 ]
