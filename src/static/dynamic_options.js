@@ -27,8 +27,23 @@ function updateUnit(itemSelect) {
     const row = itemSelect.closest('.row');
     const unitDisplay = row.querySelector('.unit-display');
     unitDisplay.textContent = selectedUnit;
-    const unitDisplay2 = row.querySelector('.unit-display2');
-    unitDisplay2.textContent = selectedUnit;
+}
+
+function updateUnitAndCurrency(itemSelect) {
+    // Get the selected option for unit
+    const selectedUnit = itemSelect.options[itemSelect.selectedIndex].getAttribute('data-unit');
+
+    const row = itemSelect.closest('.row');
+    const unitDisplay = row.querySelector('.unit-display');
+    unitDisplay.textContent = selectedUnit;
+    //Second occurence
+    //const unitDisplay2 = row.querySelector('.unitandcurrency-display');
+    //unitDisplay2.textContent = selectedUnit;
+
+    // Get the selected option for currency
+    const currency = document.getElementById('id_currency').value;
+    const currencyDisplay = row.querySelector('.unitandcurrency-display');
+    currencyDisplay.textContent = currency + " per " + selectedUnit;
 }
 
 
@@ -85,9 +100,51 @@ function submitForm() {
     });
 }
 
-function getCurrency(priceSelect) {
+function submitSalesForm() {
+    //console.log("Coucou"); //How to print to console browser
+    const city = document.getElementById('id_city');
+    const location = document.getElementById('id_location');
+    const garden = document.getElementById('id_garden');
     const currency = document.getElementById('id_currency');
-    const row = priceSelect.closest('.row');
-    const currencyDisplay = row.querySelector('.currency-display');
-    currencyDisplay.textContent = currency;
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    // if (!sale_date1) {
+    //     alert('Please ensure the date fields are correctly filled out.');
+    //     return;
+    // }
+    // console.log("Coucou2");
+
+    const salesActions = [];
+    document.querySelectorAll('#form-container > div').forEach((salesActionsDiv) => {
+        
+        const sale_date = salesActionsDiv.querySelector('input[name$="sale_date"]').value;
+        const sale_location = salesActionsDiv.querySelector('input[name$="sale_location"]').value;
+        const product = salesActionsDiv.querySelector('select[name$="what"]').value;
+        const price = salesActionsDiv.querySelector('input[name$="price"]').value;
+        const quantity = salesActionsDiv.querySelector('input[name$="quantity"]').value;
+        
+        salesActions.push({
+            product: product,
+            quantity: quantity,
+            sale_date: sale_date,
+            sale_location: sale_location,
+            price: price,
+        });
+    //console.log(salesActions);
+    });
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({city : city.value, location : location.value, garden : garden.value,currency: currency.value, salesActions
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
+    });
 }

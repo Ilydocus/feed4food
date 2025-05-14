@@ -29,8 +29,8 @@ def get_post_report(request):
             user=request.user,
             currency=data.get("currency"),
         )
-        for post_item in data.get("items", []):
-            itemObject = Item.objects.get(name=post_item.get("what"))
+        for post_item in data.get("salesActions", []):
+            itemObject = Item.objects.get(name=post_item.get("product"))
             SalesReportDetails.objects.create(
                 sale_date=post_item.get("sale_date"),
                 report_id=report,

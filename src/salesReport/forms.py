@@ -84,9 +84,9 @@ def get_item_units(value):
 class SalesActionForm(forms.ModelForm):
     class Meta:
         model = SalesReportDetails
-        fields = ["sale_date", "location", "what", "price", "quantity"]
+        fields = ["sale_date", "sale_location", "what", "price", "quantity"]
         widgets = {
-            "sale_date": forms.DateInput(attrs={"type": "date"}),
+           "sale_date": forms.DateInput(attrs={"type": "date"}),
         }
 
     location = forms.CharField(label="Sale location")
@@ -109,11 +109,12 @@ class SalesActionForm(forms.ModelForm):
             initial_unit = Item.objects.get(name=initial["name_id"]).unit
         else:
             initial_unit = ""
-            initial_unit2 = "product unit"
-            initial_currency = "selected currency"
+            initial_unit2 = ""
+            initial_currency = ""
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_tag = False
+        #self.fields["sale_date"].input_formats = [ '%d-%m-%Y' ]
         self.helper.layout = Layout(
             Row(
                 Column(
@@ -125,7 +126,7 @@ class SalesActionForm(forms.ModelForm):
                 ),
                 Column(
                     Field(
-                        "location",
+                        "sale_location",
                         wrapper_class="d-flex align-items-center",
                     ),
                     css_class="col-md-3",
@@ -134,8 +135,8 @@ class SalesActionForm(forms.ModelForm):
                     Field(
                         "what",
                         wrapper_class="d-flex align-items-center",
-                        onchange="updateUnit(this)",
-                        onload="updateUnit(this)",
+                        onchange="updateUnitAndCurrency(this)",
+                        onload="updateUnitAndCurrency(this)",
                     ),
                     css_class="col-md-3",
                 ),
@@ -149,15 +150,13 @@ class SalesActionForm(forms.ModelForm):
                 ),
                 Column(
                     Field("price", wrapper_class="d-flex align-items-center",
-                    onchange="getCurrency(this)",
-                    onload="getCurrency(this)",
+                    #onchange="updateUnitAndCurrency(this)",
+                    #onload="updateUnitAndCurrency(this)",
                     ),
                     css_class="col-md-3",
                 ),
                 Column(
-                    HTML(f'<div class="currency-display"> {initial_currency} </div>'),
-                    HTML(f' per'),
-                    HTML(f'<div class="unit-display2"> {initial_unit2} </div>'),
+                    HTML(f'<div class="unitandcurrency-display"> {initial_currency} per {initial_unit2}</div>'),
                     css_class="col-md-1",
                 ),
                 Column(

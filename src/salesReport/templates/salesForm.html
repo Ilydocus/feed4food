@@ -26,7 +26,7 @@
     <div class="container mt-5">
         <h1>Sales Report</h1>
         <div class="styled-form-container">
-            <form id="sales-report-form" onsubmit="event.preventDefault(); submitForm();">
+            <form id="sales-report-form" onsubmit="event.preventDefault(); submitSalesForm();">
                 {% csrf_token %}
                 {% block report_block %} {% crispy sales_form %} {% endblock %}
                 <h3>Sales performed</h3>
