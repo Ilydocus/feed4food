@@ -9,7 +9,7 @@ from crispy_forms.layout import Layout, Row, Column, Button, Field, HTML
 class SalesReportForm(forms.ModelForm):
     class Meta:
         model = SalesReport
-        fields = ["city", "location", "garden"]
+        fields = ["city", "location", "garden", "currency"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,6 +21,12 @@ class SalesReportForm(forms.ModelForm):
                 Column("city"),
                 Column("location"),
                 Column("garden"),
+            ),
+            Row(
+                Column(
+                    Field("currency", wrapper_class="d-flex align-items-center"),
+                    css_class="col-md-3",
+                ),
             ),
         )
 
@@ -78,7 +84,7 @@ def get_item_units(value):
 class SalesActionForm(forms.ModelForm):
     class Meta:
         model = SalesReportDetails
-        fields = ["sale_date", "location", "what", "price", "quantity", "currency"]
+        fields = ["sale_date", "location", "what", "price", "quantity"]
         widgets = {
             "sale_date": forms.DateInput(attrs={"type": "date"}),
         }
@@ -103,6 +109,8 @@ class SalesActionForm(forms.ModelForm):
             initial_unit = Item.objects.get(name=initial["name_id"]).unit
         else:
             initial_unit = ""
+            initial_unit2 = "product unit"
+            initial_currency = "selected currency"
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_tag = False
@@ -140,16 +148,16 @@ class SalesActionForm(forms.ModelForm):
                     css_class="col-md-1",
                 ),
                 Column(
-                    Field("price", wrapper_class="d-flex align-items-center"),
+                    Field("price", wrapper_class="d-flex align-items-center",
+                    onchange="getCurrency(this)",
+                    onload="getCurrency(this)",
+                    ),
                     css_class="col-md-3",
                 ),
                 Column(
-                    Field("currency", wrapper_class="d-flex align-items-center"),
-                    css_class="col-md-3",
-                ),
-                Column(
+                    HTML(f'<div class="currency-display"> {initial_currency} </div>'),
                     HTML(f' per'),
-                    HTML(f'<div class="unit-display"> {initial_unit} </div>'),
+                    HTML(f'<div class="unit-display2"> {initial_unit2} </div>'),
                     css_class="col-md-1",
                 ),
                 Column(

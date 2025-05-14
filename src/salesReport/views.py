@@ -27,16 +27,16 @@ def get_post_report(request):
             location=data.get("location"),
             garden=data.get("garden"),
             user=request.user,
+            currency=data.get("currency"),
         )
         for post_item in data.get("items", []):
             itemObject = Item.objects.get(name=post_item.get("what"))
             SalesReportDetails.objects.create(
-                sale_date=data.get("sale_date"),
+                sale_date=post_item.get("sale_date"),
                 report_id=report,
                 product=itemObject,
                 quantity=post_item.get("quantity"),
                 price=post_item.get("price"),
-                currency=post_item.get("currency"),
                 sale_location=post_item.get("sale_location"),
             )
         return JsonResponse({"redirect_url": reverse("data_portal")})

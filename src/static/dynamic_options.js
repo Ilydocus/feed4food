@@ -27,6 +27,8 @@ function updateUnit(itemSelect) {
     const row = itemSelect.closest('.row');
     const unitDisplay = row.querySelector('.unit-display');
     unitDisplay.textContent = selectedUnit;
+    const unitDisplay2 = row.querySelector('.unit-display2');
+    unitDisplay2.textContent = selectedUnit;
 }
 
 
@@ -81,4 +83,11 @@ function submitForm() {
         alert('Report submitted successfully!');
         window.location.href = data.redirect_url;
     });
+}
+
+function getCurrency(priceSelect) {
+    const currency = document.getElementById('id_currency');
+    const row = priceSelect.closest('.row');
+    const currencyDisplay = row.querySelector('.currency-display');
+    currencyDisplay.textContent = currency;
 }
