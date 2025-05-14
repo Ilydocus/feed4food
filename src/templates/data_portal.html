@@ -112,6 +112,15 @@
         </div>
     </div>
 
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
+        <div class="card-body">
+            <h5 class="card-title">Check previous sales reports</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'salesReport_list' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+
       <!-- <div class="card bg-primary text-white mb-4 text-end">
           <div class="card-body">
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat.</p>

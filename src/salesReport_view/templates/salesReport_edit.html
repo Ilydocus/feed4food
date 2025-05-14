@@ -1,0 +1,10 @@
+{% extends "salesForm.html" %}
+{% load static %}
+{% load crispy_forms_tags %}   
+
+{% block items_block %}
+{{ formset.management_form }}
+{% for form in formset %}
+    {% crispy form %}
+{% endfor %}
+{% endblock %}

@@ -36,5 +36,6 @@ urlpatterns = [
     path("financialReport/", include("financialReport.urls")),
     path("wasteReport/", include("wasteReport.urls")),
     path("waterReport/", include("waterReport.urls")),
-    path("salesReport/", include("salesReport.urls"))
+    path("salesReport/", include("salesReport.urls")),
+    path("salesReport_list/", include("salesReport_view.urls")),
 ]
