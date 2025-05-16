@@ -26,17 +26,17 @@ class FinancialReport(models.Model):
     exp_workforce = models.FloatField(default=0)
     exp_purchase = models.FloatField(default=0)
     exp_others = models.FloatField(default=0)
-    exp_others_desc = models.CharField(max_length=500,default="")
+    exp_others_desc = models.CharField(max_length=500,default="", blank=True)
 
     #Funding
     fun_feed4food = models.FloatField(default=0)
     fun_others = models.FloatField(default=0)
-    fun_others_desc = models.CharField(max_length=500,default="")
+    fun_others_desc = models.CharField(max_length=500,default="", blank=True)
 
     #Revenues
     #rev_production = models.FloatField(default=0)
     rev_restaurant = models.FloatField(default=0)
     #rev_events = models.FloatField(default=0)
     rev_others = models.FloatField(default=0)
-    rev_others_desc = models.CharField(max_length=500,default="")
+    rev_others_desc = models.CharField(max_length=500,default="", blank=True)
 
