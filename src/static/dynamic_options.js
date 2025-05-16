@@ -46,6 +46,15 @@ function updateUnitAndCurrency(itemSelect) {
     currencyDisplay.textContent = currency + " per " + selectedUnit;
 }
 
+function updateCurrency(currencySelect) {
+    const row = currencySelect.closest('.row');
+
+    // Get the selected option for currency
+    const currency = document.getElementById('id_currency').value;
+    const currencyDisplay = row.querySelector('.currency-display');
+    currencyDisplay.textContent = currency;
+}
+
 
 function deleteRow(button) {
     const container = document.getElementById('form-container');
@@ -140,6 +149,51 @@ function submitSalesForm() {
                 'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({city : city.value, location : location.value, garden : garden.value,currency: currency.value, salesActions
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
+    });
+}
+
+function submitFinancialForm() {
+    const startDate = document.getElementById('id_start_date');
+    const endDate = document.getElementById('id_end_date');
+    const city = document.getElementById('id_city');
+    const location = document.getElementById('id_location');
+    const garden = document.getElementById('id_garden');
+    const currency = document.getElementById('id_currency');
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    if (!startDate || !endDate) {
+        alert('Please ensure the date fields are correctly filled out.');
+        return;
+    }
+
+    const exp_workforce = document.getElementById('id_exp_workforce');
+    const exp_purchase = document.getElementById('id_exp_purchase');
+    const exp_others = document.getElementById('id_exp_others');
+    const exp_others_desc = document.getElementById('id_exp_others_desc');
+    const fun_feed4food = document.getElementById('id_fun_feed4food');
+    const fun_others = document.getElementById('id_fun_others');
+    const fun_others_desc = document.getElementById('id_fun_others_desc');
+    const rev_restaurant = document.getElementById('id_rev_restaurant');
+    const rev_others = document.getElementById('id_rev_others');
+    const rev_others_desc = document.getElementById('id_rev_others_desc');
+    
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({startDate : startDate.value, endDate : endDate.value, city : city.value, location : location.value, garden : garden.value,currency: currency.value, 
+            exp_workforce : exp_workforce.value, exp_purchase : exp_purchase.value, exp_others : exp_others.value, exp_others_desc : exp_others_desc.value, 
+            fun_feed4food : fun_feed4food.value, fun_others : fun_others.value, fun_others_desc : fun_others_desc.value, rev_restaurant : rev_restaurant.value,
+            rev_others : rev_others.value, rev_others_desc : rev_others_desc.value
         })
     })
     .then(response => response.json())

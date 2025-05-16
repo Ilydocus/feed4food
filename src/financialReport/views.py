@@ -26,15 +26,19 @@ def get_post_report(request):
             location=data.get("location"),
             garden=data.get("garden"),
             user=request.user,
-            #TODO: add the other fields or not needed?
+            currency=data.get("currency"),
+            exp_workforce=data.get("exp_workforce"),
+            exp_purchase=data.get("exp_purchase"),
+            exp_others=data.get("exp_others"),
+            exp_others_desc=data.get("exp_others_desc"),
+            fun_feed4food=data.get("fun_feed4food"),
+            fun_others=data.get("fun_others"),
+            fun_others_desc=data.get("fun_others_desc"),
+            rev_restaurant=data.get("rev_restaurant"),
+            rev_others=data.get("rev_others"),
+            rev_others_desc=data.get("rev_others_desc"),
+            
         )
-        # for post_item in data.get("items", []):
-        #     itemObject = Item.objects.get(name=post_item.get("item_name"))
-        #     ProduceReportDetails.objects.create(
-        #         report_id=report,
-        #         name=itemObject,
-        #         quantity=post_item.get("quantity"),
-        #     )
         return JsonResponse({"redirect_url": reverse("data_portal")})
 
     else:

@@ -24,6 +24,11 @@ p {
     text-align: center;
     font-family: Calibri;
   }
+  .p1 {
+    color: white;
+    text-align: left;
+    font-family: Calibri;
+  }
 
   .centered-list {
     color: white;
@@ -78,6 +83,16 @@ p {
 .styled-form-container textarea {
     color: #212529; /* Dark text color */
     background-color: #fff; /* White background */
+}
+
+.currency-display{
+  color: white;
+}
+.unit-display{
+  color: white;
+}
+.unitandcurrency-display{
+  color: white;
 }
 
  
