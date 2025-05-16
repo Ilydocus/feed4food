@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    {# Load the tag library #}
+    {% load django_bootstrap5 %}
+    
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+<head>
+    <title>Report Details</title>
+</head>
+<body>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
+    <h1>Financial Report Details</h1>
+    <p><strong>Start date:</strong> {{ report.start_date }}</p> 
+    <p><strong>End date:</strong> {{ report.end_date }}</p> 
+    <p><strong>Location:</strong> {{ report.location }}</p> 
+    <p><strong>City:</strong> {{ report.city }}</p>
+    <p><strong>Garden:</strong> {{ report.garden }}</p>
+    <h2>Expenses</h2>
+    <div class="centered-list">
+        <ul>
+            <li><strong>Workforce costs:</strong> {{ report.exp_workforce }} {{ report.currency }}</li>
+            <li><strong>Purchase costs:</strong> {{ report.exp_purchase }} {{ report.currency }}</li>
+            <li><strong>Other costs:</strong> {{ report.exp_others }} {{ report.currency }}, {{report.exp_others_desc}}</li>
+        </ul>
+    </div>
+    <h2>Revenues</h2>
+    <div class="centered-list">
+      <ul>
+          <li><strong>FEED4FOOD funding:</strong> {{ report.fun_feed4food }} {{ report.currency }}</li>
+          <li><strong>Other funding:</strong> {{ report.fun_others }} {{ report.currency }}, {{report.fun_others_desc}}</li>
+          <li><strong>Sales in restaurant:</strong> {{ report.rev_restaurant }} {{ report.currency }}</li>
+          <li><strong>Other revenues:</strong> {{ report.rev_others }} {{ report.currency }}, {{report.rev_others_desc}}</li>
+
+      </ul>
+  </div>
+
+    <div class="container">
+        <div class="row justify-content-center g-4 mt-4">
+      
+          <!-- <div class="col-6 col-sm-4 col-md-3"> -->
+            <button type="link" class="btn btn-primary w-50 py-3" href="{% url 'financialReport_list' %}">Back to report</button>
+            <button type="link" class="btn btn-custom w-50 py-3" href="{% url 'financialReport_edit' report.report_id %}">Edit</button>
+          <!-- </div> -->
+        </div>
+      </div>
+    
+    <a href="{% url 'financialReport_list' %}">Back to List</a>
+    <a href="{% url 'financialReport_edit' report.report_id %}">Edit</a>
+</body>
+</html>

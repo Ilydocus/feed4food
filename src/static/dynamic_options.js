@@ -190,7 +190,7 @@ function submitFinancialForm() {
         headers: {'Content-Type': 'application/json', 
                 'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({startDate : startDate.value, endDate : endDate.value, city : city.value, location : location.value, garden : garden.value,currency: currency.value, 
+        body: JSON.stringify({start_date : startDate.value, end_date : endDate.value, city : city.value, location : location.value, garden : garden.value,currency: currency.value, 
             exp_workforce : exp_workforce.value, exp_purchase : exp_purchase.value, exp_others : exp_others.value, exp_others_desc : exp_others_desc.value, 
             fun_feed4food : fun_feed4food.value, fun_others : fun_others.value, fun_others_desc : fun_others_desc.value, rev_restaurant : rev_restaurant.value,
             rev_others : rev_others.value, rev_others_desc : rev_others_desc.value

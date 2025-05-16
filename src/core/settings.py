@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "personalDashboard",
     "feedback",
     "financialReport",
+    "financialReport_view",
     "wasteReport",
     "waterReport",
     "salesReport",
