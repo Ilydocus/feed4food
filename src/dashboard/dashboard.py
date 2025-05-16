@@ -16,6 +16,7 @@ from .components.FigureCard3 import FigureCard3
 from .components.FigureCard4 import FigureCard4
 from .components.FigureCard5 import FigureCard5
 from .components.FigureCard6 import FigureCard6
+from .components.KA1 import ExpensesRevenues
 
 # Trying to fix the graph height problem
 #dash.page_container = html.Div([dcc.Location(id='_pages_location', refresh='callback-nav'), html.Div(id='_pages_content', disable_n_clicks=True, style={"height": "100%"}), dcc.Store(id='_pages_store'), html.Div(id='_pages_dummy', disable_n_clicks=True)], style={"height": "100%"}, id="parent_page_content")
@@ -247,8 +248,8 @@ html.Div([
             dbc.Row(
                 [
                     dbc.Col(
-                        FigureCard5(
-                            "Expenses and revenues",
+                        ExpensesRevenues(
+                            "Expenses and revenues in the LL Amsterdam",
                             id="expenses-revenues",
                             #description=figure_descriptions.get("summary"),
                         ),
