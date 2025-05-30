@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from core import reportUtils
 
 
-class Item(models.Model):
+class Product(models.Model):
+    living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
     name = models.CharField(
         max_length=100, blank=False, null=False, unique=True, primary_key=True
     )
@@ -11,7 +13,7 @@ class Item(models.Model):
     unit = models.CharField(max_length=100, blank=False, null=False)
 
 
-class ProduceReport(models.Model):
+class ProductionReport(models.Model):
     report_id = models.AutoField(blank=False, null=False, unique=True, primary_key=True)
 
     start_date = models.DateField()
@@ -26,9 +28,10 @@ class ProduceReport(models.Model):
     garden = models.CharField(max_length=100)
 
 
-class ProduceReportDetails(models.Model):
-    name = models.ForeignKey(Item, on_delete=models.CASCADE)
+class ProductionReportDetails(models.Model):
+    name = models.ForeignKey(Product, on_delete=models.CASCADE)
     report_id = models.ForeignKey(
-        ProduceReport, on_delete=models.CASCADE, related_name="details"
+        ProductionReport, on_delete=models.CASCADE, related_name="details"
     )
     quantity = models.FloatField()
+

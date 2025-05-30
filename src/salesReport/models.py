@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from report.models import Item
+from report.models import Product
 
 class SalesReport(models.Model):
     class AvailableCurrency(models.TextChoices):
@@ -24,7 +24,7 @@ class SalesReportDetails(models.Model):
     
     sale_date = models.DateField()
     sale_location = models.CharField(max_length=100)
-    product = models.ForeignKey(Item, on_delete=models.CASCADE) 
+    product = models.ForeignKey(Product, on_delete=models.CASCADE) 
     report_id = models.ForeignKey(
         SalesReport, on_delete=models.CASCADE, related_name="details"
     )

@@ -34,7 +34,7 @@ def fetch_user_data(item, user_id):
     date_produced = [report.start_date for report in user_reports]
     total_quantity = []
     for report_id in report_ids:
-        detailed_reports = ProduceReportDetails.objects.filter(
+        detailed_reports = ProductionReportDetails.objects.filter(
             report_id=report_id, name=item
         )
         total_quantity.append(sum([x.quantity for x in detailed_reports]))
@@ -74,7 +74,7 @@ def fetch_user_data_sales(item, user_id):
 
 # Layout
 try:
-    item_options = list(Item.objects.all().values_list("name", flat=True))
+    item_options = list(Product.objects.all().values_list("name", flat=True))
 except Exception as e:
     item_options = []
 # app.layout = html.Div(

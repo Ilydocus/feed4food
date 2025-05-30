@@ -1,4 +1,4 @@
-from .models import Item, ProduceReportDetails, ProduceReport
+from .models import Product, ProductionReportDetails, ProduceReport
 from .forms import ProduceReportForm, ProduceItemForm
 from django.shortcuts import render
 from django.urls import reverse
@@ -30,8 +30,8 @@ def get_post_report(request):
             user=request.user,
         )
         for post_item in data.get("items", []):
-            itemObject = Item.objects.get(name=post_item.get("item_name"))
-            ProduceReportDetails.objects.create(
+            itemObject = Product.objects.get(name=post_item.get("item_name"))
+            ProductionReportDetails.objects.create(
                 report_id=report,
                 name=itemObject,
                 quantity=post_item.get("quantity"),

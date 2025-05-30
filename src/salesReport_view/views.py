@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from report.models import Item
+from report.models import Product
 from salesReport.models import SalesReport, SalesReportDetails
 from salesReport.forms import SalesReportForm, SalesActionForm
 from django.forms import formset_factory
@@ -15,7 +15,7 @@ def salesReport_list(request):
 
 def salesReport_details(request, report_id):
     report = SalesReport.objects.get(report_id=report_id)
-    items = Item.objects.all()
+    items = Product.objects.all()
     return render(request, "salesReport_details.html", {"report": report, "items": items})
 
 
@@ -27,7 +27,7 @@ def edit_report(request, report_id):
         data = json.loads(request.body)
         old_report_items.delete()
         for post_item in data.get("items", []):
-            itemObject = Item.objects.get(name=post_item.get("item_name"))
+            itemObject = Product.objects.get(name=post_item.get("item_name"))
             SalesReportDetails.objects.create(
                 report_id=report,
                 product=itemObject,

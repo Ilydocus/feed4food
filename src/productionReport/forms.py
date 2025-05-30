@@ -1,4 +1,4 @@
-from .models import Item, ProduceReport, ProduceReportDetails
+from .models import Product, ProduceReport, ProductionReportDetails
 from django import forms
 from django.forms.widgets import Select
 from crispy_forms.helper import FormHelper
@@ -64,7 +64,7 @@ class CustomSelect(Select):
 def get_item_choices():
     try:
         ITEM_CHOICES = [
-            (item, item) for item in Item.objects.values_list("name", flat=True)
+            (item, item) for item in Product.objects.values_list("name", flat=True)
         ]
         ITEM_CHOICES.insert(0, ("", "Select Item"))
     except Exception as e:
@@ -75,7 +75,7 @@ def get_item_choices():
 def get_item_units(value):
     try:
         ITEM_UNITS = {
-            item: unit for (item, unit) in Item.objects.values_list("name", "unit")
+            item: unit for (item, unit) in Product.objects.values_list("name", "unit")
         }
         return ITEM_UNITS[value]
     except Exception as e:
@@ -85,7 +85,7 @@ def get_item_units(value):
 
 class ProduceItemForm(forms.ModelForm):
     class Meta:
-        model = ProduceReportDetails
+        model = ProductionReportDetails
         fields = ["item", "quantity"]
 
     item = forms.ChoiceField(
@@ -101,7 +101,7 @@ class ProduceItemForm(forms.ModelForm):
             initial = kwargs["initial"]
             self.fields["item"].initial = initial["name_id"]
             self.fields["quantity"].initial = initial["quantity"]
-            initial_unit = Item.objects.get(name=initial["name_id"]).unit
+            initial_unit = Product.objects.get(name=initial["name_id"]).unit
         else:
             initial_unit = ""
         self.helper = FormHelper()

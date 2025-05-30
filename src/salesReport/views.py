@@ -1,5 +1,5 @@
 from .models import SalesReportDetails, SalesReport
-from report.models import Item
+from report.models import Product
 from .forms import SalesReportForm, SalesActionForm
 from django.shortcuts import render
 from django.urls import reverse
@@ -30,7 +30,7 @@ def get_post_report(request):
             currency=data.get("currency"),
         )
         for post_item in data.get("salesActions", []):
-            itemObject = Item.objects.get(name=post_item.get("product"))
+            itemObject = Product.objects.get(name=post_item.get("product"))
             SalesReportDetails.objects.create(
                 sale_date=post_item.get("sale_date"),
                 report_id=report,

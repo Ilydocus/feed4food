@@ -1,4 +1,4 @@
-from report.models import ProduceReport, ProduceReportDetails, Item
+from productionReport.models import ProductionReport, ProductionReportDetails, Product
 from dash import dcc, html
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
@@ -37,13 +37,13 @@ fig = go.Figure()
 
 # Fetch data
 def fetch_user_data(item, user_id):
-    user_reports = ProduceReport.objects.filter(user=user_id)
+    user_reports = ProductionReport.objects.filter(user=user_id)
     report_ids = [report.report_id for report in user_reports]
     timestamps = [report.creation_time for report in user_reports]
     date_produced = [report.start_date for report in user_reports]
     total_quantity = []
     for report_id in report_ids:
-        detailed_reports = ProduceReportDetails.objects.filter(
+        detailed_reports = ProductionReportDetails.objects.filter(
             report_id=report_id, name=item
         )
         total_quantity.append(sum([x.quantity for x in detailed_reports]))
@@ -54,13 +54,9 @@ def fetch_user_data(item, user_id):
 
 # Layout
 try:
-    item_options = list(Item.objects.all().values_list("name", flat=True))
+    item_options = list(Product.objects.all().values_list("name", flat=True))
 except Exception as e:
     item_options = []
-try:
-    kpi_options = list(Kpi.objects.all().values_list("name", flat=True))
-except Exception as e:
-    kpi_options = []
 item_options2=['All varieties']
 # app.layout = html.Div(
 #     [  dcc.Dropdown(
@@ -401,7 +397,7 @@ def display_species_count(kpi_value, **kwargs):
     try:
         # Count unique Items in the database
         ##TODO:update to have the ones for which at least one report exists
-        species_count = Item.objects.count()
+        species_count = Product.objects.count()
         return species_count
     except Exception as e:
         return 0
@@ -414,7 +410,7 @@ def display_native_count(kpi_value, **kwargs):
     try:
         # Count items with the locale flag in the database
         ##TODO:update to have the ones for which at least one report exists
-        species_count = Item.objects.filter(locale=True).count()
+        species_count = Product.objects.filter(locale=True).count()
         return species_count
     except Exception as e:
         return 0

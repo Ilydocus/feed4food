@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
-from report.models import ProduceReport, ProduceReportDetails, Item
-from report.forms import ProduceItemForm, ProduceReportForm
+from productionReport.models import ProductionReport, ProductionReportDetails, Product
+from productionReport.forms import ProduceItemForm, ProductionReportForm
 from django.forms import formset_factory
 from django.http import JsonResponse
 from django.urls import reverse
@@ -8,26 +8,26 @@ import json
 
 
 def report_list(request):
-    reports = ProduceReport.objects.filter(user=request.user)
+    reports = ProductionReport.objects.filter(user=request.user)
     return render(request, "report_list.html", {"reports": reports})
 
 
 def report_details(request, report_id):
-    report = ProduceReport.objects.get(report_id=report_id)
-    items = Item.objects.all()
+    report = ProductionReport.objects.get(report_id=report_id)
+    items = Product.objects.all()
     return render(request, "report_details.html", {"report": report, "items": items})
 
 
 def edit_report(request, report_id):
-    report = get_object_or_404(ProduceReport, report_id=report_id)
-    old_report_items = ProduceReportDetails.objects.filter(report_id=report_id)
+    report = get_object_or_404(ProductionReport, report_id=report_id)
+    old_report_items = ProductionReportDetails.objects.filter(report_id=report_id)
 
     if request.method == "POST":
         data = json.loads(request.body)
         old_report_items.delete()
         for post_item in data.get("items", []):
-            itemObject = Item.objects.get(name=post_item.get("item_name"))
-            ProduceReportDetails.objects.create(
+            itemObject = Product.objects.get(name=post_item.get("item_name"))
+            ProductionReportDetails.objects.create(
                 report_id=report,
                 name=itemObject,
                 quantity=post_item.get("quantity"),
@@ -43,7 +43,7 @@ def edit_report(request, report_id):
 
     if request.method == "GET":
         item_form_template = ProduceItemForm()
-        report_form = ProduceReportForm(instance=report)
+        report_form = ProductionReportForm(instance=report)
         formset = formset_factory(ProduceItemForm, extra=0)(
             initial=old_report_items.values()
         )
