@@ -39,4 +39,5 @@ urlpatterns = [
     path("waterReport/", include("waterReport.urls")),
     path("salesReport/", include("salesReport.urls")),
     path("salesReport_list/", include("salesReport_view.urls")),
+    path("eventReport/", include("eventReport.urls")),
 ]

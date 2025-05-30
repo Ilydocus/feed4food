@@ -55,7 +55,6 @@ function updateCurrency(currencySelect) {
     currencyDisplay.textContent = currency;
 }
 
-
 function deleteRow(button) {
     const container = document.getElementById('form-container');
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
@@ -194,6 +193,59 @@ function submitFinancialForm() {
             exp_workforce : exp_workforce.value, exp_purchase : exp_purchase.value, exp_others : exp_others.value, exp_others_desc : exp_others_desc.value, 
             fun_feed4food : fun_feed4food.value, fun_others : fun_others.value, fun_others_desc : fun_others_desc.value, rev_restaurant : rev_restaurant.value,
             rev_others : rev_others.value, rev_others_desc : rev_others_desc.value
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
+    });
+}
+
+function submitEventForm() {
+    
+    const city = document.getElementById('id_city');
+    const currency = document.getElementById('id_currency');
+    const event_date = document.getElementById('id_event_date');
+    const event_name = document.getElementById('id_event_name');
+    const event_loc = document.getElementById('id_event_loc');
+    const event_type = document.getElementById('id_event_type');
+    const event_desc = document.getElementById('id_event_desc');
+    const event_costs = document.getElementById('id_event_costs');
+    const event_costs_desc = document.getElementById('id_event_costs_desc');
+    const event_revenues = document.getElementById('id_event_revenues');
+    const event_revenues_desc = document.getElementById('id_event_revenues_desc');
+    const total_invited = document.getElementById('id_total_invited');
+    const total_participants = document.getElementById('id_total_participants');
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    const eventGroupDetails = [];
+    document.querySelectorAll('#form-container > div').forEach((eventInvitedDetailsDiv) => {
+        
+        const name = eventInvitedDetailsDiv.querySelector('select[name$="name"]').value;
+        const number_invited = eventInvitedDetailsDiv.querySelector('input[name$="number_invited"]').value;
+        const number_participant = eventInvitedDetailsDiv.querySelector('input[name$="number_participant"]').value;
+
+        eventGroupDetails.push({
+            name: name,
+            number_invited: number_invited,
+            number_participant: number_participant,
+        });
+
+    
+    });
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({city : city.value, currency: currency.value, event_date: event_date.value,
+            event_name: event_name.value, event_loc: event_loc.value, event_type: event_type.value,
+            event_desc: event_desc.value, event_costs: event_costs.value, event_costs_desc: event_costs_desc.value,
+            event_revenues: event_revenues.value, event_revenues_desc: event_revenues_desc.value, total_invited: total_invited.value,
+            total_participants: total_participants.value, eventGroupDetails: eventGroupDetails
         })
     })
     .then(response => response.json())
