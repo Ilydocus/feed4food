@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from report.models import Product
+from productionReport.models import Product
 
 class SalesReport(models.Model):
     class AvailableCurrency(models.TextChoices):

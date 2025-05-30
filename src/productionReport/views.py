@@ -1,5 +1,5 @@
-from .models import Product, ProductionReportDetails, ProduceReport
-from .forms import ProduceReportForm, ProduceItemForm
+from .models import Product, ProductionReportDetails, ProductionReport
+from .forms import ProductionReportForm, ProduceItemForm
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import JsonResponse
@@ -8,7 +8,7 @@ import json
 
 def get_post_report(request):
     if request.method == "GET":
-        report = ProduceReportForm()
+        report = ProductionReportForm()
         item_form = ProduceItemForm()
         return render(
             request,
@@ -21,7 +21,7 @@ def get_post_report(request):
 
     elif request.method == "POST":
         data = json.loads(request.body)
-        report = ProduceReport.objects.create(
+        report = ProductionReport.objects.create(
             start_date=data.get("start_date"),
             end_date=data.get("end_date"),
             city=data.get("city"),

@@ -1,13 +1,13 @@
-from .models import Product, ProduceReport, ProductionReportDetails
+from .models import Product, ProductionReport, ProductionReportDetails
 from django import forms
 from django.forms.widgets import Select
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Button, Field, HTML
 
 
-class ProduceReportForm(forms.ModelForm):
+class ProductionReportForm(forms.ModelForm):
     class Meta:
-        model = ProduceReport
+        model = ProductionReport
         fields = ["start_date", "end_date", "city", "location", "garden"]
         widgets = {
             "start_date": forms.DateInput(attrs={"type": "date"}),

@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from report.models import Product
+from productionReport.models import Product
 from salesReport.models import SalesReport, SalesReportDetails
 from salesReport.forms import SalesReportForm, SalesActionForm
 from django.forms import formset_factory

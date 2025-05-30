@@ -25,7 +25,7 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
-    path("report/", include("report.urls")),
+    path("productionReport/", include("productionReport.urls")),
     path("report_list/", include("report_view.urls")),
     path("", include("django_prometheus.urls")),
     path("django_plotly_dash/", include("django_plotly_dash.urls")),

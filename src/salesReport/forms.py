@@ -1,5 +1,5 @@
 from .models import SalesReport, SalesReportDetails
-from report.models import Product
+from productionReport.models import Product
 from django import forms
 from django.forms.widgets import Select
 from crispy_forms.helper import FormHelper

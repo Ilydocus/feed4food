@@ -1,5 +1,5 @@
 from .models import SalesReportDetails, SalesReport
-from report.models import Product
+from productionReport.models import Product
 from .forms import SalesReportForm, SalesActionForm
 from django.shortcuts import render
 from django.urls import reverse

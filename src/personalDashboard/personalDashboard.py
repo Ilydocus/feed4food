@@ -1,4 +1,4 @@
-from report.models import ProduceReport, ProduceReportDetails, Item
+from productionReport.models import ProductionReport, ProductionReportDetails, Product
 from salesReport.models import SalesReport, SalesReportDetails
 from dash import dcc, html
 from dash.dependencies import Input, Output
@@ -28,7 +28,7 @@ fig = go.Figure()
 
 # Fetch data - production
 def fetch_user_data(item, user_id):
-    user_reports = ProduceReport.objects.filter(user=user_id)
+    user_reports = ProductionReport.objects.filter(user=user_id)
     report_ids = [report.report_id for report in user_reports]
     timestamps = [report.creation_time for report in user_reports]
     date_produced = [report.start_date for report in user_reports]
