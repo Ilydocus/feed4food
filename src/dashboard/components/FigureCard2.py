@@ -1,7 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-import plotly.graph_objs as go
 
 
 class FigureCard2(dbc.Card):
