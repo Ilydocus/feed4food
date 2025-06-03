@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for garden in gardens %}
+<option value="{{ garden.pk }}">{{ garden.name }}</option>
+{% endfor %}

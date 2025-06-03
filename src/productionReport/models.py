@@ -23,6 +23,7 @@ class Garden(models.Model):
         max_length=100, blank=False, null=False, unique=True, primary_key=True
     )
     living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
+    location = models.ForeignKey(LLLocation, on_delete=models.SET_NULL, null=True)
 
 
 class ProductionReport(models.Model):
@@ -35,7 +36,7 @@ class ProductionReport(models.Model):
 
     city = models.CharField(max_length=100, choices=reportUtils.PartnerCities)
     location = models.ForeignKey(LLLocation, on_delete=models.SET_NULL, null=True)
-    garden = models.CharField(max_length=100)
+    garden = models.ForeignKey(Garden, on_delete=models.SET_NULL, null=True)
 
 
 class ProductionReportDetails(models.Model):

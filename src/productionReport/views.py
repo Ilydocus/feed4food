@@ -1,4 +1,4 @@
-from .models import Product, ProductionReportDetails, ProductionReport, LLLocation
+from .models import Product, ProductionReportDetails, ProductionReport, LLLocation, Garden
 from .forms import ProductionReportForm, ProduceItemForm
 from django.shortcuts import render
 from django.urls import reverse
@@ -10,6 +10,12 @@ def get_locations(request):
     locations = LLLocation.objects.filter(living_lab=city).order_by('name')
     #return JsonResponse(list(locations), safe=False)
     return render(request, 'hr/locations_dropdown_list_options.html', {'locations': locations})
+
+def get_gardens(request):
+    city = request.GET.get('city')
+    location = request.GET.get('location')
+    gardens = Garden.objects.filter(location_id=location).order_by('name')
+    return render(request, 'hr/gardens_dropdown_list_options.html', {'gardens': gardens})
 
 def get_post_report(request):
     if request.method == "GET":

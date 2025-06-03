@@ -9,28 +9,30 @@ class ProductionReportForm(forms.ModelForm):
     class Meta:
         model = ProductionReport
         fields = ["city", "location", "garden"]
-    # location = forms.ModelChoiceField(
-    #     queryset=LLLocation.objects.none(),
-    #     empty_label="Select location"
-    # )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['location'].queryset = LLLocation.objects.none()
-        # if 'city' in self.data:
-        #     try:
-        #         city_id = int(self.data.get('city'))
-        #         self.fields['location'].queryset= LLLocation.objects.filter(living_lab=city_id)
-        #     except (ValueError, TypeError):
-        #         pass
+        self.fields['garden'].queryset = Garden.objects.none()
+
         if 'city' in self.data:
             try:
                 city_id = int(self.data.get('city'))
                 self.fields['location'].queryset = LLLocation.objects.filter(living_lab_id=city_id).order_by('name')
             except (ValueError, TypeError):
-                pass  # invalid input from the client; ignore and fallback to empty City queryset
+                pass  # invalid input from the client; ignore and fallback to empty location queryset
         elif self.instance.pk:
             self.fields['location'].queryset = self.instance.city.location_set.order_by('name')
+
+        if 'location'  in self.data:
+            try:
+                location_id = int(self.data.get('location'))
+                city_id = int(self.data.get('city'))
+                self.fields['garden'].queryset = Garden.objects.filter(location_id=location_id).filter(living_lab_id=city_id).order_by('name')
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty location queryset
+        elif self.instance.pk:
+            self.fields['garden'].queryset = self.instance.location.garden_set.order_by('name')
 
         self.helper = FormHelper()
         self.helper.form_method = "post"
