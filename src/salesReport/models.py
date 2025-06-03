@@ -1,11 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from productionReport.models import Product
+from core import reportUtils
 
 class SalesReport(models.Model):
-    class AvailableCurrency(models.TextChoices):
-        EUR = 'EUR'
-        RON = 'RON'
     
     report_id = models.AutoField(blank=False, null=False, unique=True, primary_key=True)
 
@@ -14,10 +12,10 @@ class SalesReport(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    city = models.CharField(max_length=100)
+    city = models.CharField(max_length=100, choices=reportUtils.PartnerCities)
     location = models.CharField(max_length=100)
     garden = models.CharField(max_length=100)
-    currency = models.CharField(max_length=3, choices=AvailableCurrency, default='EUR')
+    currency = models.CharField(max_length=3, choices=reportUtils.AvailableCurrency, default='EUR')
 
 
 class SalesReportDetails(models.Model):

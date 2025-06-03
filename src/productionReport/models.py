@@ -4,11 +4,11 @@ from core import reportUtils
 
 
 class Product(models.Model):
-    living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
     name = models.CharField(
         max_length=100, blank=False, null=False, unique=True, primary_key=True
     )
     latin_name = models.CharField(max_length=100, blank=True, null=True)
+    living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
     locale = models.BooleanField()
     unit = models.CharField(max_length=100, blank=False, null=False)
 
