@@ -68,8 +68,7 @@ function deleteRow(button) {
 }
 
 function submitProductionForm() {
-    const startDate = document.getElementById('id_start_date');
-    const endDate = document.getElementById('id_end_date');
+    const productionDate = document.getElementById('id_production_date');
 
     const city = document.getElementById('id_city');
     const location = document.getElementById('id_location');
@@ -78,7 +77,7 @@ function submitProductionForm() {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
 
-    if (!startDate || !endDate) {
+    if (!productionDate) {
         alert('Please ensure the date fields are correctly filled out.');
         return;
     }
@@ -98,7 +97,7 @@ function submitProductionForm() {
         headers: {'Content-Type': 'application/json', 
                 'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({start_date: startDate.value, end_date: endDate.value, city : city.value, location : location.value, garden : garden.value, items
+        body: JSON.stringify({production_date: productionDate.value, city : city.value, location : location.value, garden : garden.value, items
         })
     })
     .then(response => response.json())

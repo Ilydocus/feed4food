@@ -33,11 +33,10 @@ def get_post_report(request):
     elif request.method == "POST":
         data = json.loads(request.body)
         report = ProductionReport.objects.create(
-            start_date=data.get("start_date"),
-            end_date=data.get("end_date"),
+            production_date=data.get("production_date"),
             city=data.get("city"),
-            location=data.get("location"),
-            garden=data.get("garden"),
+            location=LLLocation.objects.get(name=data.get("location")),
+            garden=Garden.objects.get(name=data.get("garden")),
             user=request.user,
         )
         for post_item in data.get("items", []):

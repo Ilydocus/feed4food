@@ -26,7 +26,7 @@
     <div class="container mt-5">
         <h1>Production Report</h1>
         <div class="styled-form-container">
-            <form id="farming-report-form" data-locations-url="{% url 'ajax_get_locations' %}" data-gardens-url="{% url 'ajax_get_gardens' %}" novalidate onsubmit="event.preventDefault(); submitForm();">
+            <form id="farming-report-form" data-locations-url="{% url 'ajax_get_locations' %}" data-gardens-url="{% url 'ajax_get_gardens' %}" novalidate onsubmit="event.preventDefault(); submitProductionForm();">
                 {% csrf_token %}
                 {% block report_block %} {% crispy productionReport_form %} {% endblock %}
                 <h3>Products</h3>
