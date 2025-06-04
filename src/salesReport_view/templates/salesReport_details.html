@@ -33,13 +33,11 @@
         <div class="row justify-content-center g-4 mt-4">
       
           <!-- <div class="col-6 col-sm-4 col-md-3"> -->
-            <button type="link" class="btn btn-primary w-50 py-3" href="{% url 'salesReport_list' %}">Back to report</button>
-            <button type="link" class="btn btn-custom w-50 py-3" href="{% url 'salesReport_edit' report.report_id %}">Edit</button>
+            <a class="btn btn-primary w-50 py-3" href="{% url 'salesReport_list' %}">Back to report</a>
+            <a class="btn btn-custom w-50 py-3" href="{% url 'salesReport_edit' report.report_id %}">Edit</a>
           <!-- </div> -->
         </div>
       </div>
-    
-    <a href="{% url 'salesReport_list' %}">Back to List</a>
-    <a href="{% url 'salesReport_edit' report.report_id %}">Edit</a>
+
 </body>
 </html>
