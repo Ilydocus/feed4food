@@ -1,21 +1,21 @@
 from django.shortcuts import render, get_object_or_404
 from productionReport.models import ProductionReport, ProductionReportDetails, Product
-from productionReport.forms import ProduceItemForm, ProductionReportForm
+from productionReport.forms import ProductionProductForm, ProductionReportForm
 from django.forms import formset_factory
 from django.http import JsonResponse
 from django.urls import reverse
 import json
 
 
-def report_list(request):
+def productionReport_list(request):
     reports = ProductionReport.objects.filter(user=request.user)
-    return render(request, "report_list.html", {"reports": reports})
+    return render(request, "productionReport_list.html", {"reports": reports})
 
 
-def report_details(request, report_id):
+def productionReport_details(request, report_id):
     report = ProductionReport.objects.get(report_id=report_id)
     items = Product.objects.all()
-    return render(request, "report_details.html", {"report": report, "items": items})
+    return render(request, "productionReport_details.html", {"report": report, "items": items})
 
 
 def edit_report(request, report_id):
@@ -39,17 +39,17 @@ def edit_report(request, report_id):
         report.location = data.get("location")
         report.garden = data.get("garden")
         report.save()
-        return JsonResponse({"redirect_url": reverse("report_list")})
+        return JsonResponse({"redirect_url": reverse("productionReport_list")})
 
     if request.method == "GET":
-        item_form_template = ProduceItemForm()
+        item_form_template = ProductionProductForm()
         report_form = ProductionReportForm(instance=report)
-        formset = formset_factory(ProduceItemForm, extra=0)(
+        formset = formset_factory(ProductionProductForm, extra=0)(
             initial=old_report_items.values()
         )
         return render(
             request,
-            "report_edit.html",
+            "productionReport_edit.html",
             {
                 "item_form": item_form_template,
                 "report_form": report_form,

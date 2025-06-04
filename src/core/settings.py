@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     "django_bootstrap5",
     "productionReport",
-    "report_view",
+    "productionReport_view",
     "accounts",
     "dashboard",
     "personalDashboard",

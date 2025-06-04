@@ -11,18 +11,17 @@
     {# Display django.contrib.messages as Bootstrap alerts #}
     {% bootstrap_messages %}
 <head>
-    <title>Report Details</title>
+    <title>Production Report Details</title>
 </head>
 <body>
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
-    <h1>Report Details</h1>
-    <p><strong>Start Date:</strong> {{ report.start_date }}</p>
-    <p><strong>End Date:</strong> {{ report.end_date }}</p>
-    <p><strong>Location:</strong> {{ report.location }}</p>
+    <h1>Production Report Details</h1>
     <p><strong>City:</strong> {{ report.city }}</p>
+    <p><strong>Location:</strong> {{ report.location }}</p>
     <p><strong>Garden:</strong> {{ report.garden }}</p>
-    <h2>Items</h2>
+    <p><strong>Production Date:</strong> {{ report.production_date }}</p>
+    <h2>Products</h2>
     <div class="centered-list">
         <ul>
             {% for report_item in report.details.all %}

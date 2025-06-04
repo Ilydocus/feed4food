@@ -38,12 +38,13 @@ class ProductionReport(models.Model):
     location = models.ForeignKey(LLLocation, on_delete=models.SET_NULL, null=True)
     garden = models.ForeignKey(Garden, on_delete=models.SET_NULL, null=True)
 
+    production_date = models.DateField(null=True)
+
 
 class ProductionReportDetails(models.Model):
     name = models.ForeignKey(Product, on_delete=models.CASCADE)
     report_id = models.ForeignKey(
         ProductionReport, on_delete=models.CASCADE, related_name="details"
     )
-    production_date = models.DateField(null=True)
     quantity = models.FloatField()
 

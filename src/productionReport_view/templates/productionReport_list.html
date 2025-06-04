@@ -36,7 +36,7 @@
           color: white;
         }
         </style>
-    <title>My Reports</title>
+    <title>Submitted Production Reports</title>
 </head>
 <body>
     <link rel="stylesheet" href="{% static 'style.css' %}">
@@ -45,12 +45,11 @@
     <table border="1" id="report_list_table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Location</th>
+                <th>ID</th>             
                 <th>City</th>
+                <th>Location</th>
                 <th>Garden</th>
+                <th>Production Date</th>
                 <th>View Details</th>
             </tr>
         </thead>
@@ -58,13 +57,12 @@
             {% for report in reports %}
             <tr>
                 <td>{{ report.report_id }}</td>
-                <td>{{ report.start_date }}</td>
-                <td>{{ report.end_date }}</td>
-                <td>{{ report.location }}</td>
                 <td>{{ report.city }}</td>
+                <td>{{ report.location }}</td>
                 <td>{{ report.garden }}</td>
+                <td>{{ report.production_date }}</td>
                 <td> 
-                    <a href="{% url 'report_details' report.report_id %}">View</a>
+                    <a href="{% url 'productionReport_details' report.report_id %}">View</a>
                 </td>
             </tr>
             {% endfor %}

@@ -8,7 +8,10 @@ from crispy_forms.layout import Layout, Row, Column, Button, Field, HTML
 class ProductionReportForm(forms.ModelForm):
     class Meta:
         model = ProductionReport
-        fields = ["city", "location", "garden"]
+        fields = ["city", "location", "garden", "production_date"]
+        widgets = {
+            "production_date": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,6 +45,9 @@ class ProductionReportForm(forms.ModelForm):
                 Column("city"),
                 Column("location"),
                 Column("garden"),
+            ),
+            Row(
+                Column("production_date"),
             ),
         )
 
@@ -98,13 +104,10 @@ def get_item_units(value):
         return ""
 
 
-class ProduceItemForm(forms.ModelForm):
+class ProductionProductForm(forms.ModelForm):
     class Meta:
         model = ProductionReportDetails
-        fields = ["production_date", "item", "quantity"]
-        widgets = {
-            "production_date": forms.DateInput(attrs={"type": "date"}),
-        }
+        fields = ["item", "quantity"]
 
     item = forms.ChoiceField(
         choices=get_item_choices,

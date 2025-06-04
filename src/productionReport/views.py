@@ -1,5 +1,5 @@
 from .models import Product, ProductionReportDetails, ProductionReport, LLLocation, Garden
-from .forms import ProductionReportForm, ProduceItemForm
+from .forms import ProductionReportForm, ProductionProductForm
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import JsonResponse
@@ -20,7 +20,7 @@ def get_gardens(request):
 def get_post_report(request):
     if request.method == "GET":
         report = ProductionReportForm()
-        item_form = ProduceItemForm()
+        item_form = ProductionProductForm()
         return render(
             request,
             "report_form.html",
