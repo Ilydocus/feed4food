@@ -28,7 +28,7 @@
         <div class="styled-form-container">
             <form id="farming-report-form" data-locations-url="{% url 'ajax_get_locations' %}" data-gardens-url="{% url 'ajax_get_gardens' %}" novalidate onsubmit="event.preventDefault(); submitForm();">
                 {% csrf_token %}
-                {% block report_block %} {% crispy report_form %} {% endblock %}
+                {% block report_block %} {% crispy productionReport_form %} {% endblock %}
                 <h3>Products</h3>
                 <div id="form-container">
                     <script type="application/json" id="form-template">
