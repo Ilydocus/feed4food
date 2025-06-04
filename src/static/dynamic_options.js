@@ -258,6 +258,7 @@ function submitEventForm() {
 function updateGroupOptions() {
     const citySelect = document.getElementById('id_city');
     const groupSelects = document.querySelectorAll('.group-name-select');
+    //const groupSelects = document.getElementById('id_name');
     
     if (!citySelect.value) {
         // Clear all group select options if no city selected
@@ -268,7 +269,7 @@ function updateGroupOptions() {
     }
     
     // Make AJAX request to get filtered groups
-    fetch(`/get-groups-by-city/?city=${citySelect.value}`, {
+    fetch(`/demographicReport/get-groups-by-city/?city=${citySelect.value}`, {
         method: 'GET',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',

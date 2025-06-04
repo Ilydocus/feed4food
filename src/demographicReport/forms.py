@@ -41,12 +41,16 @@ class DemographicGroupForm(forms.ModelForm):
         model = DemographicReportPerUnderrepresentedGroups
         fields = ["name", "population"]
 
-    population = forms.IntegerField(label="Population")    
+    population = forms.IntegerField(label="Population") 
 
     def __init__(self, *args, **kwargs):
         # Extract city parameter if provided
         city = kwargs.pop('city', None)
         super().__init__(*args, **kwargs)
+
+        self.fields['name'].widget.attrs.update({
+            'id': 'id_group-name-select',
+        }) 
 
         # Filter the name field queryset based on city
         if city:

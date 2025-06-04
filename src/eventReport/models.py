@@ -1,12 +1,9 @@
 from core import reportUtils
 from django.db import models
 from django.contrib.auth.models import User
+from demographicReport.models import UnderrepresentedGroups
 
-class UnderrepresentedGroups(models.Model):
-    name = models.CharField(
-        max_length=100, blank=False, null=False, unique=True, primary_key=True
-    )
-    living_lab = models.CharField(max_length=100, blank=True, null=True)
+
 
 class EventReport(models.Model):
     class EventLocationOptions(models.TextChoices):
