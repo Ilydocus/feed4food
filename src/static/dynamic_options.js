@@ -67,7 +67,7 @@ function deleteRow(button) {
     totalForms.value = formCount - 1;
 }
 
-function submitForm() {
+function submitProductionForm() {
     const startDate = document.getElementById('id_start_date');
     const endDate = document.getElementById('id_end_date');
 
@@ -332,6 +332,46 @@ function submitDemographicForm() {
         },
         body: JSON.stringify({city : city.value, data_date: data_date.value,
             total_population: total_population.value, demographicGroupDetails: demographicGroupDetails
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
+    });
+}
+
+function submitCultivationForm() {
+    const cultivationDate = document.getElementById('id_cultivation_date');
+
+    const city = document.getElementById('id_city');
+    const location = document.getElementById('id_location');
+    const garden = document.getElementById('id_garden');
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    if (!cultivationDate) {
+        alert('Please ensure the date fields are correctly filled out.');
+        return;
+    }
+
+    const items = [];
+    document.querySelectorAll('#form-container > div').forEach((itemDiv) => {
+        const itemName = itemDiv.querySelector('select[name$="name"]').value;
+        const area_cultivated = itemDiv.querySelector('input[name$="area_cultivated"]').value;
+        
+        items.push({
+            name: itemName,
+            area_cultivated: area_cultivated,
+        });
+    });
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({cultivation_date: cultivationDate.value, city : city.value, location : location.value, garden : garden.value, items
         })
     })
     .then(response => response.json())

@@ -11,6 +11,7 @@ class Product(models.Model):
     living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
     native_variety = models.BooleanField()
     unit = models.CharField(max_length=100, blank=False, null=False)
+    cultivation_type = models.CharField(choices=reportUtils.CultivationTypes, max_length=100, blank=False, default=reportUtils.CultivationTypes.Surface)
 
 class LLLocation(models.Model):
     name = models.CharField(

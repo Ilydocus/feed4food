@@ -1,16 +1,17 @@
-from .models import Product, LLLocation, Garden, ProductionReport, ProductionReportDetails
+from .models import CultivationReport, CultivationReportDetails
+from productionReport.models import Product, LLLocation, Garden
 from django import forms
 from django.forms.widgets import Select
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Button, Field, HTML
 
 
-class ProductionReportForm(forms.ModelForm):
+class CultivationReportForm(forms.ModelForm):
     class Meta:
-        model = ProductionReport
-        fields = ["city", "location", "garden", "production_date"]
+        model = CultivationReport
+        fields = ["city", "location", "garden", "cultivation_date"]
         widgets = {
-            "production_date": forms.DateInput(attrs={"type": "date"}),
+            "cultivation_date": forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -47,7 +48,7 @@ class ProductionReportForm(forms.ModelForm):
                 Column("garden"),
             ),
             Row(
-                Column("production_date"),
+                Column("cultivation_date"),
             ),
         )
 
@@ -93,10 +94,10 @@ def get_item_choices():
     return ITEM_CHOICES
 
 
-def get_item_units(value):
+def get_item_units_cultivation(value):
     try:
         ITEM_UNITS = {
-            item: unit for (item, unit) in Product.objects.values_list("name", "unit")
+            item: unit for (item, unit) in Product.objects.values_list("name", "cultivation_type")
         }
         return ITEM_UNITS[value]
     except Exception as e:
@@ -104,25 +105,25 @@ def get_item_units(value):
         return ""
 
 
-class ProductionProductForm(forms.ModelForm):
+class CultivationProductForm(forms.ModelForm):
     class Meta:
-        model = ProductionReportDetails
-        fields = ["item", "quantity"]
+        model = CultivationReportDetails
+        fields = ["name", "area_cultivated"]
 
-    item = forms.ChoiceField(
+    name = forms.ChoiceField(
         choices=get_item_choices,
         label="Product",
-        widget=CustomSelect(item_units=get_item_units),
+        widget=CustomSelect(item_units=get_item_units_cultivation),
     )
-    quantity = forms.IntegerField(label="Quantity")    
+    area_cultivated = forms.IntegerField(label="Area cultivated")    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if "initial" in kwargs:
             initial = kwargs["initial"]
-            self.fields["item"].initial = initial["name_id"]
-            self.fields["quantity"].initial = initial["quantity"]
-            initial_unit = Product.objects.get(name=initial["name_id"]).unit
+            self.fields["name"].initial = initial["name_id"]
+            self.fields["area_cultivated"].initial = initial["area_cultivated"]
+            initial_unit = Product.objects.get(name=initial["name_id"]).cultivation_type
         else:
             initial_unit = ""
         self.helper = FormHelper()
@@ -132,15 +133,15 @@ class ProductionProductForm(forms.ModelForm):
             Row(
                 Column(
                     Field(
-                        "item",
+                        "name",
                         wrapper_class="d-flex align-items-center",
-                        onchange="updateUnit(this)",
-                        onload="updateUnit(this)",
+                        onchange="updateUnitCultivation(this)",
+                        onload="updateUnitCultivation(this)",
                     ),
                     css_class="col-md-3",
                 ),
                 Column(
-                    Field("quantity", wrapper_class="d-flex align-items-center"),
+                    Field("area_cultivated", wrapper_class="d-flex align-items-center"),
                     css_class="col-md-3",
                 ),
                 Column(

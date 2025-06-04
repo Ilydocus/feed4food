@@ -10,3 +10,7 @@ class PartnerCities(models.TextChoices):
 class AvailableCurrency(models.TextChoices):
         EUR = 'EUR', '€'
         RON = 'RON', 'lei'
+
+class CultivationTypes(models.TextChoices):
+        Surface = 'Surface', 'm^2'
+        NbPlants = 'NbPlants', 'plants'
