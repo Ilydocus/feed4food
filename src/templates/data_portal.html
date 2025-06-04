@@ -63,7 +63,7 @@
         <div class="card-body">
             <h5 class="card-title">Add production report</h5>
             <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'report_form' %}" class="btn btn-info" button_type="link">Select</a>
+              <a href="{% url 'productionReport_form' %}" class="btn btn-info" button_type="link">Select</a>
         </div>
     </div>
 
@@ -138,6 +138,15 @@
             <h5 class="card-title">Add event report</h5>
             <!-- <p>Possible help text.</p> -->
               <a href="{% url 'eventReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add demographic report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'demographicReport' %}" class="btn btn-info" button_type="link">Select</a>
         </div>
     </div>
 

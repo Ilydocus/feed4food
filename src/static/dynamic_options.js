@@ -254,3 +254,89 @@ function submitEventForm() {
         window.location.href = data.redirect_url;
     });
 }
+
+function updateGroupOptions() {
+    const citySelect = document.getElementById('id_city');
+    const groupSelects = document.querySelectorAll('.group-name-select');
+    
+    if (!citySelect.value) {
+        // Clear all group select options if no city selected
+        groupSelects.forEach(select => {
+            select.innerHTML = '<option value="">---------</option>';
+        });
+        return;
+    }
+    
+    // Make AJAX request to get filtered groups
+    fetch(`/get-groups-by-city/?city=${citySelect.value}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update all group select dropdowns
+        groupSelects.forEach(select => {
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">---------</option>';
+            
+            data.groups.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group.id;
+                option.textContent = group.name;
+                if (group.id == currentValue) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching groups:', error);
+    });
+}
+
+// Update group options when new forms are added dynamically
+// function updateNewGroupForm() {
+//     // Call this function when adding new demographic group forms
+//     updateGroupOptions();
+// }
+
+function submitDemographicForm() {
+    
+    const city = document.getElementById('id_city');
+    const data_date = document.getElementById('id_data_date');
+    const total_population = document.getElementById('id_total_population');
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    const demographicGroupDetails = [];
+    document.querySelectorAll('#form-container > div').forEach((groupDetailsDiv) => {
+        
+        const name = groupDetailsDiv.querySelector('select[name$="name"]').value;
+        const population = groupDetailsDiv.querySelector('input[name$="population"]').value;
+
+        demographicGroupDetails.push({
+            name: name,
+            population: population,
+        });
+
+    
+    });
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({city : city.value, data_date: data_date.value,
+            total_population: total_population.value, demographicGroupDetails: demographicGroupDetails
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
+    });
+}
