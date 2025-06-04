@@ -26,7 +26,7 @@
     <div class="container mt-5">
         <h1>Cultivation Report</h1>
         <div class="styled-form-container">
-            <form id="cultivation-report-form" data-locations-url="{% url 'ajax_get_locations_c' %}" data-gardens-url="{% url 'ajax_get_gardens_c' %}" novalidate onsubmit="event.preventDefault(); submitCultivationForm();">
+            <form id="cultivation-report-form" data-locations-url="{% url 'ajax_get_locations' %}" data-gardens-url="{% url 'ajax_get_gardens' %}" novalidate onsubmit="event.preventDefault(); submitCultivationForm();">
                 {% csrf_token %}
                 {% block report_block %} {% crispy cultivationReport_form %} {% endblock %}
                 <h3>Products cultivated</h3>
@@ -47,7 +47,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $("#id_city").change(function () {
-      var url = $("#farming-report-form").attr("data-locations-url");  // get the url of the `get_locations` view
+      var url = $("#cultivation-report-form").attr("data-locations-url");  // get the url of the `get_locations` view
       var cityId = $(this).val();  // get the selected cityy ID from the HTML input
 
       $.ajax({                       // initialize an AJAX request
@@ -65,7 +65,7 @@
 
 <script>
     $("#id_location").change(function () {
-      var url = $("#farming-report-form").attr("data-gardens-url");  // get the url of the `get_gardens` view
+      var url = $("#cultivation-report-form").attr("data-gardens-url");  // get the url of the `get_gardens` view
       var locationId = $(this).val();  // get the selected location ID from the HTML input
 
       $.ajax({                       // initialize an AJAX request
