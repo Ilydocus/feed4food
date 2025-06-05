@@ -115,7 +115,7 @@ class CultivationProductForm(forms.ModelForm):
         label="Product",
         widget=CustomSelect(item_units=get_item_units_cultivation),
     )
-    area_cultivated = forms.IntegerField(label="Area cultivated")    
+    area_cultivated = forms.FloatField(label="Area cultivated")    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
