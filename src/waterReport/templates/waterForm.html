@@ -26,34 +26,192 @@
     <div class="container mt-5">
         <h1>Water Report</h1>
         <div class="styled-form-container">
-            <form id="waste-report-form" onsubmit="event.preventDefault(); submitForm();">
+            <form id="water-report-form" data-locations-url="{% url 'ajax_get_locations' %}" data-gardens-url="{% url 'ajax_get_gardens' %}" novalidate onsubmit="event.preventDefault(); submitWaterForm();">
                 {% csrf_token %}
                 {% block report_block %} {% crispy water_form %} {% endblock %}
                 <h3>Rainwater harvested</h3>
-                <div id="form-container">
-                    <script type="application/json" id="form-template">
+                <div id="rainwater-form-container">
+                    <script type="application/json" id="rainfall-form-template">
                         {% crispy rainfall_form %}
                     </script>
                     {% block rainfalls_block %}
                     <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS">
                     {% endblock %}
                 </div>
-                <button type="button" id="add-item" class="btn btn-secondary" onclick="addItem()">Add rainfall</button>
+                <button type="button" id="add-rainfall" class="btn btn-secondary" onclick="addRainfall()">Add rainfall</button>
                 <h3>Irrigation water use</h3>
-                <div id="form-container">
-                    <script type="application/json" id="form-template">
+                <div id="irrigation-form-container">
+                    <script type="application/json" id="irrigation-form-template">
                         {% crispy irrigation_form %}
                     </script>
                     {% block irrigations_block %}
-                    <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS">
+                    <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS2">
                     {% endblock %}
                 </div>
-                <button type="button" id="add-item" class="btn btn-secondary" onclick="addItem()">Add irrigation</button>
+                <button type="button" id="add-irrigation" class="btn btn-secondary" onclick="addIrrigation()">Add irrigation</button>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>    
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $("#id_city").change(function () {
+      var url = $("#water-report-form").attr("data-locations-url");  // get the url of the `get_locations` view
+      var cityId = $(this).val();  // get the selected cityy ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url,                    // set the url of the request (= localhost:8000/hr/ajax/get-locations/)
+        data: {
+          'city': cityId       // add the city id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `get_locations` view function
+          $("#id_location").html(data);  // replace the contents of the location input with the data that came from the server
+        }
+      });
+
+    });
+</script>
+
+<script>
+    $("#id_location").change(function () {
+      var url = $("#water-report-form").attr("data-gardens-url");  // get the url of the `get_gardens` view
+      var locationId = $(this).val();  // get the selected location ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url,                    // set the url of the request (= localhost:8000/hr/ajax/get-gardens)
+        data: {
+          'location': locationId       // add the country id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `get_gardens` view function
+          $("#id_garden").html(data);  // replace the contents of the garden input with the data that came from the server
+        }
+      });
+
+    });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Use event delegation - listen on document for checkbox changes
+    document.addEventListener('change', function(event) {
+        // Check if the changed element is a period checkbox
+        if (event.target.matches('input[name$="period"]')) {
+            const periodCheckbox = event.target;
+            const irrigation_row = periodCheckbox.closest('.irrigation_row') || document;
+            const startDateInput = irrigation_row.querySelector('label[for="id_start_date"]');
+            const quantityInput = irrigation_row.querySelector('label[for="id_quantity"]');
+            const endDateInput = irrigation_row.querySelector('input[name$="end_date"]');
+            const frequencyTimesInput = irrigation_row.querySelector('input[name$="frequency_times"]');
+            const unitInput = irrigation_row.querySelector('.times-display'); 
+            const frequencyIntervalInput = irrigation_row.querySelector('.interval');
+
+            if (startDateInput){
+                if (periodCheckbox.checked) {
+                    startDateInput.textContent = 'Start Date';
+                } else {
+                    startDateInput.textContent = 'Date';
+                }
+            }
+            if (quantityInput){
+                if (periodCheckbox.checked) {
+                    quantityInput.textContent = 'Total quantity over the period';
+                } else {
+                    quantityInput.textContent = 'Quantity';
+                }
+            }
+            if (endDateInput) {
+                const endDateField = endDateInput.closest('.col-md-2');
+                
+                if (periodCheckbox.checked) {
+                    endDateField.style.display = 'block';
+                } else {
+                    endDateField.style.display = 'none';
+                }
+            }
+            if (frequencyTimesInput) {
+                const frequencyTimesField = frequencyTimesInput.closest('.col-md-2');
+                
+                if (periodCheckbox.checked) {
+                    frequencyTimesField.style.display = 'block';
+                } else {
+                    frequencyTimesField.style.display = 'none';
+                }
+            }
+            if (unitInput) {
+                const unitField = unitInput.closest('.col-md-1');
+                
+                if (periodCheckbox.checked) {
+                    unitField.style.display = 'block';
+                } else {
+                    unitField.style.display = 'none';
+                }
+            }
+            if (frequencyIntervalInput) {
+                const frequencyIntervalField = frequencyIntervalInput.closest('.col-md-2');
+                
+                if (periodCheckbox.checked) {
+                    frequencyIntervalField.style.display = 'block';
+                } else {
+                    frequencyIntervalField.style.display = 'none';
+                }
+            }
+        }
+    });
+    
+    // Also run initial setup for any existing checkboxes
+    function initializeExistingForms() {
+        const periodCheckboxes = document.querySelectorAll('input[name$="period"]');
+        periodCheckboxes.forEach(function(checkbox) {
+            const irrigation_row = checkbox.closest('.irrigation_row') || document;
+            const endDateInput = irrigation_row.querySelector('input[name$="end_date"]');
+            const frequencyTimesInput = irrigation_row.querySelector('input[name$="frequency_times"]');
+            const unitInput = irrigation_row.querySelector('.times-display'); 
+            const frequencyIntervalInput = irrigation_row.querySelector('.interval');
+            
+            if (endDateInput) {
+                const endDateField = endDateInput.closest('.col-md-2');
+                
+                if (checkbox.checked) {
+                    endDateField.style.display = 'block';
+                } else {
+                    endDateField.style.display = 'none';
+                }
+            }
+            if (frequencyTimesInput) {
+                const frequencyTimesField = frequencyTimesInput.closest('.col-md-2');
+                
+                if (checkbox.checked) {
+                    frequencyTimesField.style.display = 'block';
+                } else {
+                    frequencyTimesField.style.display = 'none';
+                }
+            }
+            if (unitInput) {
+                const unitField = unitInput.closest('.col-md-1');
+                
+                if (checkbox.checked) {
+                    unitField.style.display = 'block';
+                } else {
+                    unitField.style.display = 'none';
+                }
+            }
+            if (frequencyIntervalInput) {
+                const frequencyIntervalField = frequencyIntervalInput.closest('.col-md-2');
+                
+                if (checkbox.checked) {
+                    frequencyIntervalField.style.display = 'block';
+                } else {
+                    frequencyIntervalField.style.display = 'none';
+                }
+            }
+        });
+    }
+    
+    // Initialize any forms that already exist
+    initializeExistingForms();
+});
+</script>
 
     <div class="container">
         <div class="row justify-content-center g-4 mt-4">

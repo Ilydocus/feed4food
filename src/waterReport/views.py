@@ -30,14 +30,22 @@ def get_post_report(request):
             garden=data.get("garden"),
             user=request.user,
         )
-        for post_action in data.get("actions", []):
-            actionObject = Action.objects.get(name=post_action.get("action_name"))
+        for post_action in data.get("rainfalls", []):
             WaterReportRainfall.objects.create(
                 report_id=report,
-                name=actionObject,
                 quantity=post_action.get("quantity"),
                 start_date=data.get("start_date"),
                 end_date=data.get("end_date"),
+            )
+        for post_action in data.get("irrigations", []):
+            WaterReportIrrigation.objects.create(
+                report_id=report,
+                quantity=post_action.get("quantity"),
+                start_date=data.get("start_date"),
+                end_date=data.get("end_date"),
+                period=data.get("period"),
+                frequency_times=data.get("frequency_times"),
+                frequency_interval=data.get("frequency_interval"),
             )
         return JsonResponse({"redirect_url": reverse("data_portal")})
 
