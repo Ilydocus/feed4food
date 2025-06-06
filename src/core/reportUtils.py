@@ -24,3 +24,10 @@ class InputCategory(models.TextChoices):
         Natural = 'Natural', 'Natural'
         Synthetic = 'Synthetic', 'Synthetic'
         Other = 'Other', 'Other'
+
+class NutrientColors(models.TextChoices):
+        BluePurple = 'Blue/Purple', 'Blue/Purple'
+        Red = 'Red', 'Red'
+        YellowOrange = 'Yellow/Orange', 'Yellow/Orange'
+        White = 'White', 'White'
+        Green = 'Green', 'Green'
