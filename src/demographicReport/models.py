@@ -22,12 +22,12 @@ class DemographicReport(models.Model):
     city = models.CharField(max_length=100, choices=reportUtils.PartnerCities)
 
     #Total population
-    total_population = models.FloatField(default=0)
+    total_population = models.IntegerField(default=0)
 
 class DemographicReportPerUnderrepresentedGroups(models.Model):
     name = models.ForeignKey(UnderrepresentedGroups, on_delete=models.SET_NULL, null=True)
     report_id = models.ForeignKey(
         DemographicReport, on_delete=models.CASCADE, related_name="perunderrepresentedgroups"
     )
-    population = models.FloatField()
+    population = models.IntegerField()
 
