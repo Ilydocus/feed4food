@@ -26,7 +26,7 @@
     <div class="container mt-5">
         <h1>Financial Report</h1>
         <div class="styled-form-container">
-            <form id="financial-report-form" onsubmit="event.preventDefault(); submitFinancialForm();">
+            <form id="financial-report-form" data-locations-url="{% url 'ajax_get_locations' %}" data-gardens-url="{% url 'ajax_get_gardens' %}" novalidate onsubmit="event.preventDefault(); submitFinancialForm();">
                 {% csrf_token %}
                 {% block report_block %} {% crispy financialForm %} {% endblock %}
                 
@@ -34,6 +34,43 @@
             </form>
         </div>    
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $("#id_city").change(function () {
+      var url = $("#financial-report-form").attr("data-locations-url");  // get the url of the `get_locations` view
+      var cityId = $(this).val();  // get the selected cityy ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url,                    // set the url of the request (= localhost:8000/hr/ajax/get-locations/)
+        data: {
+          'city': cityId       // add the city id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `get_locations` view function
+          $("#id_location").html(data);  // replace the contents of the location input with the data that came from the server
+        }
+      });
+
+    });
+</script>
+
+<script>
+    $("#id_location").change(function () {
+      var url = $("#financial-report-form").attr("data-gardens-url");  // get the url of the `get_gardens` view
+      var locationId = $(this).val();  // get the selected location ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url,                    // set the url of the request (= localhost:8000/hr/ajax/get-gardens)
+        data: {
+          'location': locationId       // add the country id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `get_gardens` view function
+          $("#id_garden").html(data);  // replace the contents of the garden input with the data that came from the server
+        }
+      });
+
+    });
+</script>
 
 
     <div class="container">

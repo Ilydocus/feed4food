@@ -1,9 +1,8 @@
 from .models import FinancialReport
+from productionReport.models import LLLocation, Garden
 from django import forms
-from django.forms.widgets import Select
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Button, Field, HTML
-
 
 class FinancialReportForm(forms.ModelForm):
     class Meta:
@@ -18,6 +17,28 @@ class FinancialReportForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['location'].queryset = LLLocation.objects.none()
+        self.fields['garden'].queryset = Garden.objects.none()
+
+        if 'city' in self.data:
+            try:
+                city_id = int(self.data.get('city'))
+                self.fields['location'].queryset = LLLocation.objects.filter(living_lab_id=city_id).order_by('name')
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty location queryset
+        elif self.instance.pk:
+            self.fields['location'].queryset = self.instance.city.location_set.order_by('name')
+
+        if 'location'  in self.data:
+            try:
+                location_id = int(self.data.get('location'))
+                city_id = int(self.data.get('city'))
+                self.fields['garden'].queryset = Garden.objects.filter(location_id=location_id).filter(living_lab_id=city_id).order_by('name')
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty location queryset
+        elif self.instance.pk:
+            self.fields['garden'].queryset = self.instance.location.garden_set.order_by('name')
+
         self.fields['exp_workforce'].label = "Workforce costs"
         self.fields['exp_purchase'].label = "Purchase costs"
         self.fields['exp_others'].label = "Other costs"

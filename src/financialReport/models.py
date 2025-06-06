@@ -1,12 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+from core import reportUtils
+from productionReport.models import LLLocation, Garden
 
 
 class FinancialReport(models.Model):
-    class AvailableCurrency(models.TextChoices):
-        EUR = 'EUR'
-        RON = 'RON'
-    
+       
     report_id = models.AutoField(blank=False, null=False, unique=True, primary_key=True)
 
     start_date = models.DateField()
@@ -16,11 +15,11 @@ class FinancialReport(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    currency = models.CharField(max_length=3, choices=AvailableCurrency, default='EUR')
+    currency = models.CharField(max_length=3, choices=reportUtils.AvailableCurrency, default=reportUtils.AvailableCurrency.EUR)
 
-    city = models.CharField(max_length=100)
-    location = models.CharField(max_length=100)
-    garden = models.CharField(max_length=100)
+    city = models.CharField(max_length=100, choices=reportUtils.PartnerCities)
+    location = models.ForeignKey(LLLocation, on_delete=models.SET_NULL, null=True)
+    garden = models.ForeignKey(Garden, on_delete=models.SET_NULL, null=True)
 
     #Expenses
     exp_workforce = models.FloatField(default=0)
