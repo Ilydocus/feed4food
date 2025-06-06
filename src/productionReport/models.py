@@ -2,6 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from core import reportUtils
 
+class ProductCategory(models.Model):
+    name = models.CharField(
+        max_length=100, blank=False, null=False, unique=True, primary_key=True
+    )
+    color = models.CharField(choices=reportUtils.NutrientColors, max_length=100, blank=True)
+    energy_kcal = models.IntegerField(default=0)
+    
 
 class Product(models.Model):
     name = models.CharField(
@@ -10,6 +17,7 @@ class Product(models.Model):
     latin_name = models.CharField(max_length=100, blank=True, null=True)
     living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
     native_variety = models.BooleanField()
+    category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, null=True)
     unit = models.CharField(max_length=100, blank=False, null=False)
     cultivation_type = models.CharField(choices=reportUtils.CultivationTypes, max_length=100, blank=False, default=reportUtils.CultivationTypes.Surface)
 
