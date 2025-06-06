@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-from .models import UnderrepresentedGroups, DemographicReport, DemographicReportPerUnderrepresentedGroups
+from .models import UnderrepresentedGroup, DemographicReport, DemographicReportPerUnderrepresentedGroups
 from .forms import DemographicGroupForm, DemographicReportForm
 from django.shortcuts import render
 from django.urls import reverse
@@ -16,7 +16,7 @@ def get_groups_by_city(request):
         return JsonResponse({'groups': []})
     
     # Get the groups registered to this city
-    groups = UnderrepresentedGroups.objects.filter(
+    groups = UnderrepresentedGroup.objects.filter(
         living_lab=city  
     ).values('name','name')
     
@@ -46,7 +46,7 @@ def get_post_report(request):
             user=request.user,
         )
         for post_item in data.get("groups", []):
-            groupObject = UnderrepresentedGroups.objects.get(name=post_item.get("group_name"))
+            groupObject = UnderrepresentedGroup.objects.get(name=post_item.get("group_name"))
             DemographicReportPerUnderrepresentedGroups.objects.create(
                 report_id=report,
                 name=groupObject,

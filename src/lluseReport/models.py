@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from core import reportUtils
-from demographicReport.models import UnderrepresentedGroups
+from demographicReport.models import UnderrepresentedGroup
 
 
 class LLUseReport(models.Model):
@@ -21,7 +21,7 @@ class LLUseReport(models.Model):
     total_ll_participants = models.IntegerField(default=0)
 
 class LLUseReportPerUnderrepresentedGroups(models.Model):
-    name = models.ForeignKey(UnderrepresentedGroups, on_delete=models.SET_NULL, null=True)
+    name = models.ForeignKey(UnderrepresentedGroup, on_delete=models.SET_NULL, null=True)
     report_id = models.ForeignKey(
         LLUseReport, on_delete=models.CASCADE, related_name="perunderrepresentedgroups"
     )

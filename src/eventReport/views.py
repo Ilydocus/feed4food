@@ -1,4 +1,4 @@
-from .models import EventReport, EventPersonDetails, UnderrepresentedGroups
+from .models import EventReport, EventPersonDetails, UnderrepresentedGroup
 from .forms import EventReportForm, EventPersonForm, EventPersonDetailsForm
 from core import reportUtils
 from django.shortcuts import render
@@ -41,7 +41,7 @@ def get_post_report(request):
             total_participants=data.get("total_participants"),
         )
         for post_group in data.get("eventGroupDetails", []):
-            groupObject = UnderrepresentedGroups.objects.get(name=post_group.get("name"))
+            groupObject = UnderrepresentedGroup.objects.get(name=post_group.get("name"))
             EventPersonDetails.objects.create(
                 report_id=report,
                 name=groupObject,

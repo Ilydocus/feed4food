@@ -1,7 +1,7 @@
 from core import reportUtils
 from django.db import models
 from django.contrib.auth.models import User
-from demographicReport.models import UnderrepresentedGroups
+from demographicReport.models import UnderrepresentedGroup
 
 
 
@@ -43,7 +43,7 @@ class EventReport(models.Model):
     event_revenues_desc = models.CharField(max_length=500,default="", blank=True)
 
 class EventPersonDetails(models.Model):
-    name = models.ForeignKey(UnderrepresentedGroups, on_delete=models.CASCADE)
+    name = models.ForeignKey(UnderrepresentedGroup, on_delete=models.CASCADE)
     report_id = models.ForeignKey(
         EventReport, on_delete=models.CASCADE, related_name="invited"
     )

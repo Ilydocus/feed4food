@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from core import reportUtils
 
-class UnderrepresentedGroups(models.Model):
+class UnderrepresentedGroup(models.Model):
     name = models.CharField(
         max_length=100, blank=False, null=False, unique=True, primary_key=True
     )
@@ -25,7 +25,7 @@ class DemographicReport(models.Model):
     total_population = models.IntegerField(default=0)
 
 class DemographicReportPerUnderrepresentedGroups(models.Model):
-    name = models.ForeignKey(UnderrepresentedGroups, on_delete=models.SET_NULL, null=True)
+    name = models.ForeignKey(UnderrepresentedGroup, on_delete=models.SET_NULL, null=True)
     report_id = models.ForeignKey(
         DemographicReport, on_delete=models.CASCADE, related_name="perunderrepresentedgroups"
     )

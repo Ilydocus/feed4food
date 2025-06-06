@@ -1,4 +1,4 @@
-from .models import EventReport, EventPersonDetails, UnderrepresentedGroups
+from .models import EventReport, EventPersonDetails, UnderrepresentedGroup
 from core import reportUtils
 from django import forms
 from django.forms.widgets import Select
@@ -128,12 +128,12 @@ class EventPersonDetailsForm(forms.ModelForm):
 
         # Filter the name field queryset based on city
         if city:
-            self.fields['name'].queryset = UnderrepresentedGroups.objects.filter(
+            self.fields['name'].queryset = UnderrepresentedGroup.objects.filter(
                 living_lab=city
             )
         else:
             # If no city provided, show empty queryset 
-            self.fields['name'].queryset = UnderrepresentedGroups.objects.none()
+            self.fields['name'].queryset = UnderrepresentedGroup.objects.none()
         
         # Add CSS class for JavaScript targeting
         self.fields['name'].widget.attrs.update({

@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from .models import LLUseReport, LLUseReportPerUnderrepresentedGroups
-from demographicReport.models import UnderrepresentedGroups
+from demographicReport.models import UnderrepresentedGroup
 from .forms import LLUseGroupForm, LLUseReportForm
 from django.shortcuts import render
 from django.urls import reverse
@@ -32,7 +32,7 @@ def get_post_report(request):
             user=request.user,
         )
         for post_item in data.get("groups", []):
-            groupObject = UnderrepresentedGroups.objects.get(name=post_item.get("group_name"))
+            groupObject = UnderrepresentedGroup.objects.get(name=post_item.get("group_name"))
             LLUseReportPerUnderrepresentedGroups.objects.create(
                 report_id=report,
                 name=groupObject,
