@@ -4,6 +4,7 @@ from django import forms
 from django.forms.widgets import Select
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Button, Field, HTML
+from core import reportUtils
 
 
 class InputReportForm(forms.ModelForm):
@@ -97,17 +98,6 @@ def get_item_choices():
     except Exception as e:
         ITEM_CHOICES = [("", "Select Product")]
     return ITEM_CHOICES
-
-
-def get_item_units_cultivation(value):
-    try:
-        ITEM_UNITS = {
-            item: unit for (item, unit) in Product.objects.values_list("name", "cultivation_type")
-        }
-        return ITEM_UNITS[value]
-    except Exception as e:
-        ITEM_UNITS = {}
-        return ""
     
 def get_item_choices_input():
     try:
@@ -118,6 +108,16 @@ def get_item_choices_input():
     except Exception as e:
         ITEM_CHOICES = [("", "Select Input")]
     return ITEM_CHOICES
+
+def get_item_units_cultivation(value):
+    try:
+        ITEM_UNITS = {
+            item: reportUtils.get_label_of_choice_class(reportUtils.CultivationTypes,unit) for (item, unit) in Product.objects.values_list("name", "cultivation_type")
+        }
+        return ITEM_UNITS[value]
+    except Exception as e:
+        ITEM_UNITS = {}
+        return ""
 
 
 def get_item_units_input(value):
@@ -176,7 +176,7 @@ class InputListForm(forms.ModelForm):
                 ),
                 Column(
                     Field("quantity", wrapper_class="d-flex align-items-center"),
-                    css_class="col-md-3",
+                    css_class="col-md-2",
                 ),
                 Column(
                     HTML(f'<div class="unit-input-display"> {initial_unit_i} </div>'),
@@ -186,14 +186,14 @@ class InputListForm(forms.ModelForm):
                     Field(
                         "name_product",
                         wrapper_class="d-flex align-items-center",
-                        onchange="updateUnitCultivation(this)",
-                        onload="updateUnitCultivation(this)",
+                        onchange="updateUnit(this)",
+                        onload="updateUnit(this)",
                     ),
                     css_class="col-md-3",
                 ),
                 Column(
                     Field("area", wrapper_class="d-flex align-items-center"),
-                    css_class="col-md-3",
+                    css_class="col-md-2",
                 ),
                 Column(
                     HTML(f'<div class="unit-display"> {initial_unit} </div>'),

@@ -104,7 +104,6 @@ def get_item_units_cultivation(value):
         ITEM_UNITS = {}
         return ""
 
-
 class CultivationProductForm(forms.ModelForm):
     class Meta:
         model = CultivationReportDetails
