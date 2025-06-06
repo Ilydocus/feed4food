@@ -472,3 +472,41 @@ function submitLLUseForm() {
         window.location.href = data.redirect_url;
     });
 }
+
+function submitWasteForm() {
+    
+    const city = document.getElementById('id_city');
+    const location = document.getElementById('id_location');
+    const garden = document.getElementById('id_garden');
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    const actions = [];
+    document.querySelectorAll('#form-container > div').forEach((itemDiv) => {
+        const date = itemDiv.querySelector('select[name$="date"]').value;
+        const wasteType = itemDiv.querySelector('select[name$="wasteType"]').value;
+        const wasteAction = itemDiv.querySelector('input[name$="wasteAction"]').value;
+        const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
+        
+        actions.push({
+            date: date,
+            wasteType: wasteType,
+            wasteAction: wasteAction,
+            quantity: quantity,
+        });
+    });
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({city : city.value, location : location.value, garden : garden.value, actions: actions
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
+    });
+}
+

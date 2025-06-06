@@ -34,3 +34,7 @@ class NutrientColors(models.TextChoices):
         YellowOrange = 'Yellow/Orange', 'Yellow/Orange'
         White = 'White', 'White'
         Green = 'Green', 'Green'
+
+class WasteActions(models.TextChoices):
+        Reuse = 'Reuse', 'Reuse'
+        Production = 'Production', 'Production'

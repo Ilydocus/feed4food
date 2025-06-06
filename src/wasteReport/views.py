@@ -1,4 +1,4 @@
-from .models import WasteReportDetails, WasteReport
+from .models import WasteReportDetails, WasteReport, WasteType
 from .forms import WasteReportForm, WasteActionForm
 from django.shortcuts import render
 from django.urls import reverse
@@ -22,19 +22,19 @@ def get_post_report(request):
     elif request.method == "POST":
         data = json.loads(request.body)
         report = WasteReport.objects.create(
-            start_date=data.get("start_date"),
-            end_date=data.get("end_date"),
             city=data.get("city"),
             location=data.get("location"),
             garden=data.get("garden"),
             user=request.user,
         )
         for post_action in data.get("actions", []):
-            actionObject = Action.objects.get(name=post_action.get("action_name"))
+            typeObject = WasteType.objects.get(name=post_action.get("wasteType"))
             WasteReportDetails.objects.create(
                 report_id=report,
-                name=actionObject,
+                wasteType=typeObject,
                 quantity=post_action.get("quantity"),
+                date=post_action.get("date"),
+                wasteAction=post_action.get("wasteAction"),
             )
         return JsonResponse({"redirect_url": reverse("data_portal")})
 
