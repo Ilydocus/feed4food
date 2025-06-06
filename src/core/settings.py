@@ -65,7 +65,8 @@ INSTALLED_APPS = [
     "eventReport",
     "demographicReport",
     "cultivationReport",
-    "inputReport"
+    "inputReport",
+    "lluseReport"
 ]
 
 CHANNEL_LAYERS = {

@@ -434,3 +434,42 @@ function submitInputForm() {
         window.location.href = data.redirect_url;
     });
 }
+
+function submitLLUseForm() {
+    
+    const city = document.getElementById('id_city');
+    const report_date = document.getElementById('id_report_date');
+    const gardens_in_use = document.getElementById('id_gardens_in_use');
+    const total_ll_participants = document.getElementById('id_total_ll_participants');
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    const llUseGroupDetails = [];
+    document.querySelectorAll('#form-container > div').forEach((groupDetailsDiv) => {
+        
+        const name = groupDetailsDiv.querySelector('select[name$="name"]').value;
+        const ll_participants = groupDetailsDiv.querySelector('input[name$="ll_participants"]').value;
+
+        llUseGroupDetails.push({
+            name: name,
+            ll_participants: ll_participants,
+        });
+
+    
+    });
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({city : city.value, report_date: report_date.value,
+            gardens_in_use: gardens_in_use.value, total_ll_participants: total_ll_participants.value, llUseGroupDetails: llUseGroupDetails
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
+    });
+}
