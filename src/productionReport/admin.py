@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, LLLocation, Garden
+from .models import Product, LLLocation, Garden, ProductCategory
 
 
 @admin.register(Product)
@@ -12,4 +12,8 @@ class LocationNameAdmin(admin.ModelAdmin):
 
 @admin.register(Garden)
 class GardenNameAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+
+@admin.register(ProductCategory)
+class ProductCategoryNameAdmin(admin.ModelAdmin):
     list_display = ("name",)
