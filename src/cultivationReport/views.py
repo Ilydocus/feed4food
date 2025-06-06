@@ -1,5 +1,5 @@
 from .models import CultivationReportDetails, CultivationReport
-from productionReport.models import Product, LLLocation, Garden
+from productionReport.models import Product
 from .forms import CultivationReportForm, CultivationProductForm
 from django.shortcuts import render
 

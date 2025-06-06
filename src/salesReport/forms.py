@@ -1,5 +1,5 @@
 from .models import SalesReport, SalesReportDetails
-from productionReport.models import Product
+from productionReport.models import Product, LLLocation, Garden
 from django import forms
 from django.forms.widgets import Select
 from crispy_forms.helper import FormHelper
@@ -13,6 +13,30 @@ class SalesReportForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['location'].queryset = LLLocation.objects.none()
+        self.fields['garden'].queryset = Garden.objects.none()
+
+        if 'city' in self.data:
+            try:
+                city_id = int(self.data.get('city'))
+                self.fields['location'].queryset = LLLocation.objects.filter(living_lab_id=city_id).order_by('name')
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty location queryset
+        elif self.instance.pk:
+            self.fields['location'].queryset = self.instance.city.location_set.order_by('name')
+
+        if 'location'  in self.data:
+            try:
+                location_id = int(self.data.get('location'))
+                city_id = int(self.data.get('city'))
+                self.fields['garden'].queryset = Garden.objects.filter(location_id=location_id).filter(living_lab_id=city_id).order_by('name')
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty location queryset
+        elif self.instance.pk:
+            self.fields['garden'].queryset = self.instance.location.garden_set.order_by('name')
+
+
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_tag = False
@@ -122,7 +146,7 @@ class SalesActionForm(forms.ModelForm):
                         "sale_date",
                         wrapper_class="d-flex align-items-center",
                     ),
-                    css_class="col-md-3",
+                    css_class="col-md-2",
                 ),
                 Column(
                     Field(
@@ -138,11 +162,11 @@ class SalesActionForm(forms.ModelForm):
                         onchange="updateUnitAndCurrency(this)",
                         onload="updateUnitAndCurrency(this)",
                     ),
-                    css_class="col-md-3",
+                    css_class="col-md-2",
                 ),
                 Column(
                     Field("quantity", wrapper_class="d-flex align-items-center"),
-                    css_class="col-md-3",
+                    css_class="col-md-2",
                 ),
                 Column(
                     HTML(f'<div class="unit-display"> {initial_unit} </div>'),
@@ -150,10 +174,8 @@ class SalesActionForm(forms.ModelForm):
                 ),
                 Column(
                     Field("price", wrapper_class="d-flex align-items-center",
-                    #onchange="updateUnitAndCurrency(this)",
-                    #onload="updateUnitAndCurrency(this)",
                     ),
-                    css_class="col-md-3",
+                    css_class="col-md-2",
                 ),
                 Column(
                     HTML(f'<div class="unitandcurrency-display"> {initial_currency} per {initial_unit2}</div>'),

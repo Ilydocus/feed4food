@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from productionReport.models import Product
+from productionReport.models import Product, LLLocation, Garden
 from core import reportUtils
 
 class SalesReport(models.Model):
@@ -13,8 +13,8 @@ class SalesReport(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     city = models.CharField(max_length=100, choices=reportUtils.PartnerCities)
-    location = models.CharField(max_length=100)
-    garden = models.CharField(max_length=100)
+    location = models.ForeignKey(LLLocation, on_delete=models.SET_NULL, null=True)
+    garden = models.ForeignKey(Garden, on_delete=models.SET_NULL, null=True)
     currency = models.CharField(max_length=3, choices=reportUtils.AvailableCurrency, default='EUR')
 
 
