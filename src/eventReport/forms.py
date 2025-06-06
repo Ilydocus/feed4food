@@ -27,6 +27,11 @@ class EventReportForm(forms.ModelForm):
         self.fields['event_costs_desc'].label = "Description"
         self.fields['event_revenues_desc'].label = "Description"
 
+        self.fields['city'].widget.attrs.update({
+            'id': 'id_city',
+            'onchange': 'updateGroupOptions()'
+        })
+
         self.helper.layout = Layout(
             Row(  
                 Column("city"),            
@@ -70,18 +75,6 @@ class EventReportForm(forms.ModelForm):
             ),
         )
 
-def get_underrepresentedgroup_choices():
-    try:
-        #TODO Remove the hardcoding here
-        living_lab= reportUtils.PartnerCities.Amsterdam
-        GROUP_CHOICES = [
-            (group, group) for group in UnderrepresentedGroups.objects.filter(living_lab=living_lab).values_list("name", flat=True)
-        ]
-        GROUP_CHOICES.insert(0, ("", "Select underrepresented group"))
-    except Exception as e:
-        GROUP_CHOICES = [("", "Select underrepresented group")]
-    return GROUP_CHOICES
-
 class EventPersonForm(forms.ModelForm):
     class Meta:
         model = EventReport
@@ -120,21 +113,36 @@ class EventPersonDetailsForm(forms.ModelForm):
         model = EventPersonDetails
         fields = ["name", "number_invited", "number_participant"]
 
-    name = forms.ChoiceField(
-        choices=[],
-        label="Underrepresented group",
-        widget=Select,
-    )
     number_invited = forms.IntegerField(label="Number of invited persons for this group")
     number_participant = forms.IntegerField(label="Number of participants for this group")
     
 
     def __init__(self, *args, **kwargs):
+        # Extract city parameter if provided
+        city = kwargs.pop('city', None)
         super().__init__(*args, **kwargs)
+
+        self.fields['name'].widget.attrs.update({
+            'id': 'id_group-name-select',
+        }) 
+
+        # Filter the name field queryset based on city
+        if city:
+            self.fields['name'].queryset = UnderrepresentedGroups.objects.filter(
+                living_lab=city
+            )
+        else:
+            # If no city provided, show empty queryset 
+            self.fields['name'].queryset = UnderrepresentedGroups.objects.none()
+        
+        # Add CSS class for JavaScript targeting
+        self.fields['name'].widget.attrs.update({
+            'class': 'group-name-select'
+        })
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_tag = False
-        self.fields['name'].choices = get_underrepresentedgroup_choices()
+        #self.fields['name'].choices = get_underrepresentedgroup_choices()
 
         self.helper.layout = Layout(
             Row(
