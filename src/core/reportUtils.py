@@ -15,6 +15,9 @@ class CultivationTypes(models.TextChoices):
         Surface = 'Surface', 'm^2'
         NbPlants = 'NbPlants', 'plants'
 
+def get_label_of_choice_class(choices_class, value):
+    return dict(choices_class.choices).get(value)
+
 class InputType(models.TextChoices):
         Fertilizer = 'Fertilizer', 'Fertilizer'
         Pesticide = 'Pesticide', 'Pesticide'

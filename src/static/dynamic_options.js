@@ -38,7 +38,6 @@ function updateUnitInput(inputSelect) {
     unitDisplay.textContent = selectedUnit;
 }
 
-
 function updateUnitAndCurrency(itemSelect) {
     // Get the selected option for unit
     const selectedUnit = itemSelect.options[itemSelect.selectedIndex].getAttribute('data-unit');

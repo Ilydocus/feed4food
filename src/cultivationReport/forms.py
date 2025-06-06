@@ -1,5 +1,6 @@
 from .models import CultivationReport, CultivationReportDetails
 from productionReport.models import Product, LLLocation, Garden
+from core import reportUtils
 from django import forms
 from django.forms.widgets import Select
 from crispy_forms.helper import FormHelper
@@ -93,11 +94,10 @@ def get_item_choices():
         ITEM_CHOICES = [("", "Select Product")]
     return ITEM_CHOICES
 
-
 def get_item_units_cultivation(value):
     try:
         ITEM_UNITS = {
-            item: unit for (item, unit) in Product.objects.values_list("name", "cultivation_type")
+            item: reportUtils.get_label_of_choice_class(reportUtils.CultivationTypes,unit) for (item, unit) in Product.objects.values_list("name", "cultivation_type")
         }
         return ITEM_UNITS[value]
     except Exception as e:
@@ -135,8 +135,8 @@ class CultivationProductForm(forms.ModelForm):
                     Field(
                         "name",
                         wrapper_class="d-flex align-items-center",
-                        onchange="updateUnitCultivation(this)",
-                        onload="updateUnitCultivation(this)",
+                        onchange="updateUnit(this)",
+                        onload="updateUnit(this)",
                     ),
                     css_class="col-md-3",
                 ),
