@@ -42,4 +42,5 @@ urlpatterns = [
     path("eventReport/", include("eventReport.urls")),
     path("demographicReport/", include("demographicReport.urls")),
     path("cultivationReport/", include("cultivationReport.urls")),
+    path("inputReport/", include("inputReport.urls")),
 ]

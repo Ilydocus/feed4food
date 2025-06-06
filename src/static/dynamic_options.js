@@ -29,6 +29,16 @@ function updateUnit(itemSelect) {
     unitDisplay.textContent = selectedUnit;
 }
 
+function updateUnitInput(inputSelect) {
+    // Get the selected option
+    const selectedUnit = inputSelect.options[inputSelect.selectedIndex].getAttribute('data-unit');
+
+    const row = inputSelect.closest('.row');
+    const unitDisplay = row.querySelector('.unit-input-display');
+    unitDisplay.textContent = selectedUnit;
+}
+
+
 function updateUnitAndCurrency(itemSelect) {
     // Get the selected option for unit
     const selectedUnit = itemSelect.options[itemSelect.selectedIndex].getAttribute('data-unit');
@@ -372,6 +382,50 @@ function submitCultivationForm() {
                 'X-CSRFToken': csrftoken,
         },
         body: JSON.stringify({cultivation_date: cultivationDate.value, city : city.value, location : location.value, garden : garden.value, items
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
+    });
+}
+
+function submitInputForm() {
+    const applicationDate = document.getElementById('id_application_date');
+
+    const city = document.getElementById('id_city');
+    const location = document.getElementById('id_location');
+    const garden = document.getElementById('id_garden');
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    if (!applicationDate) {
+        alert('Please ensure the date fields are correctly filled out.');
+        return;
+    }
+
+    const inputs = [];
+    document.querySelectorAll('#form-container > div').forEach((itemDiv) => {
+        const inputName = itemDiv.querySelector('select[name$="input_name"]').value;
+        const productName = itemDiv.querySelector('select[name$="product_name"]').value;
+        const area = itemDiv.querySelector('input[name$="area"]').value;
+        const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
+        
+        inputs.push({
+            input_name: inputName,
+            product_name: productName,
+            area: area,
+            quantity: quantity,
+        });
+    });
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({application_date: applicationDate.value, city : city.value, location : location.value, garden : garden.value, inputs
         })
     })
     .then(response => response.json())

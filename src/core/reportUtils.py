@@ -14,3 +14,13 @@ class AvailableCurrency(models.TextChoices):
 class CultivationTypes(models.TextChoices):
         Surface = 'Surface', 'm^2'
         NbPlants = 'NbPlants', 'plants'
+
+class InputType(models.TextChoices):
+        Fertilizer = 'Fertilizer', 'Fertilizer'
+        Pesticide = 'Pesticide', 'Pesticide'
+        Other = 'Other', 'Other'
+        
+class InputCategory(models.TextChoices):
+        Natural = 'Natural', 'Natural'
+        Synthetic = 'Synthetic', 'Synthetic'
+        Other = 'Other', 'Other'
