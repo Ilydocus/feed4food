@@ -87,64 +87,16 @@ class CustomSelect(Select):
             option["attrs"]["data-unit"] = self.item_units[value]
         return option
 
-
-
-def get_item_choices():
-    try:
-        ITEM_CHOICES = [
-            (item, item) for item in Product.objects.values_list("name", flat=True)
-        ]
-        ITEM_CHOICES.insert(0, ("", "Select Product"))
-    except Exception as e:
-        ITEM_CHOICES = [("", "Select Product")]
-    return ITEM_CHOICES
-    
-def get_item_choices_input():
-    try:
-        ITEM_CHOICES = [
-            (item, item) for item in Input.objects.values_list("name", flat=True)
-        ]
-        ITEM_CHOICES.insert(0, ("", "Select Input"))
-    except Exception as e:
-        ITEM_CHOICES = [("", "Select Input")]
-    return ITEM_CHOICES
-
-def get_item_units_cultivation(value):
-    try:
-        ITEM_UNITS = {
-            item: reportUtils.get_label_of_choice_class(reportUtils.CultivationTypes,unit) for (item, unit) in Product.objects.values_list("name", "cultivation_type")
-        }
-        return ITEM_UNITS[value]
-    except Exception as e:
-        ITEM_UNITS = {}
-        return ""
-
-
-def get_item_units_input(value):
-    try:
-        ITEM_UNITS = {
-            item: unit for (item, unit) in Input.objects.values_list("name", "unit")
-        }
-        return ITEM_UNITS[value]
-    except Exception as e:
-        ITEM_UNITS = {}
-        return ""
-
-
 class InputListForm(forms.ModelForm):
     class Meta:
         model = InputReportDetails
         fields = ["name_input", "name_product","area", "quantity"]
 
     name_product = forms.ChoiceField(
-        choices=get_item_choices,
         label="Applied on ",
-        widget=CustomSelect(item_units=get_item_units_cultivation),
     )
     name_input = forms.ChoiceField(
-        choices=get_item_choices_input,
         label="Input",
-        widget=CustomSelect(item_units=get_item_units_input),
     )
     area = forms.FloatField(label="Application area size") 
     quantity = forms.FloatField(label="Quantity used")      

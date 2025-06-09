@@ -94,27 +94,6 @@ class CustomSelectAction(Select):
         return option
 
 
-def get_wasteType_choices():
-    try:
-        WASTETYPE_CHOICES = [
-            (wtype, wtype) for wtype in WasteType.objects.values_list("name", flat=True)
-        ]
-        WASTETYPE_CHOICES.insert(0, ("", "Select waste type"))
-    except Exception as e:
-        WASTETYPE_CHOICES = [("", "Error fetching the types")]
-    return WASTETYPE_CHOICES
-
-def get_wasteType_units(value):
-    try:
-        WASTETYPE_UNITS = {
-            wtype: unit for (wtype, unit) in WasteType.objects.values_list("name", "unit")
-        }
-        return WASTETYPE_UNITS[value]
-    except Exception as e:
-        WASTETYPE_UNITS = {}
-        return ""
-
-
 class WasteActionForm(forms.ModelForm):
     class Meta:
         model = WasteReportDetails
@@ -124,9 +103,7 @@ class WasteActionForm(forms.ModelForm):
         }
 
     wasteType = forms.ChoiceField(
-        choices=get_wasteType_choices,
         label="Type",
-        widget=CustomSelectType(type_units=get_wasteType_units),
     )
     quantity = forms.FloatField(label="Quantity")
     wasteAction = forms.FloatField(label="Action")

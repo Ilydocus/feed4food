@@ -83,28 +83,6 @@ class CustomSelect(Select):
         return option
 
 
-def get_item_choices():
-    try:
-        ITEM_CHOICES = [
-            (item, item) for item in Product.objects.values_list("name", flat=True)
-        ]
-        ITEM_CHOICES.insert(0, ("", "Select Item"))
-    except Exception as e:
-        ITEM_CHOICES = [("", "Select Item")]
-    return ITEM_CHOICES
-
-
-def get_item_units(value):
-    try:
-        ITEM_UNITS = {
-            item: unit for (item, unit) in Product.objects.values_list("name", "unit")
-        }
-        return ITEM_UNITS[value]
-    except Exception as e:
-        ITEM_UNITS = {}
-        return ""
-
-
 class SalesActionForm(forms.ModelForm):
     class Meta:
         model = SalesReportDetails
@@ -116,9 +94,7 @@ class SalesActionForm(forms.ModelForm):
     location = forms.CharField(label="Sale location")
 
     what = forms.ChoiceField(
-        choices=get_item_choices,
         label="Product",
-        widget=CustomSelect(item_units=get_item_units),
     )
     quantity = forms.FloatField(label="Quantity")
     price = forms.FloatField(label="Price")
@@ -138,7 +114,6 @@ class SalesActionForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_tag = False
-        #self.fields["sale_date"].input_formats = [ '%d-%m-%Y' ]
         self.helper.layout = Layout(
             Row(
                 Column(

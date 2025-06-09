@@ -81,67 +81,18 @@ class CustomSelect(Select):
         return option
 
 
-
-# def get_item_choices(city_id=None):
-#     """
-#     Get product choices, optionally filtered by city
-#     """
-#     try:
-#         if city_id:
-#             products = Product.objects.filter(city=city_id)
-#         else:
-#             products = Product.objects.all()
-            
-#         ITEM_CHOICES = [
-#             (item, item) for item in products.values_list("name", flat=True)
-#         ]
-#         ITEM_CHOICES.insert(0, ("", "Select Product"))
-#     except Exception as e:
-#         ITEM_CHOICES = [("", "Select Product")]
-#     return ITEM_CHOICES
-
-
-# def get_item_units(value, city_id=None):
-#     """
-#     Get product units, optionally filtered by city
-#     """
-#     try:
-#         if city_id:
-#             products = Product.objects.filter(city=city_id)
-#         else:
-#             products = Product.objects.all()
-            
-#         ITEM_UNITS = {
-#             item: unit for (item, unit) in products.values_list("name", "unit")
-#         }
-#         return ITEM_UNITS.get(value, "")
-#     except Exception as e:
-#         return ""
-
-
 class ProductionProductForm(forms.ModelForm):
     class Meta:
         model = ProductionReportDetails
         fields = ["item", "quantity"]
 
     item = forms.ChoiceField(
-        # choices=get_item_choices,
         label="Product",
-        # widget=CustomSelect(item_units=get_item_units),
     )
     quantity = forms.IntegerField(label="Quantity")    
 
     def __init__(self, *args, **kwargs):
-        # city_id = kwargs.pop('city_id', None)
         super().__init__(*args, **kwargs)
-        
-        # # Restrained product choices based on city
-        # if city_id:
-        #     self.fields["item"].choices = get_item_choices(city_id)
-        #     self.fields["item"].widget.item_units = lambda value: get_item_units(value, city_id)
-        # else:
-        #     self.fields["item"].choices = get_item_choices()
-        #     self.fields["item"].widget.item_units = get_item_units
 
         if "initial" in kwargs:
             initial = kwargs["initial"]
