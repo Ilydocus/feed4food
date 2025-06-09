@@ -43,8 +43,14 @@ def edit_report(request, report_id):
     if request.method == "GET":
         item_form_template = ProductionProductForm()
         report_form = ProductionReportForm(instance=report)
+        initial_data = []
+        for item in old_report_items:
+            initial_data.append({
+                'name': item.name,
+                'quantity': item.quantity,
+            })
         formset = formset_factory(ProductionProductForm, extra=0)(
-            initial=old_report_items.values()
+            initial=initial_data
         )
         return render(
             request,

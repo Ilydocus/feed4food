@@ -84,23 +84,29 @@ class CustomSelect(Select):
 class ProductionProductForm(forms.ModelForm):
     class Meta:
         model = ProductionReportDetails
-        fields = ["item", "quantity"]
+        fields = ["name", "quantity"]
+        labels = {
+            'name': 'Product',
+        }
 
-    item = forms.ChoiceField(
-        label="Product",
-    )
     quantity = forms.IntegerField(label="Quantity")    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if "initial" in kwargs:
-            initial = kwargs["initial"]
-            self.fields["item"].initial = initial["name_id"]
-            self.fields["quantity"].initial = initial["quantity"]
-            initial_unit = Product.objects.get(name=initial["name_id"]).unit
-        else:
-            initial_unit = ""
+        # Add CSS class for JavaScript targeting
+        self.fields['name'].widget.attrs.update({
+            'class': 'product-name-select'
+        })
+
+        # if "initial" in kwargs:
+        #     initial = kwargs["initial"]
+        #     self.fields["name"].initial = initial["name"]
+        #     self.fields["quantity"].initial = initial["quantity"]
+        #     initial_unit = Product.objects.get(name=initial["name"]).unit
+        # else:
+        #     initial_unit = ""
+        initial_unit = ""
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_tag = False
@@ -108,7 +114,7 @@ class ProductionProductForm(forms.ModelForm):
             Row(
                 Column(
                     Field(
-                        "item",
+                        "name",
                         wrapper_class="d-flex align-items-center",
                         onchange="updateUnit(this)",
                         onload="updateUnit(this)",
