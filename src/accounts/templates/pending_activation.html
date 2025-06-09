@@ -1,10 +1,33 @@
 <!DOCTYPE html>
 <html>
+    {# Load the tag library #}
+    {% load django_bootstrap5 %}
+    
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
 <head>
     <title>Registration Pending</title>
+    {% load static %}
 </head>
 <body>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+     <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
+
+     <h1> </h1>
     <h1>Thank you for registering!</h1>
     <p>Your account is currently pending approval by an administrator. You will be notified once your account is activated.</p>
+
+    <div class="container">
+        <div class="row justify-content-center g-4 mt-4">    
+          <div class="col-6 col-sm-4 col-md-3">
+            {% bootstrap_button "Home" button_type="link" button_class="btn-primary" href="/" extra_classes="w-100 py-3"  %}
+          </div>
+        </div>
+      </div>
+    
 </body>
 </html>
