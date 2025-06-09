@@ -231,7 +231,7 @@ function submitProductionForm() {
 
     const items = [];
     document.querySelectorAll('#form-container > div').forEach((itemDiv) => {
-        const itemName = itemDiv.querySelector('select[name$="item"]').value;
+        const itemName = itemDiv.querySelector('select[name$="name"]').value;
         const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
         
         items.push({
@@ -244,7 +244,7 @@ function submitProductionForm() {
         headers: {'Content-Type': 'application/json', 
                 'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({production_date: productionDate.value, city : city.value, location : location.value, garden : garden.value, items
+        body: JSON.stringify({production_date: productionDate.value, city : city.value, location : location.value, garden : garden.value, items:items
         })
     })
     .then(response => response.json())
@@ -732,12 +732,13 @@ function updateProductChoices() {
         });
 }
 
-function updateAllProductSelects(products) {
+function updateAllProductSelects(products, selects) {
     // Find all product select elements
-    const productSelects = document.querySelectorAll('[name*="item"],[name*="what"],[name*="name_product"]');
+    const productSelects = document.querySelectorAll('.product-name-select');
     
     productSelects.forEach(select => {
         const currentValue = select.value;
+        //console.log('Current value before clearing:', currentValue);
         
         // Clear existing options
         select.innerHTML = '<option value="">Select Product</option>';
@@ -763,7 +764,7 @@ function updateAllProductSelects(products) {
 }
 
 function resetProductSelects() {
-    const productSelects = document.querySelectorAll('[name*="item"],[name*="what"],[name*="name_product"]');
+    const productSelects = document.querySelectorAll('.product-name-select');
     
     productSelects.forEach(select => {
         select.innerHTML = '<option value="">Select Product</option>';
