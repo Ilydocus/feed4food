@@ -426,13 +426,14 @@ function updateGroupOptions() {
         // Update all group select dropdowns
         groupSelects.forEach(select => {
             const currentValue = select.value;
+            //console.log('Current value before clearing:', currentValue);
             select.innerHTML = '<option value="">---------</option>';
             
             data.groups.forEach(group => {
                 const option = document.createElement('option');
                 option.value = group.name;
                 option.textContent = group.name;
-                if (group.name == currentValue) {
+                if (group.name === currentValue) {
                     option.selected = true;
                 }
                 select.appendChild(option);

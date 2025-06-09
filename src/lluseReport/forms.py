@@ -47,27 +47,12 @@ class LLUseGroupForm(forms.ModelForm):
     class Meta:
         model = LLUseReportPerUnderrepresentedGroups
         fields = ["name", "ll_participants"]
-
     ll_participants = forms.IntegerField(label="Living Lab participants") 
 
     def __init__(self, *args, **kwargs):
         # Extract city parameter if provided
-        city = kwargs.pop('city', None)
         super().__init__(*args, **kwargs)
 
-        self.fields['name'].widget.attrs.update({
-            'id': 'id_group-name-select',
-        }) 
-
-        # Filter the name field queryset based on city
-        if city:
-            self.fields['name'].queryset = UnderrepresentedGroup.objects.filter(
-                living_lab=city
-            )
-        else:
-            # If no city provided, show empty queryset 
-            self.fields['name'].queryset = UnderrepresentedGroup.objects.none()
-        
         # Add CSS class for JavaScript targeting
         self.fields['name'].widget.attrs.update({
             'class': 'group-name-select'

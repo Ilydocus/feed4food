@@ -44,8 +44,14 @@ def edit_report(request, report_id):
     if request.method == "GET":
         item_form_template = LLUseGroupForm()
         report_form = LLUseReportForm(instance=report)
+        initial_data = []
+        for item in old_report_items:
+            initial_data.append({
+                'name': item.name,
+                'll_participants': item.ll_participants,
+            })
         formset = formset_factory(LLUseGroupForm, extra=0)(
-            initial=old_report_items.values()
+            initial=initial_data
         )
         return render(
             request,
