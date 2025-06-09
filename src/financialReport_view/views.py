@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from financialReport.models import FinancialReport
+from productionReport.models import LLLocation, Garden
 from financialReport.forms import FinancialReportForm
 from django.forms import formset_factory
 from django.http import JsonResponse
@@ -18,18 +19,16 @@ def financialReport_details(request, report_id):
 
 
 def edit_report(request, report_id):
-    report = get_object_or_404(SalesReport, report_id=report_id)
-    old_report_items = FinancialReportDetails.objects.filter(report_id=report_id)
+    report = get_object_or_404(FinancialReport, report_id=report_id)
 
     if request.method == "POST":
         data = json.loads(request.body)
-        old_report_items.delete()
         
-        report.start_date = data.get("start_date")
-        report.end_date = data.get("end_date")
+        report.month = data.get("month")
+        report.year = data.get("year")
         report.city = data.get("city")
-        report.location = data.get("location")
-        report.garden = data.get("garden")
+        report.location = LLLocation.objects.get(name=data.get("location"))
+        report.garden = Garden.objects.get(name=data.get("garden"))
         report.currency = data.get("currency")
         report.exp_workforce = data.get("exp_workforce")
         report.exp_purchase = data.get("exp_purchase")
@@ -46,16 +45,11 @@ def edit_report(request, report_id):
 
     if request.method == "GET":
         report_form = FinancialReportForm(instance=report)
-        # formset = formset_factory(SalesActionForm, extra=0)(
-        #     initial=old_report_items.values()
-        # )
         return render(
             request,
             "financialReport_edit.html",
             {
-                "financial_form": report_form,
-                "old_report_items": old_report_items, #TODO maybe can be removed
-                "formset": formset, #TODO maybe can be removed
+                "financialForm": report_form,
             },
         )
 

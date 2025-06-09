@@ -17,10 +17,10 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
     <h1>Financial Report Details</h1>
-    <p><strong>Start date:</strong> {{ report.start_date }}</p> 
-    <p><strong>End date:</strong> {{ report.end_date }}</p> 
-    <p><strong>Location:</strong> {{ report.location }}</p> 
+    <p><strong>Month:</strong> {{ report.get_month_display }}</p> 
+    <p><strong>Year:</strong> {{ report.year }}</p> 
     <p><strong>City:</strong> {{ report.city }}</p>
+    <p><strong>Location:</strong> {{ report.location }}</p> 
     <p><strong>Garden:</strong> {{ report.garden }}</p>
     <h2>Expenses</h2>
     <div class="centered-list">

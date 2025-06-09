@@ -1,4 +1,5 @@
 from .models import FinancialReport
+from productionReport.models import LLLocation, Garden
 from .forms import FinancialReportForm
 from django.shortcuts import render
 from django.urls import reverse
@@ -23,8 +24,8 @@ def get_post_report(request):
             month=data.get("month"),
             year=data.get("year"),
             city=data.get("city"),
-            location=data.get("location"),
-            garden=data.get("garden"),
+            location=LLLocation.objects.get(name=data.get("location")),
+            garden=Garden.objects.get(name=data.get("garden")),
             user=request.user,
             currency=data.get("currency"),
             exp_workforce=data.get("exp_workforce"),

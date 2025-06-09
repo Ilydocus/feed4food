@@ -46,10 +46,10 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Location</th>
+                <th>Month</th>
+                <th>Year</th>
                 <th>City</th>
+                <th>Location</th>
                 <th>Garden</th>
                 <th>View Details</th>
             </tr>
@@ -58,10 +58,10 @@
             {% for report in reports %}
             <tr>
                 <td>{{ report.report_id }}</td>
-                <td>{{ report.start_date }}</td>
-                <td>{{ report.end_date }}</td>
-                <td>{{ report.location }}</td>
+                <td>{{ report.get_month_display }}</td>
+                <td>{{ report.year }}</td>
                 <td>{{ report.city }}</td>
+                <td>{{ report.location }}</td>
                 <td>{{ report.garden }}</td>
                 <td> 
                     <a href="{% url 'financialReport_details' report.report_id %}">View</a>
