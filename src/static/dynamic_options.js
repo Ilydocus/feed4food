@@ -683,7 +683,7 @@ function updateProductChoices() {
 
 function updateAllProductSelects(products) {
     // Find all product select elements
-    const productSelects = document.querySelectorAll('[name*="item"]');
+    const productSelects = document.querySelectorAll('[name*="item"],[name*="what"]');
     
     productSelects.forEach(select => {
         const currentValue = select.value;
