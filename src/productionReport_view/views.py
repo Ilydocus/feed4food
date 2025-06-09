@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from productionReport.models import ProductionReport, ProductionReportDetails, Product
+from productionReport.models import ProductionReport, ProductionReportDetails, Product, LLLocation, Garden
 from productionReport.forms import ProductionProductForm, ProductionReportForm
 from django.forms import formset_factory
 from django.http import JsonResponse
@@ -35,8 +35,8 @@ def edit_report(request, report_id):
 
         report.production_date = data.get("production_date")
         report.city = data.get("city")
-        report.location = data.get("location")
-        report.garden = data.get("garden")
+        report.location = LLLocation.objects.get(name=data.get("location"))
+        report.garden = Garden.objects.get(name=data.get("garden"))
         report.save()
         return JsonResponse({"redirect_url": reverse("productionReport_list")})
 
