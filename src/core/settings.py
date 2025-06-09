@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "financialReport",
     "financialReport_view",
     "wasteReport",
+    "wasteReport_view",
     "waterReport",
     "salesReport",
     "salesReport_view",

@@ -104,6 +104,15 @@
     </div>
 
     <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
+        <div class="card-body">
+            <h5 class="card-title">Check previous waste reports</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'wasteReport_list' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+
+    <div class="card bg-success text-white text-center mb-4">
       <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
         <div class="card-body">
             <h5 class="card-title">Add water report</h5>

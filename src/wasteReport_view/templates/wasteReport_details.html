@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    {# Load the tag library #}
+    {% load django_bootstrap5 %}
+    
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+<head>
+    <title>Waste Report Details</title>
+</head>
+<body>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
+    <h1>Waste Report Details</h1>
+    <p><strong>City:</strong> {{ report.city }}</p>
+    <p><strong>Location:</strong> {{ report.location }}</p>
+    <p><strong>Garden:</strong> {{ report.garden }}</p>
+    <h2>Actions</h2>
+    <div class="centered-list">
+        <ul>
+            {% for report_item in report.details.all %}
+            <li>{{ report_item.date }} ({{ report_item.wasteAction }}): {{ report_item.wasteType.name }} {{ report_item.quantity }} {{ report_item.wasteType.unit }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center g-4 mt-4">
+      
+          <!-- <div class="col-6 col-sm-4 col-md-3"> -->
+            <a class="btn btn-primary w-50 py-3" href="{% url 'wasteReport_list' %}">Back to report</a>
+            <a class="btn btn-custom w-50 py-3" href="{% url 'wasteReport_edit' report.report_id %}">Edit</a>
+          <!-- </div> -->
+        </div>
+      </div>
+</body>
+</html>

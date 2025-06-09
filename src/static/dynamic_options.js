@@ -615,10 +615,10 @@ function submitWasteForm() {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     const actions = [];
-    document.querySelectorAll('#form-container > div').forEach((itemDiv) => {
-        const date = itemDiv.querySelector('select[name$="date"]').value;
+    document.querySelectorAll('#form-container > div').forEach((itemDiv) => { 
+        const date = itemDiv.querySelector('input[name$="date"]').value; 
         const wasteType = itemDiv.querySelector('select[name$="wasteType"]').value;
-        const wasteAction = itemDiv.querySelector('input[name$="wasteAction"]').value;
+        const wasteAction = itemDiv.querySelector('select[name$="wasteAction"]').value;
         const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
         
         actions.push({
@@ -775,7 +775,7 @@ function updateWasteChoices() {
     fetch(`/wasteReport/get-wastetypes-by-city/?city_id=${cityId}`)
         .then(response => response.json())
         .then(data => {
-            updateAllWasteSelects(data.wasteTypes);
+            updateAllWasteSelects(data.types);
         })
         .catch(error => {
             console.error('Error fetching waste types', error);

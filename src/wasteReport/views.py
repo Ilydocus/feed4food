@@ -1,5 +1,6 @@
 from .models import WasteReportDetails, WasteReport, WasteType
 from .forms import WasteReportForm, WasteActionForm
+from productionReport.models import LLLocation, Garden
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import JsonResponse
@@ -23,8 +24,8 @@ def get_post_report(request):
         data = json.loads(request.body)
         report = WasteReport.objects.create(
             city=data.get("city"),
-            location=data.get("location"),
-            garden=data.get("garden"),
+            location=LLLocation.objects.get(name=data.get("location")),
+            garden=Garden.objects.get(name=data.get("garden")),
             user=request.user,
         )
         for post_action in data.get("actions", []):
