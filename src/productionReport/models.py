@@ -8,6 +8,9 @@ class ProductCategory(models.Model):
     )
     color = models.CharField(choices=reportUtils.NutrientColors, max_length=100, blank=True)
     energy_kcal = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
     
 
 class Product(models.Model):
@@ -21,11 +24,17 @@ class Product(models.Model):
     unit = models.CharField(max_length=100, blank=False, null=False)
     cultivation_type = models.CharField(choices=reportUtils.CultivationTypes, max_length=100, blank=False, default=reportUtils.CultivationTypes.Surface)
 
+    def __str__(self):
+        return self.name
+
 class LLLocation(models.Model):
     name = models.CharField(
         max_length=100, blank=False, null=False, unique=True, primary_key=True
     )
     living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
+
+    def __str__(self):
+        return self.name
 
 class Garden(models.Model):
     name = models.CharField(
@@ -33,6 +42,9 @@ class Garden(models.Model):
     )
     living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
     location = models.ForeignKey(LLLocation, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class ProductionReport(models.Model):
