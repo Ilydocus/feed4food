@@ -35,17 +35,31 @@
                     <script type="application/json" id="form-template">
                         {% crispy llUseGroup_form %}
                     </script>
-                    {% block actions_block %}
+                    {% block groups_block %}
                     <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS">
                     {% endblock %}
                 </div>
-                <button type="button" id="add-item" class="btn btn-secondary" onclick="addItem()">Add underrepresented group</button>
+                <button type="button" id="add-item" class="btn btn-secondary" onclick="addGroup()">Add underrepresented group</button>
                 
                 
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>    
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const citySelect = document.querySelector('#id_city');
+        if (citySelect) {
+            //citySelect.addEventListener('change', updateWasteChoices);
+            
+            // If city is already selected on page load, update waste options
+            if (citySelect.value) {
+                updateGroupOptions();
+            }
+        }
+    }); 
+    </script>
 
     <div class="container">
         <div class="row justify-content-center g-4 mt-4">

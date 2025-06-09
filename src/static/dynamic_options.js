@@ -61,6 +61,11 @@ function addNewRow() {
     totalForms.value = formCount + 1;
 }
 
+function addGroup() {
+    addNewRow();
+    updateGroupOptions();
+}
+
 function addInput() {
     addNewRow();
     updateInputChoices();
@@ -425,9 +430,9 @@ function updateGroupOptions() {
             
             data.groups.forEach(group => {
                 const option = document.createElement('option');
-                option.value = group.id;
+                option.value = group.name;
                 option.textContent = group.name;
-                if (group.id == currentValue) {
+                if (group.name == currentValue) {
                     option.selected = true;
                 }
                 select.appendChild(option);

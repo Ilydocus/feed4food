@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    {# Load the tag library #}
+    {% load django_bootstrap5 %}
+    
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+<head>
+    <title>LL Use Report Details</title>
+</head>
+<body>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
+    <h1>Living Lab Use Report Details</h1>
+    <p><strong>City:</strong> {{ report.city }}</p>
+    <p><strong>Report Date:</strong> {{ report.report_date }}</p>
+    <p><strong>Garden in use:</strong> {{ report.gardens_in_use }}</p>
+    <p><strong>Total Living Lab participants:</strong> {{ report.total_ll_participants }}</p>
+    
+    <h2>Participants per underrepresented groups</h2>
+    <div class="centered-list">
+        <ul>
+            {% for report_item in report.perunderrepresentedgroups.all %}
+            <li>{{ report_item.name.name }}: {{ report_item.ll_participants }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center g-4 mt-4">
+      
+          <!-- <div class="col-6 col-sm-4 col-md-3"> -->
+            <a class="btn btn-primary w-50 py-3" href="{% url 'lluseReport_list' %}">Back to report</a>
+            <a class="btn btn-custom w-50 py-3" href="{% url 'lluseReport_edit' report.report_id %}">Edit</a>
+          <!-- </div> -->
+        </div>
+      </div>
+</body>
+</html>

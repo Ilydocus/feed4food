@@ -1,0 +1,10 @@
+{% extends "lluseReport.html" %}
+{% load static %}
+{% load crispy_forms_tags %}   
+
+{% block groups_block %}
+{{ formset.management_form }}
+{% for form in formset %}
+    {% crispy form %}
+{% endfor %}
+{% endblock %}

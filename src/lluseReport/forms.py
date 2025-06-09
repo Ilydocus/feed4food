@@ -25,7 +25,8 @@ class LLUseReportForm(forms.ModelForm):
 
         self.fields['city'].widget.attrs.update({
             'id': 'id_city',
-            'onchange': 'updateGroupOptions()'
+            'onchange': 'updateGroupOptions()',
+            'onload': 'updateGroupOptions()'
         })
 
         self.helper.layout = Layout(

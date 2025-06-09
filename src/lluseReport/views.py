@@ -31,8 +31,8 @@ def get_post_report(request):
             total_ll_participants=data.get("total_ll_participants"),
             user=request.user,
         )
-        for post_item in data.get("groups", []):
-            groupObject = UnderrepresentedGroup.objects.get(name=post_item.get("group_name"))
+        for post_item in data.get("llUseGroupDetails", []):
+            groupObject = UnderrepresentedGroup.objects.get(name=post_item.get("name"))
             LLUseReportPerUnderrepresentedGroups.objects.create(
                 report_id=report,
                 name=groupObject,
