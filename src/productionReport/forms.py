@@ -21,11 +21,11 @@ class ProductionReportForm(forms.ModelForm):
         if 'city' in self.data:
             try:
                 city_id = int(self.data.get('city'))
-                self.fields['location'].queryset = LLLocation.objects.filter(living_lab_id=city_id).order_by('name')
+                self.fields['location'].queryset = LLLocation.objects.filter(living_lab_id=city_id).order_by('name')#TODO is this used because the field does not exist!
             except (ValueError, TypeError):
                 pass  # invalid input from the client; ignore and fallback to empty location queryset
         elif self.instance.pk:
-            self.fields['location'].queryset = self.instance.city.location_set.order_by('name')
+            self.fields['location'].queryset = LLLocation.objects.filter(living_lab=self.instance.city).order_by('name')
 
         if 'location'  in self.data:
             try:

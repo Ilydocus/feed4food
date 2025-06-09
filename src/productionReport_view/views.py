@@ -33,8 +33,7 @@ def edit_report(request, report_id):
                 quantity=post_item.get("quantity"),
             )
 
-        report.start_date = data.get("start_date")
-        report.end_date = data.get("end_date")
+        report.production_date = data.get("production_date")
         report.city = data.get("city")
         report.location = data.get("location")
         report.garden = data.get("garden")
@@ -52,7 +51,7 @@ def edit_report(request, report_id):
             "productionReport_edit.html",
             {
                 "item_form": item_form_template,
-                "report_form": report_form,
+                "productionReport_form": report_form,
                 "old_report_items": old_report_items,
                 "formset": formset,
             },
