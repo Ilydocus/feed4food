@@ -40,3 +40,20 @@ def get_post_report(request):
 
     else:
         return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
+    
+def get_wastetypes_by_city(request):
+    """
+    AJAX view to get waste types filtered by city
+    """
+    city_id = request.GET.get('city_id')
+    
+    if city_id:
+        try:
+            types = WasteType.objects.filter(living_lab=city_id).values('name', 'unit')
+            type_list = list(types)
+        except:
+            type_list = []
+    else:
+        type_list = []
+    
+    return JsonResponse({'types': type_list})

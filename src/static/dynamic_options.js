@@ -15,6 +15,22 @@ function addProduct() {
     //enableSearchableDropdown();
 }
 
+function addWasteAction() {
+    const template = document.getElementById('form-template').textContent;
+    const container = document.getElementById('form-container');
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+    const formCount = parseInt(totalForms.value, 10);
+    const newFormRow = document.createElement('div');
+
+    newFormRow.class = `row`;
+    newFormRow.innerHTML = template;
+
+    // Append the new row and increment TOTAL_FORMS
+    container.appendChild(newFormRow);
+    totalForms.value = formCount + 1;
+    updateWasteChoices();
+}
+
 function addItem() {
     const template = document.getElementById('form-template').textContent;
     const container = document.getElementById('form-container');
@@ -28,6 +44,26 @@ function addItem() {
     // Append the new row and increment TOTAL_FORMS
     container.appendChild(newFormRow);
     totalForms.value = formCount + 1;
+}
+
+function addNewRow() {
+    const template = document.getElementById('form-template').textContent;
+    const container = document.getElementById('form-container');
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+    const formCount = parseInt(totalForms.value, 10);
+    const newFormRow = document.createElement('div');
+
+    newFormRow.class = `row`;
+    newFormRow.innerHTML = template;
+
+    // Append the new row and increment TOTAL_FORMS
+    container.appendChild(newFormRow);
+    totalForms.value = formCount + 1;
+}
+
+function addInput() {
+    addNewRow();
+    updateInputChoices();
 }
 
 function addRainfall() {
@@ -683,7 +719,7 @@ function updateProductChoices() {
 
 function updateAllProductSelects(products) {
     // Find all product select elements
-    const productSelects = document.querySelectorAll('[name*="item"],[name*="what"]');
+    const productSelects = document.querySelectorAll('[name*="item"],[name*="what"],[name*="name_product"]');
     
     productSelects.forEach(select => {
         const currentValue = select.value;
@@ -712,13 +748,153 @@ function updateAllProductSelects(products) {
 }
 
 function resetProductSelects() {
-    const productSelects = document.querySelectorAll('[name*="item"]');
+    const productSelects = document.querySelectorAll('[name*="item"],[name*="what"],[name*="name_product"]');
     
     productSelects.forEach(select => {
         select.innerHTML = '<option value="">Select Product</option>';
         
         // Clear unit display
         const unitDisplay = select.closest('.row').querySelector('.unit-display');
+        if (unitDisplay) {
+            unitDisplay.textContent = '';
+        }
+    });
+}
+
+function updateWasteChoices() {
+    const citySelect = document.querySelector('#id_city');
+    const cityId = citySelect.value;
+    
+    if (!cityId) {
+        // Reset all product selects to empty if no city selected
+        resetWasteSelects();
+        return;
+    }
+    
+    // Make AJAX request to get products for the selected city
+    fetch(`/wasteReport/get-wastetypes-by-city/?city_id=${cityId}`)
+        .then(response => response.json())
+        .then(data => {
+            updateAllWasteSelects(data.wasteTypes);
+        })
+        .catch(error => {
+            console.error('Error fetching waste types', error);
+        });
+}
+
+function updateAllWasteSelects(types) {
+    // Find all waste select elements
+    const wasteSelects = document.querySelectorAll('[name*="wasteType"]');
+    
+    wasteSelects.forEach(select => {
+        const currentValue = select.value;
+        
+        // Clear existing options
+        select.innerHTML = '<option value="">Select type</option>';
+        
+        // Add new options
+        types.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.name;
+            option.textContent = type.name;
+            option.setAttribute('data-unit', type.unit);
+            
+            // Restore selection if it still exists
+            if (type.name === currentValue) {
+                option.selected = true;
+            }
+            
+            select.appendChild(option);
+        });
+        
+        // Update unit display for this select
+        updateUnit(select);
+    });
+}
+
+function resetWasteSelects() {
+    const wasteSelects = document.querySelectorAll('[name*="wasteType"]');
+    
+    wasteSelects.forEach(select => {
+        select.innerHTML = '<option value="">Select type</option>';
+        
+        // Clear unit display
+        const unitDisplay = select.closest('.row').querySelector('.unit-display');
+        if (unitDisplay) {
+            unitDisplay.textContent = '';
+        }
+    });
+}
+
+function updateInputChoices() {
+    const citySelect = document.querySelector('#id_city');
+    const cityId = citySelect.value;
+    
+    if (!cityId) {
+        // Reset all inputs/product selects to empty if no city selected
+        resetInputSelects();
+        resetProductSelects();
+        return;
+    }
+    
+    // Make AJAX request to get inputs for the selected city
+    fetch(`/productionReport/get-products-by-city/?city_id=${cityId}`)
+        .then(response => response.json())
+        .then(data => {
+            updateAllProductSelects(data.products);
+        })
+        .catch(error => {
+            console.error('Error fetching products', error);
+        });
+    // Make AJAX request to get inputs for the selected city
+    fetch(`/inputReport/get-inputs-by-city/?city_id=${cityId}`)
+        .then(response => response.json())
+        .then(data => {
+            updateAllInputSelects(data.inputs);
+        })
+        .catch(error => {
+            console.error('Error fetching inputs', error);
+        });
+}
+
+function updateAllInputSelects(inputs) {
+    // Find all input select elements
+    const inputSelects = document.querySelectorAll('[name*="name_input"]');
+    
+    inputSelects.forEach(select => {
+        const currentValue = select.value;
+        
+        // Clear existing options
+        select.innerHTML = '<option value="">Select Input</option>';
+        
+        // Add new options
+        inputs.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type.name;
+            option.textContent = type.name;
+            option.setAttribute('data-unit', type.unit);
+            
+            // Restore selection if it still exists
+            if (type.name === currentValue) {
+                option.selected = true;
+            }
+            
+            select.appendChild(option);
+        });
+        
+        // Update unit display for this select
+        updateUnitInput(select);
+    });
+}
+
+function resetInputSelects() {
+    const inputSelects = document.querySelectorAll('[name*="name_input"]');
+    
+    inputSelects.forEach(select => {
+        select.innerHTML = '<option value="">Select input</option>';
+        
+        // Clear unit display
+        const unitDisplay = select.closest('.row').querySelector('.unit-input-display');
         if (unitDisplay) {
             unitDisplay.textContent = '';
         }

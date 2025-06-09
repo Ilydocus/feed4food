@@ -43,4 +43,21 @@ def get_post_report(request):
 
     else:
         return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
+    
+def get_inputs_by_city(request):
+    """
+    AJAX view to get inputs filtered by city
+    """
+    city_id = request.GET.get('city_id')
+    
+    if city_id:
+        try:
+            inputs = Input.objects.filter(living_lab=city_id).values('name', 'unit')
+            input_list = list(inputs)
+        except:
+            input_list = []
+    else:
+        input_list = []
+    
+    return JsonResponse({'inputs': input_list})
 

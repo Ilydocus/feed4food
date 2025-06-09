@@ -39,7 +39,7 @@
                     <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS">
                     {% endblock %}
                 </div>
-                <button type="button" id="add-item" class="btn btn-secondary" onclick="addItem()">Add input</button>
+                <button type="button" id="add-item" class="btn btn-secondary" onclick="addInput()">Add input</button>
                 
                 
                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -82,6 +82,20 @@
       });
 
     });
+</script>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+    const citySelect = document.querySelector('#id_city');
+    if (citySelect) {
+        citySelect.addEventListener('change', updateInputChoices);
+        
+        // If city is already selected on page load, update products
+        if (citySelect.value) {
+            updateInputChoices();
+        }
+    }
+}); 
 </script>
 
     <div class="container">
