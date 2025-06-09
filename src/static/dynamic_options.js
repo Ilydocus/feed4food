@@ -247,8 +247,8 @@ function submitSalesForm() {
 }
 
 function submitFinancialForm() {
-    const startDate = document.getElementById('id_start_date');
-    const endDate = document.getElementById('id_end_date');
+    const month = document.getElementById('id_month');
+    const year = document.getElementById('id_year');
     const city = document.getElementById('id_city');
     const location = document.getElementById('id_location');
     const garden = document.getElementById('id_garden');
@@ -257,10 +257,10 @@ function submitFinancialForm() {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
 
-    if (!startDate || !endDate) {
-        alert('Please ensure the date fields are correctly filled out.');
-        return;
-    }
+    // if (!startDate || !endDate) {
+    //     alert('Please ensure the date fields are correctly filled out.');
+    //     return;
+    // }
 
     const exp_workforce = document.getElementById('id_exp_workforce');
     const exp_purchase = document.getElementById('id_exp_purchase');
@@ -278,7 +278,7 @@ function submitFinancialForm() {
         headers: {'Content-Type': 'application/json', 
                 'X-CSRFToken': csrftoken,
         },
-        body: JSON.stringify({start_date : startDate.value, end_date : endDate.value, city : city.value, location : location.value, garden : garden.value,currency: currency.value, 
+        body: JSON.stringify({month : month.value, year : year.value, city : city.value, location : location.value, garden : garden.value,currency: currency.value, 
             exp_workforce : exp_workforce.value, exp_purchase : exp_purchase.value, exp_others : exp_others.value, exp_others_desc : exp_others_desc.value, 
             fun_feed4food : fun_feed4food.value, fun_others : fun_others.value, fun_others_desc : fun_others_desc.value, rev_restaurant : rev_restaurant.value,
             rev_others : rev_others.value, rev_others_desc : rev_others_desc.value

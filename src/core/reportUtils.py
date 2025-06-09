@@ -38,3 +38,17 @@ class NutrientColors(models.TextChoices):
 class WasteActions(models.TextChoices):
         Reuse = 'Reuse', 'Reuse'
         Production = 'Production', 'Production'
+
+class Months(models.TextChoices):
+        January = '01', 'January'
+        February = '02', 'February'
+        March = '03', 'March'
+        April = '04', 'April'
+        May = '05', 'May'
+        June = '06', 'June'
+        July = '07', 'July'
+        August = '08', 'August'
+        September = '09', 'September'
+        October = '10', 'October'
+        November = '11', 'November'
+        December = '12', 'December'

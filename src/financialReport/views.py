@@ -20,8 +20,8 @@ def get_post_report(request):
     elif request.method == "POST":
         data = json.loads(request.body)
         report = FinancialReport.objects.create(
-            start_date=data.get("start_date"),
-            end_date=data.get("end_date"),
+            month=data.get("month"),
+            year=data.get("year"),
             city=data.get("city"),
             location=data.get("location"),
             garden=data.get("garden"),

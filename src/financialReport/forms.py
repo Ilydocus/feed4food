@@ -1,19 +1,25 @@
 from .models import FinancialReport
 from productionReport.models import LLLocation, Garden
+from core import reportUtils
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Button, Field, HTML
+import datetime
 
 class FinancialReportForm(forms.ModelForm):
     class Meta:
         model = FinancialReport
-        fields = ["start_date", "end_date", "currency", "city", "location", "garden", "exp_workforce", 
+        fields = ["month", "year", "currency", "city", "location", "garden", "exp_workforce", 
         "exp_purchase", "exp_others", "exp_others_desc", "fun_feed4food", "fun_others", "fun_others_desc", 
         "rev_restaurant", "rev_others", "rev_others_desc"]
         widgets = {
-            "start_date": forms.DateInput(attrs={"type": "date"}),
-            "end_date": forms.DateInput(attrs={"type": "date"}),
+            #"start_date": forms.DateInput(attrs={"type": "date"}),
+            #"end_date": forms.DateInput(attrs={"type": "date"}),
         }
+    YEAR_CHOICES = [(year, year) for year in range(2024, datetime.datetime.now().year+1)]
+
+    month = forms.ChoiceField(choices=reportUtils.Months, widget=forms.Select)
+    year = forms.ChoiceField(choices=YEAR_CHOICES, widget=forms.Select)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -59,8 +65,8 @@ class FinancialReportForm(forms.ModelForm):
                 Column("garden"),
             ),
             Row(
-                Column("start_date"),
-                Column("end_date"),
+                Column("month"),
+                Column("year"),
             ),
             Row(
                 Column(Field("currency"),
