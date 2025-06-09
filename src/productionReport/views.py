@@ -1,6 +1,7 @@
 from .models import Product, ProductionReportDetails, ProductionReport, LLLocation, Garden
 from .forms import ProductionReportForm, ProductionProductForm
-from django.shortcuts import render
+from django.forms import formset_factory
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse
 import json
@@ -50,3 +51,20 @@ def get_post_report(request):
 
     else:
         return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
+    
+def get_products_by_city(request):
+    """
+    AJAX view to get products filtered by city
+    """
+    city_id = request.GET.get('city_id')
+    
+    if city_id:
+        try:
+            products = Product.objects.filter(living_lab=city_id).values('name', 'unit')
+            product_list = list(products)
+        except:
+            product_list = []
+    else:
+        product_list = []
+    
+    return JsonResponse({'products': product_list})

@@ -1,3 +1,20 @@
+function addProduct() {
+    const template = document.getElementById('form-template').textContent;
+    const container = document.getElementById('form-container');
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+    const formCount = parseInt(totalForms.value, 10);
+    const newFormRow = document.createElement('div');
+
+    newFormRow.class = `row`;
+    newFormRow.innerHTML = template;
+
+    // Append the new row and increment TOTAL_FORMS
+    container.appendChild(newFormRow);
+    totalForms.value = formCount + 1;
+    updateProductChoices();
+    //enableSearchableDropdown();
+}
+
 function addItem() {
     const template = document.getElementById('form-template').textContent;
     const container = document.getElementById('form-container');
@@ -11,7 +28,6 @@ function addItem() {
     // Append the new row and increment TOTAL_FORMS
     container.appendChild(newFormRow);
     totalForms.value = formCount + 1;
-    enableSearchableDropdown();
 }
 
 function addRainfall() {
@@ -641,6 +657,71 @@ function submitWaterForm() {
     .then(data => {
         alert('Report submitted successfully!');
         window.location.href = data.redirect_url;
+    });
+}
+
+function updateProductChoices() {
+    const citySelect = document.querySelector('#id_city');
+    const cityId = citySelect.value;
+    
+    if (!cityId) {
+        // Reset all product selects to empty if no city selected
+        resetProductSelects();
+        return;
+    }
+    
+    // Make AJAX request to get products for the selected city
+    fetch(`/productionReport/get-products-by-city/?city_id=${cityId}`)
+        .then(response => response.json())
+        .then(data => {
+            updateAllProductSelects(data.products);
+        })
+        .catch(error => {
+            console.error('Error fetching products:', error);
+        });
+}
+
+function updateAllProductSelects(products) {
+    // Find all product select elements
+    const productSelects = document.querySelectorAll('[name*="item"]');
+    
+    productSelects.forEach(select => {
+        const currentValue = select.value;
+        
+        // Clear existing options
+        select.innerHTML = '<option value="">Select Product</option>';
+        
+        // Add new options
+        products.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product.name;
+            option.textContent = product.name;
+            option.setAttribute('data-unit', product.unit);
+            
+            // Restore selection if it still exists
+            if (product.name === currentValue) {
+                option.selected = true;
+            }
+            
+            select.appendChild(option);
+        });
+        
+        // Update unit display for this select
+        updateUnit(select);
+    });
+}
+
+function resetProductSelects() {
+    const productSelects = document.querySelectorAll('[name*="item"]');
+    
+    productSelects.forEach(select => {
+        select.innerHTML = '<option value="">Select Product</option>';
+        
+        // Clear unit display
+        const unitDisplay = select.closest('.row').querySelector('.unit-display');
+        if (unitDisplay) {
+            unitDisplay.textContent = '';
+        }
     });
 }
 

@@ -38,7 +38,7 @@
                     <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS">
                     {% endblock %}
                 </div>
-                <button type="button" id="add-item" class="btn btn-secondary" onclick="addItem()">Add Product</button>
+                <button type="button" id="add-item" class="btn btn-secondary" onclick="addProduct()">Add Product</button>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>    
@@ -48,7 +48,7 @@
 <script>
     $("#id_city").change(function () {
       var url = $("#farming-report-form").attr("data-locations-url");  // get the url of the `get_locations` view
-      var cityId = $(this).val();  // get the selected cityy ID from the HTML input
+      var cityId = $(this).val();  // get the selected city ID from the HTML input
 
       $.ajax({                       // initialize an AJAX request
         url: url,                    // set the url of the request (= localhost:8000/hr/ajax/get-locations/)
@@ -81,6 +81,19 @@
     });
 </script>
 
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+    const citySelect = document.querySelector('#id_city');
+    if (citySelect) {
+        citySelect.addEventListener('change', updateProductChoices);
+        
+        // If city is already selected on page load, update products
+        if (citySelect.value) {
+            updateProductChoices();
+        }
+    }
+}); 
+</script>
 
     <div class="container">
         <div class="row justify-content-center g-4 mt-4">
