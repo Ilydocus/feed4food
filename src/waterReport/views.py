@@ -1,5 +1,6 @@
 from .models import WaterReport, WaterReportIrrigation, WaterReportRainfall
 from .forms import WaterReportForm, WaterIrrigationForm, WaterRainfallForm
+from productionReport.models import LLLocation, Garden
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import JsonResponse
@@ -26,26 +27,26 @@ def get_post_report(request):
         report = WaterReport.objects.create(
             
             city=data.get("city"),
-            location=data.get("location"),
-            garden=data.get("garden"),
+            location=LLLocation.objects.get(name=data.get("location")),
+            garden=Garden.objects.get(name=data.get("garden")),
             user=request.user,
         )
         for post_action in data.get("rainfalls", []):
             WaterReportRainfall.objects.create(
                 report_id=report,
                 quantity=post_action.get("quantity"),
-                start_date=data.get("start_date"),
-                end_date=data.get("end_date"),
+                start_date=post_action.get("start_date"),
+                end_date=post_action.get("end_date"),
             )
         for post_action in data.get("irrigations", []):
             WaterReportIrrigation.objects.create(
                 report_id=report,
                 quantity=post_action.get("quantity"),
-                start_date=data.get("start_date"),
-                end_date=data.get("end_date"),
-                period=data.get("period"),
-                frequency_times=data.get("frequency_times"),
-                frequency_interval=data.get("frequency_interval"),
+                start_date=post_action.get("start_date"),
+                end_date=post_action.get("end_date"),
+                period=post_action.get("period"),
+                frequency_times=post_action.get("frequency_times"),
+                frequency_interval=post_action.get("frequency_interval"),
             )
         return JsonResponse({"redirect_url": reverse("data_portal")})
 

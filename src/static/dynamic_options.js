@@ -653,8 +653,8 @@ function submitWaterForm() {
 
     const rainfalls = [];
     document.querySelectorAll('#rainwater-form-container > div').forEach((itemDiv) => {
-        const start_date = itemDiv.querySelector('select[name$="start_date"]').value;
-        const end_date = itemDiv.querySelector('select[name$="end_date"]').value;
+        const start_date = itemDiv.querySelector('input[name$="start_date"]').value;
+        const end_date = itemDiv.querySelector('input[name$="end_date"]').value;
         const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
         
         rainfalls.push({
@@ -665,11 +665,20 @@ function submitWaterForm() {
     });
     const irrigations = [];
     document.querySelectorAll('#irrigation-form-container > div').forEach((itemDiv) => {
-        const start_date = itemDiv.querySelector('select[name$="start_date"]').value;
-        const end_date = itemDiv.querySelector('select[name$="end_date"]').value;
-        const period = itemDiv.querySelector('input[name$="period"]').value;
-        const frequency_times = itemDiv.querySelector('input[name$="frequency_times"]').value;
-        const frequency_interval = itemDiv.querySelector('input[name$="frequency_interval"]').value;
+        const start_date = itemDiv.querySelector('input[name$="start_date"]').value;
+        end_date =null;
+        if(!itemDiv.querySelector('input[name$="end_date"]') === null){
+            end_date = itemDiv.querySelector('input[name$="end_date"]').value;
+        }
+        const period = itemDiv.querySelector('input[name$="period"]').checked;
+        frequency_times =0;
+        if (!itemDiv.querySelector('input[name$="frequency_times"]')===null){
+            frequency_times = itemDiv.querySelector('input[name$="frequency_times"]').value;
+        }
+        frequency_interval = null;
+        if (!itemDiv.querySelector('input[name$="frequency_interval"]') ===null){
+            frequency_interval = itemDiv.querySelector('input[name$="frequency_interval"]').value;
+        }
         const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
         
         irrigations.push({

@@ -1,0 +1,17 @@
+{% extends "waterForm.html" %}
+{% load static %}
+{% load crispy_forms_tags %}   
+
+{% block rainfalls_block %}
+{{ formset.management_form }}
+{% for form in formset_r %}
+    {% crispy form %}
+{% endfor %}
+{% endblock %}
+
+{% block irrigations_block %}
+{{ formset.management_form }}
+{% for form in formset_i %}
+    {% crispy form %}
+{% endfor %}
+{% endblock %}

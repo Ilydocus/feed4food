@@ -21,7 +21,7 @@ class WaterReportRainfall(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     report_id = models.ForeignKey(
-        WaterReport, on_delete=models.CASCADE, related_name="rainfall"
+        WaterReport, on_delete=models.CASCADE, related_name="rainfalls"
     )
     quantity = models.FloatField()
 
@@ -36,6 +36,6 @@ class WaterReportIrrigation(models.Model):
     frequency_times = models.FloatField(default=0)
     frequency_interval= models.CharField(max_length=10, choices=FrequencyInterval,null=True)
     report_id = models.ForeignKey(
-        WaterReport, on_delete=models.CASCADE, related_name="irrigation"
+        WaterReport, on_delete=models.CASCADE, related_name="irrigations"
     )
-    quantity = models.FloatField()
+    quantity = models.FloatField(default=0)
