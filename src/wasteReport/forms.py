@@ -102,23 +102,21 @@ class WasteActionForm(forms.ModelForm):
         widgets = {
             "date": forms.DateInput(attrs={"type": "date"}),
         }
+        labels = {
+            'wasteType': 'Type',
+        }
 
-    wasteType = forms.ChoiceField(
-        label="Type",
-    )
     quantity = forms.FloatField(label="Quantity")
     wasteAction = forms.ChoiceField(choices=reportUtils.WasteActions, widget=forms.Select, label="Action")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if "initial" in kwargs:
-            initial = kwargs["initial"]
-            self.fields["wasteAction"].initial = initial["wasteAction"]
-            self.fields["wasteType"].initial = WasteType.objects.get(name=initial["wasteType_id"]).name
-            self.fields["quantity"].initial = initial["quantity"]
-            initial_unit = WasteType.objects.get(name=initial["wasteType_id"]).unit
-        else:
-            initial_unit = ""
+
+        self.fields['wasteType'].widget.attrs.update({
+            'class' : 'waste-type-select'
+        })
+
+        initial_unit = ""
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_tag = False

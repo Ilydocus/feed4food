@@ -45,8 +45,16 @@ def edit_report(request, report_id):
     if request.method == "GET":
         action_form_template = WasteActionForm()
         report_form = WasteReportForm(instance=report)
+        initial_data = []
+        for item in old_report_items:
+            initial_data.append({
+                'wasteType': item.wasteType,
+                'wasteAction': item.wasteAction,
+                'date': item.date,
+                'quantity': item.quantity,
+            })
         formset = formset_factory(WasteActionForm, extra=0)(
-            initial=old_report_items.values()
+            initial=initial_data
         )
         return render(
             request,

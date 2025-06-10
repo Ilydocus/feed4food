@@ -800,7 +800,7 @@ function updateWasteChoices() {
 
 function updateAllWasteSelects(types) {
     // Find all waste select elements
-    const wasteSelects = document.querySelectorAll('[name*="wasteType"]');
+    const wasteSelects = document.querySelectorAll('.waste-type-select');
     
     wasteSelects.forEach(select => {
         const currentValue = select.value;
@@ -829,7 +829,7 @@ function updateAllWasteSelects(types) {
 }
 
 function resetWasteSelects() {
-    const wasteSelects = document.querySelectorAll('[name*="wasteType"]');
+    const wasteSelects = document.querySelectorAll('.waste-type-select');
     
     wasteSelects.forEach(select => {
         select.innerHTML = '<option value="">Select type</option>';
