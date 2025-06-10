@@ -60,7 +60,7 @@ def get_products_by_city(request):
     
     if city_id:
         try:
-            products = Product.objects.filter(living_lab=city_id).values('name', 'unit')
+            products = Product.objects.filter(living_lab=city_id).values('name', 'unit', 'cultivation_type')
             product_list = list(products)
         except:
             product_list = []
