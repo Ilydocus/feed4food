@@ -440,7 +440,7 @@ function updateGroupOptions() {
         groupSelects.forEach(select => {
             const currentValue = select.value;
             //console.log('Current value before clearing:', currentValue);
-            select.innerHTML = '<option value="">---------</option>';
+            select.innerHTML = '<option value=""> Select group </option>';
             
             data.groups.forEach(group => {
                 const option = document.createElement('option');

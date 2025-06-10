@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    {# Load the tag library #}
+    {% load django_bootstrap5 %}
+    
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+<head>
+    <style>
+        #report_list_table {
+          font-family: Arial, Helvetica, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        #report_list_table td, #report_list_table th {
+          border: 1px solid #ddd;
+          padding: 8px;
+        }
+        
+        #report_list_table tr:nth-child(even){background-color: #f2f2f2;}
+        #report_list_table tr:nth-child(odd){background-color: white;}
+        
+        #report_list_table tr:hover {background-color: #ddd;}
+        
+        #report_list_table th {
+          padding-top: 12px;
+          padding-bottom: 12px;
+          text-align: left;
+          background-color: #00a651;
+          color: white;
+        }
+        </style>
+    <title>Submitted Demographic Reports</title>
+</head>
+<body>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
+    <h1>Your Demographic Reports</h1>
+    <table border="1" id="report_list_table">
+        <thead>
+            <tr>
+                <th>ID</th>             
+                <th>City</th>
+                <th>Demographic Data Date</th>
+                <th>Total population</th>
+                <th>View Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td>{{ report.report_id }}</td>
+                <td>{{ report.city }}</td>
+                <td>{{ report.data_date }}</td>
+                <td>{{ report.total_population }}</td>
+                <td> 
+                    <a href="{% url 'demographicReport_details' report.report_id %}">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="container">
+        <div class="row justify-content-center g-4 mt-4">
+     
+          <!-- Data portal -->
+          <div class="col-6 col-sm-4 col-md-3">
+            {% bootstrap_button "Back to data portal" button_type="link" button_class="btn-custom" href="/data_portal" extra_classes="w-100 py-3"  %}
+          </div>
+        </div>
+      </div>
+</body>
+</html>

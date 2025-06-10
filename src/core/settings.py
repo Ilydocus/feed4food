@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "salesReport_view",
     "eventReport",
     "demographicReport",
+    "demographicReport_view",
     "cultivationReport",
     "cultivationReport_view",
     "inputReport",

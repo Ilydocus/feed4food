@@ -18,7 +18,7 @@ def get_groups_by_city(request):
     # Get the groups registered to this city
     groups = UnderrepresentedGroup.objects.filter(
         living_lab=city  
-    ).values('name','name')
+    ).values('name')
     
     return JsonResponse({
         'groups': list(groups)
@@ -45,8 +45,8 @@ def get_post_report(request):
             total_population=data.get("total_population"),
             user=request.user,
         )
-        for post_item in data.get("groups", []):
-            groupObject = UnderrepresentedGroup.objects.get(name=post_item.get("group_name"))
+        for post_item in data.get("demographicGroupDetails", []):
+            groupObject = UnderrepresentedGroup.objects.get(name=post_item.get("name"))
             DemographicReportPerUnderrepresentedGroups.objects.create(
                 report_id=report,
                 name=groupObject,
