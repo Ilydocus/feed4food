@@ -27,7 +27,7 @@ class InputReportForm(forms.ModelForm):
             except (ValueError, TypeError):
                 pass  # invalid input from the client; ignore and fallback to empty location queryset
         elif self.instance.pk:
-            self.fields['location'].queryset = self.instance.city.location_set.order_by('name')
+            self.fields['location'].queryset = LLLocation.objects.filter(living_lab=self.instance.city).order_by('name')
 
         if 'location'  in self.data:
             try:
@@ -91,27 +91,40 @@ class InputListForm(forms.ModelForm):
     class Meta:
         model = InputReportDetails
         fields = ["name_input", "name_product","area", "quantity"]
+        labels = {
+            'name_product': 'Applied on ',
+            'name_input' : 'Input',
+        }
 
-    name_product = forms.ChoiceField(
-        label="Applied on ",
-    )
-    name_input = forms.ChoiceField(
-        label="Input",
-    )
+    # name_product = forms.ChoiceField(
+    #     label="Applied on ",
+    # )
+    # name_input = forms.ChoiceField(
+    #     label="Input",
+    # )
     area = forms.FloatField(label="Application area size") 
     quantity = forms.FloatField(label="Quantity used")      
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if "initial" in kwargs:
-            initial = kwargs["initial"]
-            self.fields["name_product"].initial = initial["name_product_id"]
-            self.fields["area"].initial = initial["area"]
-            initial_unit = Product.objects.get(name=initial["name_product_id"]).cultivation_type
-            initial_unit_i = Input.objects.get(name=initial["name_input_id"]).unit
-        else:
-            initial_unit = ""
-            initial_unit_i = ""
+        # if "initial" in kwargs:
+        #     initial = kwargs["initial"]
+        #     self.fields["name_product"].initial = initial["name_product_id"]
+        #     self.fields["area"].initial = initial["area"]
+        #     initial_unit = Product.objects.get(name=initial["name_product_id"]).cultivation_type
+        #     initial_unit_i = Input.objects.get(name=initial["name_input_id"]).unit
+        # else:
+
+        # Add CSS class for JavaScript targeting
+        self.fields['name_product'].widget.attrs.update({
+            'class': 'product-name-select'
+        })
+        self.fields['name_input'].widget.attrs.update({
+            'class': 'input-name-select'
+        })
+
+        initial_unit = ""
+        initial_unit_i = ""
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_tag = False
@@ -138,8 +151,8 @@ class InputListForm(forms.ModelForm):
                     Field(
                         "name_product",
                         wrapper_class="d-flex align-items-center",
-                        onchange="updateUnit(this)",
-                        onload="updateUnit(this)",
+                        onchange="updateUnitCultivation(this)",
+                        onload="updateUnitCultivation(this)",
                     ),
                     css_class="col-md-3",
                 ),
@@ -148,7 +161,7 @@ class InputListForm(forms.ModelForm):
                     css_class="col-md-2",
                 ),
                 Column(
-                    HTML(f'<div class="unit-display"> {initial_unit} </div>'),
+                    HTML(f'<div class="unit-cultivation-display"> {initial_unit} </div>'),
                     css_class="col-md-1",
                 ),
                 Column(

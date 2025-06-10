@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "cultivationReport",
     "cultivationReport_view",
     "inputReport",
+    "inputReport_view",
     "lluseReport",
     "lluseReport_view"
 ]

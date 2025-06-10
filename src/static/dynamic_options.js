@@ -567,14 +567,14 @@ function submitInputForm() {
 
     const inputs = [];
     document.querySelectorAll('#form-container > div').forEach((itemDiv) => {
-        const inputName = itemDiv.querySelector('select[name$="input_name"]').value;
-        const productName = itemDiv.querySelector('select[name$="product_name"]').value;
+        const inputName = itemDiv.querySelector('select[name$="name_input"]').value;
+        const productName = itemDiv.querySelector('select[name$="name_product"]').value;
         const area = itemDiv.querySelector('input[name$="area"]').value;
         const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
         
         inputs.push({
-            input_name: inputName,
-            product_name: productName,
+            name_input: inputName,
+            name_product: productName,
             area: area,
             quantity: quantity,
         });
@@ -850,7 +850,7 @@ function updateAllWasteSelects(types) {
         });
         
         // Update unit display for this select
-        updateUnit(select);
+        updateUnitCultivation(select);
     });
 }
 
@@ -901,7 +901,7 @@ function updateInputChoices() {
 
 function updateAllInputSelects(inputs) {
     // Find all input select elements
-    const inputSelects = document.querySelectorAll('[name*="name_input"]');
+    const inputSelects = document.querySelectorAll('.input-name-select');
     
     inputSelects.forEach(select => {
         const currentValue = select.value;
