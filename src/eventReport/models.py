@@ -30,9 +30,9 @@ class EventReport(models.Model):
     event_desc = models.CharField(max_length=500,default="")
     
     #Participants
-    total_invited = models.FloatField(default=0)
+    total_invited = models.IntegerField(default=0)
     #Underrepresented groups as separate class
-    total_participants = models.FloatField(default=0)
+    total_participants = models.IntegerField(default=0)
     #Underrepresented groups as separate class
 
     #Economic 
@@ -47,8 +47,8 @@ class EventPersonDetails(models.Model):
     report_id = models.ForeignKey(
         EventReport, on_delete=models.CASCADE, related_name="invited"
     )
-    number_invited = models.FloatField()
-    number_participant = models.FloatField()
+    number_invited = models.IntegerField()
+    number_participant = models.IntegerField()
 
 
 

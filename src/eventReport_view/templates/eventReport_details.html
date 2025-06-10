@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    {# Load the tag library #}
+    {% load django_bootstrap5 %}
+    
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+<head>
+    <title>Event Report Details</title>
+</head>
+<body>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
+    <h1>Event Report Details</h1>
+    <p><strong>Organizing living lab:</strong> {{ report.city }}</p>
+    <p><strong>Event date:</strong> {{ report.event_date }}</p>
+    <p><strong>Event name:</strong> {{ report.event_name }}</p>
+    <p><strong>Event location:</strong> {{ report.get_event_loc_display}}</p>
+    <p><strong>Event type:</strong> {{ report.get_event_type_display }}</p>
+    <p><strong>Event description:</strong> {{ report.event_desc }}</p>
+    
+    <h2>Economy</h2>
+    <p><strong>Event costs:</strong> {{ report.event_costs }}  {{ report.get_currency_display }} -  {{ report.event_costs_desc }}</p>
+    <p><strong>Event revenues:</strong> {{ report.event_revenues }}  {{ report.get_currency_display }} -  {{ report.event_revenues_desc }}</p>
+    <h2>Reach</h2>
+    <p><strong>Total number of invited persons:</strong> {{ report.total_invited }}</p>
+    <p><strong>Total number of participants:</strong> {{ report.total_participants }}</p>
+    <div class="centered-list">
+        <ul>
+            {% for report_item in report.invited.all %}
+            <li>Number invited persons from group {{ report_item.name.name }}:  {{ report_item.number_invited }}</li>
+            <li>Number participants from group {{ report_item.name.name }}: {{ report_item.number_participant }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center g-4 mt-4">
+      
+          <!-- <div class="col-6 col-sm-4 col-md-3"> -->
+            <a class="btn btn-primary w-50 py-3" href="{% url 'eventReport_list' %}">Back to report</a>
+            <a class="btn btn-custom w-50 py-3" href="{% url 'eventReport_edit' report.report_id %}">Edit</a>
+          <!-- </div> -->
+        </div>
+      </div>
+</body>
+</html>

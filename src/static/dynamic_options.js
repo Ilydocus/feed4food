@@ -362,7 +362,6 @@ function submitFinancialForm() {
 }
 
 function submitEventForm() {
-    
     const city = document.getElementById('id_city');
     const currency = document.getElementById('id_currency');
     const event_date = document.getElementById('id_event_date');
@@ -407,10 +406,19 @@ function submitEventForm() {
             total_participants: total_participants.value, eventGroupDetails: eventGroupDetails
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         alert('Report submitted successfully!');
         window.location.href = data.redirect_url;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred: ' + error.message);
     });
 }
 

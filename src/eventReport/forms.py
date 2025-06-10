@@ -11,10 +11,13 @@ class EventReportForm(forms.ModelForm):
         model = EventReport
         fields = ["city", "event_date", "event_name", "event_loc", 
                   "event_type", "event_desc", "currency", "event_costs", 
-                  "event_costs_desc", "event_revenues", "event_revenues_desc"]
+                  "event_costs_desc", "event_revenues", "event_revenues_desc", "total_invited", 
+                  "total_participants"]
         widgets = {
             "event_date": forms.DateInput(attrs={"type": "date"}),
         }
+    total_invited = forms.IntegerField(label="Total number of invited persons")
+    total_participant = forms.IntegerField(label="Total number of participants")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,7 +32,7 @@ class EventReportForm(forms.ModelForm):
 
         self.fields['city'].widget.attrs.update({
             'id': 'id_city',
-            'onchange': 'updateGroupOptions()'
+            'onchange': 'updateGroupOptions()',
         })
 
         self.helper.layout = Layout(
@@ -73,39 +76,20 @@ class EventReportForm(forms.ModelForm):
                     css_class="col-md-3",
                 ),
             ),
-        )
-
-class EventPersonForm(forms.ModelForm):
-    class Meta:
-        model = EventReport
-        fields = ["total_invited", "total_participant"]
-
-    total_invited = forms.IntegerField(label="Total number of invited persons")
-    total_participant = forms.IntegerField(label="Total number of participants")
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = "post"
-        self.helper.form_tag = False
-
-        self.helper.layout = Layout(
+            Row(
+                    HTML(f'<h3> Reach </h3>'),
+                    css_class="col-md-1",
+            ),
             Row(
                 Column(
-                    Field(
-                        "total_invited",
-                        wrapper_class="d-flex align-items-center",
-                    ),
+                    Field("total_invited", wrapper_class="d-flex align-items-center"),
                     css_class="col-md-3",
                 ),
-                Column(
-                    Field(
-                        "total_participant",
-                        wrapper_class="d-flex align-items-center",
-                    ),
+                                Column(
+                    Field("total_participants", wrapper_class="d-flex align-items-center"),
                     css_class="col-md-3",
                 ),
-            )
+            ),
         )
 
 class EventPersonDetailsForm(forms.ModelForm):
@@ -118,22 +102,7 @@ class EventPersonDetailsForm(forms.ModelForm):
     
 
     def __init__(self, *args, **kwargs):
-        # Extract city parameter if provided
-        city = kwargs.pop('city', None)
         super().__init__(*args, **kwargs)
-
-        self.fields['name'].widget.attrs.update({
-            'id': 'id_group-name-select',
-        }) 
-
-        # Filter the name field queryset based on city
-        if city:
-            self.fields['name'].queryset = UnderrepresentedGroup.objects.filter(
-                living_lab=city
-            )
-        else:
-            # If no city provided, show empty queryset 
-            self.fields['name'].queryset = UnderrepresentedGroup.objects.none()
         
         # Add CSS class for JavaScript targeting
         self.fields['name'].widget.attrs.update({

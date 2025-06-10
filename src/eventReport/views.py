@@ -1,5 +1,5 @@
 from .models import EventReport, EventPersonDetails, UnderrepresentedGroup
-from .forms import EventReportForm, EventPersonForm, EventPersonDetailsForm
+from .forms import EventReportForm, EventPersonDetailsForm
 from core import reportUtils
 from django.shortcuts import render
 from django.urls import reverse
@@ -10,14 +10,12 @@ import json
 def get_post_report(request):
     if request.method == "GET":
         report = EventReportForm()
-        person_form = EventPersonForm()
         personDetails_form = EventPersonDetailsForm()
         return render(
             request,
             "eventForm.html",
             {
                 "event_form": report,
-                "eventPerson_form": person_form,
                 "eventGroupList_form": personDetails_form,
             },
         )
