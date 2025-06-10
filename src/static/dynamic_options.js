@@ -195,15 +195,19 @@ function updateUnitAndCurrency(itemSelect) {
 
     const row = itemSelect.closest('.row');
     const unitDisplay = row.querySelector('.unit-display');
-    unitDisplay.textContent = selectedUnit;
-    //Second occurence
-    //const unitDisplay2 = row.querySelector('.unitandcurrency-display');
-    //unitDisplay2.textContent = selectedUnit;
+    if (unitDisplay){
+        unitDisplay.textContent = selectedUnit;
+    }
 
     // Get the selected option for currency
-    const currency = document.getElementById('id_currency').value;
-    const currencyDisplay = row.querySelector('.unitandcurrency-display');
-    currencyDisplay.textContent = currency + " per " + selectedUnit;
+    const currencyField = document.getElementById('id_currency');
+    if (currencyField){
+        const currency = currencyField.options[currencyField.selectedIndex].text;
+        const currencyDisplay = row.querySelector('.unitandcurrency-display');
+        if (currencyDisplay){
+            currencyDisplay.textContent = currency + " per " + selectedUnit;
+        }
+    }
 }
 
 function updateCurrency(currencySelect) {
@@ -268,7 +272,6 @@ function submitProductionForm() {
 }
 
 function submitSalesForm() {
-    //console.log("Coucou"); //How to print to console browser
     const city = document.getElementById('id_city');
     const location = document.getElementById('id_location');
     const garden = document.getElementById('id_garden');
@@ -276,19 +279,12 @@ function submitSalesForm() {
 
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-
-    // if (!sale_date1) {
-    //     alert('Please ensure the date fields are correctly filled out.');
-    //     return;
-    // }
-    // console.log("Coucou2");
-
     const salesActions = [];
     document.querySelectorAll('#form-container > div').forEach((salesActionsDiv) => {
         
         const sale_date = salesActionsDiv.querySelector('input[name$="sale_date"]').value;
         const sale_location = salesActionsDiv.querySelector('input[name$="sale_location"]').value;
-        const product = salesActionsDiv.querySelector('select[name$="what"]').value;
+        const product = salesActionsDiv.querySelector('select[name$="product"]').value;
         const price = salesActionsDiv.querySelector('input[name$="price"]').value;
         const quantity = salesActionsDiv.querySelector('input[name$="quantity"]').value;
         
@@ -299,7 +295,7 @@ function submitSalesForm() {
             sale_location: sale_location,
             price: price,
         });
-    //console.log(salesActions);
+
     });
     fetch('', {
         method: 'POST',
@@ -782,6 +778,7 @@ function updateAllProductSelects(products) {
         // Update unit display for this select
         updateUnit(select);
         updateUnitCultivation(select);
+        updateUnitAndCurrency(select);
     });
 }
 

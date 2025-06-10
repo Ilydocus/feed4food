@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from productionReport.models import Product
+from productionReport.models import Product, LLLocation, Garden
 from salesReport.models import SalesReport, SalesReportDetails
 from salesReport.forms import SalesReportForm, SalesActionForm
 from django.forms import formset_factory
@@ -26,8 +26,8 @@ def edit_report(request, report_id):
     if request.method == "POST":
         data = json.loads(request.body)
         old_report_items.delete()
-        for post_item in data.get("items", []):
-            itemObject = Product.objects.get(name=post_item.get("item_name"))
+        for post_item in data.get("salesActions", []):
+            itemObject = Product.objects.get(name=post_item.get("product"))
             SalesReportDetails.objects.create(
                 report_id=report,
                 product=itemObject,
@@ -38,8 +38,8 @@ def edit_report(request, report_id):
             )
 
         report.city = data.get("city")
-        report.location = data.get("location")
-        report.garden = data.get("garden")
+        report.location = LLLocation.objects.get(name=data.get("location"))
+        report.garden = Garden.objects.get(name=data.get("garden"))
         report.currency = data.get("currency")
         report.save()
         return JsonResponse({"redirect_url": reverse("salesReport_list")})
@@ -47,8 +47,17 @@ def edit_report(request, report_id):
     if request.method == "GET":
         item_form_template = SalesActionForm()
         report_form = SalesReportForm(instance=report)
+        initial_data = []
+        for item in old_report_items:
+            initial_data.append({
+                'product': item.product,
+                'quantity': item.quantity,
+                'sale_date': item.sale_date,
+                'sale_location': item.sale_location,
+                'price': item.price,
+            })
         formset = formset_factory(SalesActionForm, extra=0)(
-            initial=old_report_items.values()
+            initial=initial_data
         )
         return render(
             request,

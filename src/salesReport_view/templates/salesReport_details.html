@@ -24,7 +24,7 @@
     <div class="centered-list">
         <ul>
             {% for report_sale in report.details.all %}
-            <li>{{ report_sale.sale_date }}, {{ report_sale.location }}: {{ report_sale.quantity }} {{ report_sale.product.unit }} {{ report_sale.product.name }} for {{ report_sale.price }} {{ report.currency }} per {{ report_sale.product.unit }}</li>
+            <li>{{ report_sale.sale_date }}, {{ report_sale.sale_location }}: {{ report_sale.quantity }} {{ report_sale.product.unit }} {{ report_sale.product.name }} for {{ report_sale.price }} {{ report.get_currency_display }} per {{ report_sale.product.unit }}</li>
             {% endfor %}
         </ul>
     </div>

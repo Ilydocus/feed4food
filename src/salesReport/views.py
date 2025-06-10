@@ -1,5 +1,5 @@
 from .models import SalesReportDetails, SalesReport
-from productionReport.models import Product
+from productionReport.models import Product, LLLocation, Garden
 from .forms import SalesReportForm, SalesActionForm
 from django.shortcuts import render
 from django.urls import reverse
@@ -24,8 +24,8 @@ def get_post_report(request):
         data = json.loads(request.body)
         report = SalesReport.objects.create(
             city=data.get("city"),
-            location=data.get("location"),
-            garden=data.get("garden"),
+            location=LLLocation.objects.get(name=data.get("location")),
+            garden=Garden.objects.get(name=data.get("garden")),
             user=request.user,
             currency=data.get("currency"),
         )
