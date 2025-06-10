@@ -15,7 +15,7 @@ def get_post_report(request):
         group_form = LLUseGroupForm()
         return render(
             request,
-            "llUseReport.html",
+            "lluseReport.html",
             {
                 "llUseForm": report,
                 "llUseGroup_form": group_form,
