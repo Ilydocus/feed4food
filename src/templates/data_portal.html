@@ -25,14 +25,31 @@
   <!-- First column -->
   <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
 
-      <div class="card bg-success text-white text-center mb-4">
+      <!-- <div class="card bg-success text-white text-center mb-4">
         <img class="card-img-top icon-report" src="{% static 'images/measure-form.png' %}" alt="Measure data icon">
           <div class="card-body">
               <h5 class="card-title">Add measure data</h5>
-              <!-- <p>Possible help text.</p> -->
-                <a href="#" class="btn btn-info" button_type="link">Select</a>
+              <a href="#" class="btn btn-info" button_type="link">Select</a>
           </div>
-      </div>
+      </div> -->
+
+      <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add data</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'add_data_portal' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
+        <div class="card-body">
+            <h5 class="card-title">View submitted data</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'view_data_portal' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
 
       <div class="card bg-success text-white text-center mb-4">
         <img class="card-img-top icon-report" src="{% static 'images/file.png' %}" alt="Measure file icon">
@@ -42,235 +59,17 @@
                 <a href="#" class="btn btn-info" button_type="link">Select</a>
           </div>
       </div>
-      <!-- <div class="card bg-info text-white text-end mb-4">
-          <div class="card-body">
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          </div>
-      </div>
-    <div class="card bg-warning text-white mb-4">
-          <div class="card-body">
-              <h5 class="card-title">Panel title</h5>
-        <p>This card has supporting text below as a natural lead-in to additional content.</p>
-        <p><small>Last updated 3 mins ago</small></p></div>
-      </div> -->
   </div>
 
  <!-- Second column -->
   <div class="col-lg-4 mb-4 mb-lg-0">
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add production report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'productionReport_form' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous production reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'productionReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add financial report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'financialReport' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous financial reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'financialReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add waste report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'wasteReport' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous waste reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'wasteReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add water report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'waterReport' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous water reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'waterReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add sales report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'salesReport' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous sales reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'salesReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add event report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'eventReport' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous event reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'eventReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add demographic report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'demographicReport' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous demographic reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'demographicReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add cultivation report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'cultivationReport' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous cultivation reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'cultivationReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add input report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'inputReport' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous input reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'inputReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
-        <div class="card-body">
-            <h5 class="card-title">Add LL use report</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'lluseReport' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-    <div class="card bg-success text-white text-center mb-4">
-      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="Check report icon">
-        <div class="card-body">
-            <h5 class="card-title">Check previous Living Lab use reports</h5>
-            <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'lluseReport_list' %}" class="btn btn-info" button_type="link">Select</a>
-        </div>
-    </div>
-
-      <!-- <div class="card bg-primary text-white mb-4 text-end">
-          <div class="card-body">
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat.</p>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat.</p>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat.</p>
-          </div>
-      </div>
-
-      <div class="card bg-danger text-white text-center my-4">
-          <div class="card-body">
-              <h5 class="card-title">Panel title</h5>
-              <p>This card has a regular title and short paragraphy of text below it.</p>
-              <p><small>Last updated 3 mins ago</small></p>
-          </div>
-      </div>
-    <div class="card bg-success text-white mb-4">
-          <div class="card-body">
-              <h5 class="card-title">Panel title that wraps to a new line</h5>
-        <p>This is a longer card with supporting text below as a natural lead-in to additional content.
-          This content is a little bit longer.</p>
-      </div>
-      </div> -->
-  </div>
-
-  <!-- Third column -->
-  <div class="col-lg-4 mb-4 mb-lg-0">
-
-    <div class="card bg-success text-white text-center mb-4">
+      <div class="card bg-success text-white text-center mb-4">
       <img class="card-img-top icon-report" src="{% static 'images/Dashboard-square-black.png' %}" alt="Dashboard icon">
         <div class="card-body">
             <h5 class="card-title">Go to the personal dashboard display</h5>
             <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'personalDashboard' %}" class="btn btn-info" button_type="link">Select</a>
+              <!-- <a href="{% url 'personalDashboard' %}" class="btn btn-info" button_type="link">Select</a> -->
+              <a href="#" class="btn btn-danger" button_type="link">In construction</a>
         </div>
     </div>
 
@@ -279,40 +78,32 @@
         <div class="card-body">
             <h5 class="card-title">Go to the KPI dashboard display</h5>
             <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'dashboard' %}" class="btn btn-info" button_type="link">Select</a>
+              <!-- <a href="{% url 'dashboard' %}" class="btn btn-info" button_type="link">Select</a> -->
+               <a href="#" class="btn btn-danger" button_type="link">In construction</a>
         </div>
     </div>
 
     <div class="card bg-success text-white text-center mb-4">
       <img class="card-img-top icon-report" src="{% static 'images/Dashboard-square-black.png' %}" alt="Dashboard icon">
         <div class="card-body">
-            <h5 class="card-title"> Customized dashboard display</h5>
+            <h5 class="card-title"> Go to the customized dashboard display</h5>
             <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'dashboard' %}" class="btn btn-info" button_type="link">Select</a>
+              <a href="//feed4food.labs.vu.nl:3000" class="btn btn-info" button_type="link">Select</a>
         </div>
     </div>
+    
+  </div>
 
-      <!-- <div class="card bg-warning text-white text-center mb-4">
-          <div class="card-body">
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          </div>
-      </div>
-
-      <div class="card bg-dark text-white mb-4">
-          <div class="card-body">
-              <h5 class="card-title">Panel title</h5>
-              <p>This is another card with title and supporting text below.
-                This card has some additional content to make it slightly taller overall.</p>
-              <p><small>Last updated 3 mins ago</small></p>
-          </div>
-      </div>
-    <div class="card bg-secondary text-white text-end mb-4">
-          <div class="card-body">
-              <h5 class="card-title">Panel title</h5>
-        <p>This card has a regular title and short paragraphy of text below it.</p>
-        <p><small>Last updated 3 mins ago</small></p></div>
-      </div>
-  </div> -->
+  <!-- Third column -->
+  <div class="col-lg-4 mb-4 mb-lg-0">
+      <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/iconeparametre.png' %}" alt="Admin icon">
+        <div class="card-body">
+            <h5 class="card-title"> Go to the admin panel</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'admin:index' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
 </div>
 
 

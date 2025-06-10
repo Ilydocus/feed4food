@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Feed4Food Add Data Portal{% endblock %}
+
+{% block content %}
+
+{# Load the tag library #}
+{% load django_bootstrap5 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
+<h2 class="center mt-4">Select what you want to do</h2>
+
+{% if user.is_authenticated %}
+<div class="row mt-4">
+  <!-- First column -->
+  <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
+      <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add cultivation report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'cultivationReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+      </div>
+      <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add input report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'inputReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+      </div>
+      <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add waste report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'wasteReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+      </div>
+  </div>
+
+ <!-- Second column -->
+  <div class="col-lg-3 mb-4 mb-lg-0">
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add demographic report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'demographicReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add living lab use report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'lluseReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add water report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'waterReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+  </div>
+
+  <!-- Third column -->
+  <div class="col-lg-3 mb-4 mb-lg-0">
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add event report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'eventReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add production report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'productionReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+</div>
+
+<!-- Fourth column -->
+  <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
+      <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add financial report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'financialReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+      </div>
+      <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/daily-report-form.png' %}" alt="Report icon">
+        <div class="card-body">
+            <h5 class="card-title">Add sales report</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'salesReport' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+      </div>
+  </div>
+
+<div class="container">
+  <div class="row justify-content-center g-4 mt-4">
+    <p>You are logged in as {{ user.username }}!</p>
+
+    <!-- Data portal -->
+    <div class="col-6 col-sm-4 col-md-3">
+        {% bootstrap_button "Back to data portal" button_type="link" button_class="btn-custom" href="/data_portal" extra_classes="w-100 py-3"  %}
+    </div>
+  </div>
+</div>
+
+
+{% else %}
+
+<div class="container">
+  <div class="row justify-content-center g-4 mt-4">
+    <p>You are not logged in</p>
+    <!-- Login -->
+    <div class="col-6 col-sm-4 col-md-3">
+      <a href="{% url 'login' %}" class="btn btn-primary w-100 py-3">
+        Log in
+      </a>
+    </div>
+
+    <!-- Sign-Up -->
+    <div class="col-6 col-sm-4 col-md-3">
+      <a href="{% url 'register' %}" class="btn btn-secondary w-100 py-3">
+        Sign Up
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
