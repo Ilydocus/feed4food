@@ -51,9 +51,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const citySelect = document.querySelector('#id_city');
         if (citySelect) {
-            //citySelect.addEventListener('change', updateWasteChoices);
-            
-            // If city is already selected on page load, update waste options
+            // If city is already selected on page load, update group options
             if (citySelect.value) {
                 updateGroupOptions();
             }
