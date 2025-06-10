@@ -164,7 +164,20 @@ function updateUnit(itemSelect) {
 
     const row = itemSelect.closest('.row');
     const unitDisplay = row.querySelector('.unit-display');
-    unitDisplay.textContent = selectedUnit;
+    if(unitDisplay){
+        unitDisplay.textContent = selectedUnit;
+    }
+}
+
+function updateUnitCultivation(itemSelect) {
+    // Get the selected option
+    const selectedUnit = itemSelect.options[itemSelect.selectedIndex].getAttribute('cultivation-unit');
+
+    const row = itemSelect.closest('.row');
+    const unitDisplay = row.querySelector('.unit-cultivation-display');
+    if(unitDisplay){
+        unitDisplay.textContent = selectedUnit;
+    }
 }
 
 function updateUnitInput(inputSelect) {
@@ -732,13 +745,12 @@ function updateProductChoices() {
         });
 }
 
-function updateAllProductSelects(products, selects) {
+function updateAllProductSelects(products) {
     // Find all product select elements
     const productSelects = document.querySelectorAll('.product-name-select');
     
     productSelects.forEach(select => {
         const currentValue = select.value;
-        //console.log('Current value before clearing:', currentValue);
         
         // Clear existing options
         select.innerHTML = '<option value="">Select Product</option>';
@@ -749,6 +761,7 @@ function updateAllProductSelects(products, selects) {
             option.value = product.name;
             option.textContent = product.name;
             option.setAttribute('data-unit', product.unit);
+            option.setAttribute('cultivation-unit', product.cultivation_type);
             
             // Restore selection if it still exists
             if (product.name === currentValue) {
@@ -760,6 +773,7 @@ function updateAllProductSelects(products, selects) {
         
         // Update unit display for this select
         updateUnit(select);
+        updateUnitCultivation(select);
     });
 }
 
@@ -773,6 +787,10 @@ function resetProductSelects() {
         const unitDisplay = select.closest('.row').querySelector('.unit-display');
         if (unitDisplay) {
             unitDisplay.textContent = '';
+        }
+        const unitDisplay_c = select.closest('.row').querySelector('.unit-cultivation-display');
+        if (unitDisplay_c) {
+            unitDisplay_c.textContent = '';
         }
     });
 }

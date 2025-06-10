@@ -12,7 +12,10 @@ class CultivationReportForm(forms.ModelForm):
         model = CultivationReport
         fields = ["city", "location", "garden", "cultivation_date"]
         widgets = {
-            "cultivation_date": forms.DateInput(attrs={"type": "date"}),
+            "cultivation_date": forms.DateInput(attrs={"type": "date",}),
+        }
+        labels = {
+            'cultivation_date': 'Date when the cultivation status was checked',
         }
 
     def __init__(self, *args, **kwargs):
@@ -27,7 +30,7 @@ class CultivationReportForm(forms.ModelForm):
             except (ValueError, TypeError):
                 pass  # invalid input from the client; ignore and fallback to empty location queryset
         elif self.instance.pk:
-            self.fields['location'].queryset = self.instance.city.location_set.order_by('name')
+            self.fields['location'].queryset = LLLocation.objects.filter(living_lab=self.instance.city).order_by('name')
 
         if 'location'  in self.data:
             try:
@@ -53,78 +56,24 @@ class CultivationReportForm(forms.ModelForm):
             ),
         )
 
-
-class CustomSelect(Select):
-    """
-    Custom item list dropdown menu widget with options
-    including unit data.
-    """
-
-    def __init__(self, *args, **kwargs):
-        self.item_units = kwargs.pop("item_units", {})
-        super().__init__(*args, **kwargs)
-
-    def create_option(
-        self, name, value, label, selected, index, subindex=None, attrs=None
-    ):
-        option = super().create_option(
-            name, value, label, selected, index, subindex=subindex, attrs=attrs
-        )
-        # see if its a function or a dictionary
-        if value == "":
-            option["attrs"]["disabled"] = "disabled"
-        if callable(self.item_units):
-            try:
-                option["attrs"]["data-unit"] = self.item_units(value)
-            except Exception as e:
-                option["attrs"]["data-unit"] = ""
-        elif value in self.item_units:
-            option["attrs"]["data-unit"] = self.item_units[value]
-        return option
-
-
-
-def get_item_choices():
-    try:
-        ITEM_CHOICES = [
-            (item, item) for item in Product.objects.values_list("name", flat=True)
-        ]
-        ITEM_CHOICES.insert(0, ("", "Select Product"))
-    except Exception as e:
-        ITEM_CHOICES = [("", "Select Product")]
-    return ITEM_CHOICES
-
-def get_item_units_cultivation(value):
-    try:
-        ITEM_UNITS = {
-            item: reportUtils.get_label_of_choice_class(reportUtils.CultivationTypes,unit) for (item, unit) in Product.objects.values_list("name", "cultivation_type")
-        }
-        return ITEM_UNITS[value]
-    except Exception as e:
-        ITEM_UNITS = {}
-        return ""
-
 class CultivationProductForm(forms.ModelForm):
     class Meta:
         model = CultivationReportDetails
         fields = ["name", "area_cultivated"]
+        labels = {
+            'name' : 'Product',
+        }
 
-    name = forms.ChoiceField(
-        choices=get_item_choices,
-        label="Product",
-        widget=CustomSelect(item_units=get_item_units_cultivation),
-    )
     area_cultivated = forms.FloatField(label="Area cultivated")    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if "initial" in kwargs:
-            initial = kwargs["initial"]
-            self.fields["name"].initial = initial["name_id"]
-            self.fields["area_cultivated"].initial = initial["area_cultivated"]
-            initial_unit = Product.objects.get(name=initial["name_id"]).cultivation_type
-        else:
-            initial_unit = ""
+
+        self.fields['name'].widget.attrs.update({
+            'class' : 'product-name-select'
+        })
+            
+        initial_unit = ""
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_tag = False
@@ -134,8 +83,8 @@ class CultivationProductForm(forms.ModelForm):
                     Field(
                         "name",
                         wrapper_class="d-flex align-items-center",
-                        onchange="updateUnit(this)",
-                        onload="updateUnit(this)",
+                        onchange="updateUnitCultivation(this)",
+                        onload="updateUnitCultivation(this)",
                     ),
                     css_class="col-md-3",
                 ),
@@ -144,7 +93,7 @@ class CultivationProductForm(forms.ModelForm):
                     css_class="col-md-3",
                 ),
                 Column(
-                    HTML(f'<div class="unit-display"> {initial_unit} </div>'),
+                    HTML(f'<div class="unit-cultivation-display"> {initial_unit} </div>'),
                     css_class="col-md-1",
                 ),
                 Column(

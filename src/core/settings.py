@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "eventReport",
     "demographicReport",
     "cultivationReport",
+    "cultivationReport_view",
     "inputReport",
     "lluseReport",
     "lluseReport_view"

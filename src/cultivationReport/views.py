@@ -1,5 +1,5 @@
 from .models import CultivationReportDetails, CultivationReport
-from productionReport.models import Product
+from productionReport.models import Product, LLLocation, Garden
 from .forms import CultivationReportForm, CultivationProductForm
 from django.shortcuts import render
 
@@ -25,8 +25,8 @@ def get_post_report(request):
         report = CultivationReport.objects.create(
             cultivation_date=data.get("cultivation_date"),
             city=data.get("city"),
-            location=data.get("location"),
-            garden=data.get("garden"),
+            location=LLLocation.objects.get(name=data.get("location")),
+            garden=Garden.objects.get(name=data.get("garden")),
             user=request.user,
         )
         for post_item in data.get("items", []):
