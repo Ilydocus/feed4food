@@ -17,10 +17,7 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
-    network_mode: "host"
     restart: unless-stopped
-
-
 
   django:
     build:
@@ -30,7 +27,6 @@ services:
     working_dir: /app
     command: >
       bash -c "
-      export DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB} && 
       cd src;
       pixi run python manage.py makemigrations &&
       pixi run python manage.py migrate &&
@@ -45,17 +41,15 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      - POSTGRES_DB
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - DJANGO_SUPERUSER_USERNAME
-      - DJANGO_SUPERUSER_PASSWORD
-      - DJANGO_SUPERUSER_EMAIL
-      - SECRET_KEY
-    network_mode: "host"
+      POSTGRES_DB:     ${POSTGRES_DB}
+      POSTGRES_USER:   ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
+      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
+      DJANGO_SUPERUSER_EMAIL:    ${DJANGO_SUPERUSER_EMAIL}
+      SECRET_KEY: ${SECRET_KEY}
     restart: unless-stopped
-
-
 
   grafana:
     build:
@@ -68,17 +62,14 @@ services:
       - POSTGRES_PASSWORD
     depends_on:
       - prometheus
-    ports: 
+    ports:
       - "3000:3000"
-    network_mode: "host"
     restart: unless-stopped
-
-
 
   scaphandre:
     image: hubblo/scaphandre
     privileged: true
-    ports: 
+    ports:
       - "8080:8080"
     volumes:
       - type: bind
@@ -87,20 +78,17 @@ services:
       - type: bind
         source: /sys/class/powercap
         target: /sys/class/powercap
-    command: ["prometheus"]  
-    network_mode: "host"
+    command: ["prometheus"]
     restart: unless-stopped
-               
-    
+
   prometheus:
     build:
       context: ./prometheus
     user: root
-    ports: 
+    ports:
       - "9090:9090"
-    volumes: 
+    volumes:
       - ../prometheus:/prometheus
-    network_mode: "host"
     restart: unless-stopped
 
 
@@ -111,7 +99,6 @@ services:
     command:
       - '--path.rootfs=/host'
     pid: host
-    network_mode: "host"
     volumes:
       - '/:/host:ro,rslave'
     restart: unless-stopped
