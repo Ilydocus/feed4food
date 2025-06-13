@@ -27,9 +27,9 @@ class WaterReportRainfall(models.Model):
 
 class WaterReportIrrigation(models.Model):
     class FrequencyInterval(models.TextChoices):
-        DAY = 'day'
-        WEEK = 'week'
-        MONTH = 'month'
+        DAY = 'day', 'day'
+        WEEK = 'week', 'week'
+        MONTH = 'month', 'month'
     class WaterSources(models.TextChoices):
         HARVESTED = 'harvested','Harvested water'
         TAP = 'tap', 'Tap water'

@@ -84,7 +84,7 @@ function addRainfall() {
     // Append the new row and increment TOTAL_FORMS
     container.appendChild(newFormRow);
     totalForms.value = formCount + 1;
-    enableSearchableDropdown();
+    //enableSearchableDropdown();
 }
 
 function addIrrigation() {
@@ -100,7 +100,7 @@ function addIrrigation() {
     // Append the new row and increment TOTAL_FORMS
     container.appendChild(newFormRow);
     totalForms.value = formCount + 1;
-    enableSearchableDropdown();
+    //enableSearchableDropdown();
     initializeExistingForms();//Make the periodic fields disappear
 }
 
@@ -675,46 +675,56 @@ function submitWaterForm() {
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
     const rainfalls = [];
-    document.querySelectorAll('#rainwater-form-container > div').forEach((itemDiv) => {
-        const start_date = itemDiv.querySelector('input[name$="start_date"]').value;
-        const end_date = itemDiv.querySelector('input[name$="end_date"]').value;
-        const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
-        
-        rainfalls.push({
-            start_date: start_date,
-            end_date: end_date,
-            quantity: quantity,
+    const elements_r = document.querySelectorAll('#rainwater-form-container > div');
+    if (elements_r.length > 0){
+        elements_r.forEach((itemDiv) => {
+            const start_date = itemDiv.querySelector('input[name$="start_date"]').value;
+            const end_date = itemDiv.querySelector('input[name$="end_date"]').value;
+            const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
+            
+            rainfalls.push({
+                start_date: start_date,
+                end_date: end_date,
+                quantity: quantity,
+            });
         });
-    });
+    }
     const irrigations = [];
-    document.querySelectorAll('#irrigation-form-container > div').forEach((itemDiv) => {
-        const start_date = itemDiv.querySelector('input[name$="start_date"]').value;
-        end_date =null;
-        if(!itemDiv.querySelector('input[name$="end_date"]') === null){
-            end_date = itemDiv.querySelector('input[name$="end_date"]').value;
-        }
-        const period = itemDiv.querySelector('input[name$="period"]').checked;
-        frequency_times =0;
-        if (!itemDiv.querySelector('input[name$="frequency_times"]')===null){
-            frequency_times = itemDiv.querySelector('input[name$="frequency_times"]').value;
-        }
-        frequency_interval = null;
-        if (!itemDiv.querySelector('input[name$="frequency_interval"]') ===null){
-            frequency_interval = itemDiv.querySelector('input[name$="frequency_interval"]').value;
-        }
-        const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
-        const source = itemDiv.querySelector('input[name$="source"]').value;
-        
-        irrigations.push({
-            start_date: start_date,
-            end_date: end_date,
-            period: period,
-            frequency_times: frequency_times,
-            frequency_interval: frequency_interval,
-            quantity: quantity,
-            source: source,
+    const elements_i = document.querySelectorAll('#irrigation-form-container > div');
+    if (elements_i.length > 0){
+        elements_i.forEach((itemDiv) => {
+            const start_date = itemDiv.querySelector('input[name$="start_date"]').value;
+            end_date = null;
+            const end_dateElement =itemDiv.querySelector('input[name$="end_date"]');
+            if(end_dateElement!== null){
+                end_date = itemDiv.querySelector('input[name$="end_date"]').value;
+            }
+            const period = itemDiv.querySelector('input[name$="period"]').checked;
+            frequency_times = 0;
+            const frequency_timesElement =itemDiv.querySelector('input[name$="frequency_times"]');
+            if (frequency_timesElement !==null){
+                frequency_times = itemDiv.querySelector('input[name$="frequency_times"]').value;
+            }
+            frequency_interval = null;
+            const frequency_intervalElement = itemDiv.querySelector('select[name$="frequency_interval"]');
+            if (frequency_intervalElement !== null){
+                frequency_interval = itemDiv.querySelector('select[name$="frequency_interval"]').value;
+            }
+            const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
+            const source = itemDiv.querySelector('select[name$="source"]').value;
+            
+            irrigations.push({
+                start_date: start_date,
+                end_date: end_date,
+                period: period,
+                frequency_times: frequency_times,
+                frequency_interval: frequency_interval,
+                quantity: quantity,
+                source: source,
+            });
         });
-    });
+    }
+    
     fetch('', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 
