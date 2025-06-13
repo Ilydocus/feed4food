@@ -104,7 +104,7 @@ class WaterRainfallForm(forms.ModelForm):
 class WaterIrrigationForm(forms.ModelForm):
     class Meta:
         model = WaterReportIrrigation
-        fields = ["start_date", "end_date", "frequency_times", "frequency_interval", "period", "quantity"]
+        fields = ["start_date", "end_date", "frequency_times", "frequency_interval", "period", "quantity", "source"]
         widgets = {
             "start_date": forms.DateInput(attrs={"type": "date"}),
             "end_date": forms.DateInput(attrs={"type": "date"}),
@@ -126,6 +126,10 @@ class WaterIrrigationForm(forms.ModelForm):
         self.helper.form_tag = False
         self.helper.layout = Layout(
             Row(
+                Column(
+                    Field("source", wrapper_class="d-flex align-items-center"),
+                    css_class="col-md-3",
+                ),
                 Column(
                     Field("quantity", wrapper_class="d-flex align-items-center"),
                     css_class="col-md-3",

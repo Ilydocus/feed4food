@@ -41,6 +41,7 @@ def get_post_report(request):
         for post_action in data.get("irrigations", []):
             WaterReportIrrigation.objects.create(
                 report_id=report,
+                source=post_action.get("source"),
                 quantity=post_action.get("quantity"),
                 start_date=post_action.get("start_date"),
                 end_date=post_action.get("end_date"),

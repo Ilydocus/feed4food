@@ -30,9 +30,14 @@ class WaterReportIrrigation(models.Model):
         DAY = 'day'
         WEEK = 'week'
         MONTH = 'month'
+    class WaterSources(models.TextChoices):
+        HARVESTED = 'harvested','Harvested water'
+        TAP = 'tap', 'Tap water'
+        OTHER = 'other', 'Other'
     start_date = models.DateField()
     end_date = models.DateField(null=True)
     period = models.BooleanField()
+    source = frequency_interval= models.CharField(max_length=30, choices=WaterSources,null=True)
     frequency_times = models.FloatField(default=0)
     frequency_interval= models.CharField(max_length=10, choices=FrequencyInterval,null=True)
     report_id = models.ForeignKey(

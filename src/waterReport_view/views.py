@@ -43,6 +43,7 @@ def edit_report(request, report_id):
                 frequency_times=post_item.get("frequency_times"),
                 frequency_interval=post_item.get("frequency_interval"),
                 quantity=post_item.get("quantity"),
+                source=post_item.get("source"),
             )
 
         report.city = data.get("city")

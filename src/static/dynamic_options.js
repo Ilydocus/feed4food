@@ -703,6 +703,7 @@ function submitWaterForm() {
             frequency_interval = itemDiv.querySelector('input[name$="frequency_interval"]').value;
         }
         const quantity = itemDiv.querySelector('input[name$="quantity"]').value;
+        const source = itemDiv.querySelector('input[name$="source"]').value;
         
         irrigations.push({
             start_date: start_date,
@@ -711,6 +712,7 @@ function submitWaterForm() {
             frequency_times: frequency_times,
             frequency_interval: frequency_interval,
             quantity: quantity,
+            source: source,
         });
     });
     fetch('', {

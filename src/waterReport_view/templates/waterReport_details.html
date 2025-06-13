@@ -32,7 +32,7 @@
     <div class="centered-list">
         <ul>
             {% for report_item in report.irrigations.all %}
-            <li>{{ report_item.start_date }} to {{ report_item.end_date }} : {{ report_item.quantity }} L ({{ report_item.frequency_times }} a {{ report_item.frequency_interval }}) </li>
+            <li>{{ report_item.source }} - {{ report_item.start_date }} to {{ report_item.end_date }} : {{ report_item.quantity }} L ({{ report_item.frequency_times }} a {{ report_item.frequency_interval }}) </li>
             {% endfor %}
         </ul>
     </div>
