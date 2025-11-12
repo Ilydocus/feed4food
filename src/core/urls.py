@@ -18,6 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic.base import TemplateView
+import accounts
 
 
 urlpatterns = [
@@ -54,4 +55,5 @@ urlpatterns = [
     path("inputReport_list/", include("inputReport_view.urls")),
     path("lluseReport/", include("lluseReport.urls")),
     path("lluseReport_list/", include("lluseReport_view.urls")),
+    path('ethics-consent/', accounts.views.ethics_consent, name='ethics_consent'),
 ]

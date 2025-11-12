@@ -101,6 +101,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "accounts.middleware.InactiveUserRedirectMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "accounts.middleware.EthicsConsentMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
