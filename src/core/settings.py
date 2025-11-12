@@ -73,7 +73,8 @@ INSTALLED_APPS = [
     "inputReport",
     "inputReport_view",
     "lluseReport",
-    "lluseReport_view"
+    "lluseReport_view",
+    "informedConsent_view"
 ]
 
 CHANNEL_LAYERS = {

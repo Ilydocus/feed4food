@@ -56,4 +56,5 @@ urlpatterns = [
     path("lluseReport/", include("lluseReport.urls")),
     path("lluseReport_list/", include("lluseReport_view.urls")),
     path('ethics-consent/', accounts.views.ethics_consent, name='ethics_consent'),
+    path("informedConsent_view/", include("informedConsent_view.urls")),
 ]
