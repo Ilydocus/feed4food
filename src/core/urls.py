@@ -20,7 +20,6 @@ from django.urls import path, include
 from django.views.generic.base import TemplateView
 import accounts
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
@@ -55,5 +54,6 @@ urlpatterns = [
     path("inputReport_list/", include("inputReport_view.urls")),
     path("lluseReport/", include("lluseReport.urls")),
     path("lluseReport_list/", include("lluseReport_view.urls")),
+    path("kpi_dashboard/", include("kpi_dashboard.urls")),
     path('ethics-consent/', accounts.views.ethics_consent, name='ethics_consent'),
 ]
