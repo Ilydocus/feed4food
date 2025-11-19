@@ -2,9 +2,12 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import plotly.graph_objs as go
+import pandas as pd
+import plotly.express as px
+from productionReport.models import Product, ProductionReport, ProductionReportDetails
 
 
-class FigureCard5(dbc.Card):
+class KA5_FigureCard(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -47,17 +50,28 @@ class FigureCard5(dbc.Card):
             className="mb-3 figure-card",
         )
 
-months = ['November','December','January','February']
 
-fig = go.Figure()
-fig.add_trace(go.Bar(x=months, y=[-200,-400, -600, -320],
-                #base=[-500,-600,-700],
-                marker_color='crimson',
-                name='expenses'))
-fig.add_trace(go.Bar(x=months, y=[300,1500, 200, 750],
-                #base=0,
-                marker_color='green',
-                name='revenues'
-                ))
+data = [{
+    "name": product.name or "Unknown", 
+    "unit": product.unit or 0
+} for product in Product.objects.all()]
 
-fig.update_layout(barmode='relative')
+df = pd.DataFrame(data)
+
+if not df.empty:
+    fig = px.line(df, x='name', y='unit', markers=True)
+else:
+    fig = go.Figure()  
+
+# print("PRODUCTION REPORT:")
+# print("----------------------------------")
+# print(ProductionReport.objects.all())
+# print(Product.objects.all())
+# print(ProductionReportDetails.objects.all())
+
+# df = pd.DataFrame({
+#     "months": ["November", "December", "January", "February"],
+#     "balance": [100, 1100, -400, 430]
+# })
+
+# fig = px.line(df, x='months', y='balance', markers=True)

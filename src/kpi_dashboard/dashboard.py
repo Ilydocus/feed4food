@@ -5,332 +5,218 @@ import plotly.graph_objs as go
 from django_plotly_dash import DjangoDash
 import dash_bootstrap_components as dbc
 
-import pandas as pd
-import plotly.express as px
-
-from .components.MetricCard import MetricCard
-from .components.MetricCard2 import MetricCard2
-from .components.FigureCard import FigureCard
-from .components.FigureCard2 import FigureCard2
-from .components.FigureCard4 import FigureCard4
-from .components.FigureCard5 import FigureCard5
-from .components.FigureCard6 import FigureCard6
-from .components.KA1 import ExpensesRevenues
-
+# Import custom FigureCard components
+from .components.KA5_IrrigationWaterUse import KA5_FigureCard
+from .components.KA5_IrrigationFrequency import KA5_MetricCard
 
 # Create a Dash app
-app = DjangoDash("KPIVisualisationApp",external_stylesheets=[dbc.themes.BOOTSTRAP])
-#fig = go.Figure(data=go.Scatter(x=[], y=[]))
+app = DjangoDash("KPIVisualisationApp", external_stylesheets=[dbc.themes.BOOTSTRAP])
+
+# Initialize empty figure
 fig = go.Figure()
 
 
-
-# Fetch data
-def fetch_user_data(item, user_id):
-    user_reports = ProductionReport.objects.filter(user=user_id)
-    report_ids = [report.report_id for report in user_reports]
-    timestamps = [report.creation_time for report in user_reports]
-    date_produced = [report.start_date for report in user_reports]
-    total_quantity = []
-    for report_id in report_ids:
-        detailed_reports = ProductionReportDetails.objects.filter(
-            report_id=report_id, name=item
-        )
-        total_quantity.append(sum([x.quantity for x in detailed_reports]))
-    return date_produced, total_quantity
-
-
-
-
 # Layout
-try:
-    item_options = list(Product.objects.all().values_list("name", flat=True))
-except Exception as e:
-    item_options = []
-item_options2=['All varieties']
+app.layout = html.Div([
+    html.P("KPI:", style={"color": "white"}), 
+    dcc.Dropdown(
+        id="kpi-selector",
+        placeholder="Select a KPI to display",
+        style={"margin-bottom": "15px"},
+        options=[
+            {'label': 'KA1', 'value': 'ka1'},
+            {'label': 'KC1-P', 'value': 'kc1p'},
+            {'label': 'KC2', 'value': 'kc2'},
+            {'label': 'KC3', 'value': 'kc3'},                    
+            {'label': 'KC4', 'value': 'kc4'},
+            {'label': 'KC5', 'value': 'kc5'},
+        ],
+    ),
 
+    # Dashboard content placeholders
+    html.Div(id="ka1-dashboard", children=[], style={'display': 'none'}),
+    html.Div(id="kc1p-dashboard", children=[], style={'display': 'none'}),
+    html.Div(id="kc2-dashboard", children=[], style={'display': 'none'}),
+    html.Div(id="kc3-dashboard", children=[], style={'display': 'none'}),
+    html.Div(id="kc4-dashboard", children=[], style={'display': 'none'}),
+    html.Div(id="kc5-dashboard", children=[], style={'display': 'none'}),
+], style={"background-color":"#003399", "height": "100%"})
 
-app.layout = html.Div([html.P("KPI:", style={"color": "white"}), 
-dcc.Dropdown(
-            id="kpi-selector",
-            placeholder="Select a KPI to display",
-            style={"margin-bottom": "15px"},
-            options=[
-                    {'label': 'KA1', 'value': 'ka1'},
-                    {'label': 'KC1-P', 'value': 'kc1p'},
-                    {'label': 'KC2', 'value': 'kc2'},
-                    {'label': 'KC3', 'value': 'kc3'},                    
-                    {'label': 'KC4', 'value': 'kc4'},
-                    {'label': 'KC5', 'value': 'kc5'},
-                ],
-        ),
-#### KS3 KPI dashboard
-html.Div([
-    dbc.Row(
-    dbc.Col(
-        [
+# Callback for showing the right KPI dashboard
+@app.callback(
+    [
+        Output('ka1-dashboard', 'style'),
+        Output('kc1p-dashboard', 'style'),
+        Output('kc2-dashboard', 'style'),
+        Output('kc3-dashboard', 'style'),
+        Output('kc4-dashboard', 'style'),
+        Output('kc5-dashboard', 'style')
+    ],
+    [Input('kpi-selector', 'value')]
+)
+def show_hide_dashboards(kpi_value):
+    # Default: hide all dashboards
+    visibility = {kpi: {'display': 'none'} for kpi in ['ka1', 'kc1p', 'kc2', 'kc3', 'kc4', 'kc5']}
+    
+    if kpi_value:
+        visibility[kpi_value] = {'display': 'block'}  # Show selected dashboard
+    
+    return visibility['ka1'], visibility['kc1p'], visibility['kc2'], visibility['kc3'], visibility['kc4'], visibility['kc5']
+
+# Helper function to generate the layout for each KPI
+def create_kpi_layout(kpi_name):
+    if kpi_name == 'ka1':
+        return html.Div([
             dbc.Row(
                 [
-                    dbc.Col(MetricCard("Cultivated species", id="species-count"), width=6),
-                    dbc.Col(MetricCard2("Native species", id="native-count"), width=6),
+                    dbc.Col(
+                        dbc.Card(
+                            [
+                                dbc.CardHeader(html.H4("Revenue and Sales", className="card-title")),
+                                dbc.CardBody([KA5_FigureCard("Revenue per Event", id="revenue-ka1"), KA5_FigureCard("Production Sales and Sales in Restaurant", id="prodsales-ka1")]),
+                            ],
+                        ), sm=12, md=4
+                    ),
+                    
+                    dbc.Col(
+                        dbc.Card(
+                            [
+                                dbc.CardHeader(html.H4("Cost and Revenue", className="card-title")),
+                                dbc.CardBody([KA5_FigureCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1"), KA5_FigureCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1")]),
+                            ],
+                        ), sm=12, md=4
+                    ),
+                    
+                    dbc.Col(
+                        [
+                            dbc.Card(
+                                [
+                                    dbc.CardHeader(html.H4("Product Sales", className="card-title")),
+                                    dbc.CardBody([KA5_FigureCard("Quantity Sold per Product", id="quantitysold-ka1"), KA5_FigureCard("Price per Product", id="priceprod-ka1")]),
+                                ],
+                            ),
+                            dbc.Card(
+                                [
+                                    dbc.CardHeader(html.H4("Funding", className="card-title")),
+                                    dbc.CardBody([KA5_FigureCard("Project Funding vs. Other Funding", id="funding-ka1")]),
+                                ], style={'marginTop': '20px'}  # Add margin to the second card
+                            ),
+                        ], sm=12, md=4
+                    )
                 ]
             ),
+        ])
+
+
+    elif kpi_name == 'kc1p':
+        return html.Div([
             dbc.Row(
-                [
-                    dbc.Col(
-                        FigureCard(
-                            "Target progress: Cultivated species",
-                            id="target-all-species",
-                        ),
-                        sm=12,
-                        md=7,
-                    ),
-                    dbc.Col(
-                        FigureCard2(
-                            "Nutrients coverage",
-                            id="nutrients-covered",
-                        ),
-                        sm=12,
-                        md=5,
-                    ),
-                ],
-                className="dashboard-row",
+                dbc.Col([KA5_FigureCard("KC3 Balance", id="balance-kc3")], sm=12, md=12)
             ),
-            dbc.Row(
-                [
+        ])
+
+    elif kpi_name == 'kc2':
+        return html.Div([
+            dbc.Row([
                 dbc.Col(
-                    FigureCard4(
-                        "Target progress: Native species",
-                        id="target-native",
-                        #description=figure_descriptions.get("quality"),
-                    ),
-                    width=6,
+                    dbc.Card([
+                        dbc.CardHeader(html.H4("Cultivated Area", className="card-title")),
+                        dbc.CardBody([
+                            dbc.Row([
+                                dbc.Col(KA5_MetricCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2"), sm=6, md=6),
+                                dbc.Col(KA5_MetricCard("Number of Plants in Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric-2-kc2"), sm=6, md=6)
+                            ])
+                        ]),
+                    ]), sm=12, md=6
                 ),
                 dbc.Col(
-                    FigureCard4(
-                        "Color coverage",
-                        id="colors-covered",
-                        #description=figure_descriptions.get("quality"),
-                    ),
-                    width=6,
+                    dbc.Card([
+                        dbc.CardHeader(html.H4("Additional Information", className="card-title")),
+                        dbc.CardBody([
+                            dbc.Row([
+                                dbc.Col(KA5_MetricCard("Gardens/Holdings in Use", id="metric3-kc2"), sm=6, md=6),
+                                dbc.Col(KA5_MetricCard("Active Ingredient in Pesticide/Fertilizer Commercial Product", id="metric4-trend-kc2"), sm=6, md=6)
+                            ])
+                        ]),
+                    ]), sm=12, md=6
                 ),
-                ],className="dashboard-row",
-            ),
-            
-        ],
-    ),
-    id="dashboard",
-)
-], style= {'display': 'block',"background-color":"#003399",}, # <-- This is the line that will be changed by the dropdown callback
-id="ka1-dashboard"),
-#### KA1 KPI dashboard
-html.Div([
-    dbc.Row(
-    dbc.Col(
-        [
+            ]),
             dbc.Row(
-                [
-                    dbc.Col(
-                        FigureCard6(
-                            "Balance",
-                            id="balance",
-                            #description=figure_descriptions.get("summary"),
-                        ),
-                        sm=12,
-                        md=12,
-                    ),
-                ],
-                className="dashboard-row",
+                dbc.Col(
+                    dbc.Card([
+                        dbc.CardHeader(html.H4("Usage Overview", className="card-title")),
+                        dbc.CardBody([
+                            dbc.Row([
+                                dbc.Col(KA5_FigureCard("Quantity of Chemical Fertilizer/Pesticide Used per Product", id="graph1-kc2"), sm=4, md=4),
+                                dbc.Col(KA5_FigureCard("Surface Actively Cultivated per Product", id="graph2-kc2"), sm=4, md=4),
+                                dbc.Col(KA5_FigureCard("Plants Actively Cultivated per Product", id="graph3-kc2"), sm=4, md=4),
+                            ])
+                        ])
+                    ]), sm=12, style={'marginTop': '20px'}  # Adding space between rows
+                )
             ),
-        ],
-    ),
-    id="dashboard",
-)
-], style= {'display': 'block',"background-color":"#003399",}, # <-- This is the line that will be changed by the dropdown callback
-id="kc1p-dashboard"),
+        ])
 
 
-html.Div([
-    dbc.Row(
-    dbc.Col(
-        [
+    elif kpi_name == 'kc3':
+        return html.Div([
             dbc.Row(
-                [
-                    dbc.Col(
-                        FigureCard6(
-                            "Balance",
-                            id="balance",
-                            #description=figure_descriptions.get("summary"),
-                        ),
-                        sm=12,
-                        md=12,
-                    ),
-                ],
-                className="dashboard-row",
+                dbc.Col([KA5_FigureCard("KC3 Balance", id="balance-kc3")], sm=12, md=12)
             ),
-        ],
-    ),
-    id="dashboard",
-)
-], style= {'display': 'block',"background-color":"#003399",}, # <-- This is the line that will be changed by the dropdown callback
-id="kc2-dashboard"),
-
-html.Div([
-    dbc.Row(
-    dbc.Col(
-        [
+        ])
+    elif kpi_name == 'kc4':
+        return html.Div([
             dbc.Row(
-                [
-                    dbc.Col(
-                        FigureCard6(
-                            "Balance",
-                            id="balance",
-                            #description=figure_descriptions.get("summary"),
-                        ),
-                        sm=12,
-                        md=12,
-                    ),
-                ],
-                className="dashboard-row",
+                dbc.Col([KA5_FigureCard("KC4 Balance", id="balance-kc4")], sm=12, md=12)
             ),
-        ],
-    ),
-    id="dashboard",
+        ])
+    elif kpi_name == 'kc5':
+        return html.Div([
+            dbc.Row([
+                dbc.Col(
+                    dbc.Card([
+                        dbc.CardHeader(html.H4("Irrigation Details", className="card-title")),
+                        dbc.CardBody([KA5_FigureCard("Irrigation Frequency", id="graph1-kc5")]),
+                    ]), sm=12, md=4  
+                ),
+                
+                dbc.Col(
+                    dbc.Card([
+                        dbc.CardHeader(html.H4("Water Usage", className="card-title")),
+                        dbc.CardBody([
+                            dbc.Row([
+                                dbc.Col(KA5_FigureCard("Rainwater Harvested", id="graph2-kc5"), sm=6, md=6),  
+                                dbc.Col(KA5_FigureCard("Irrigation Water Use per Source", id="graph3-kc5"), sm=6, md=6), 
+                            ])
+                        ]),
+                    ]), sm=12, md=8  
+                ),
+            ])
+        ])
+
+    else:
+        return html.Div([])  # Return an empty div if no valid KPI
+
+# Callback to dynamically update the layout for each KPI
+@app.callback(
+    [
+        Output('ka1-dashboard', 'children'),
+        Output('kc1p-dashboard', 'children'),
+        Output('kc2-dashboard', 'children'),
+        Output('kc3-dashboard', 'children'),
+        Output('kc4-dashboard', 'children'),
+        Output('kc5-dashboard', 'children')
+    ],
+    [Input('kpi-selector', 'value')]
 )
-], style= {'display': 'block',"background-color":"#003399",}, # <-- This is the line that will be changed by the dropdown callback
-id="kc3-dashboard"),
-
-html.Div([
-    dbc.Row(
-    dbc.Col(
-        [
-            dbc.Row(
-                [
-                    dbc.Col(
-                        FigureCard6(
-                            "Balance",
-                            id="balance",
-                            #description=figure_descriptions.get("summary"),
-                        ),
-                        sm=12,
-                        md=12,
-                    ),
-                ],
-                className="dashboard-row",
-            ),
-        ],
-    ),
-    id="dashboard",
-)
-], style= {'display': 'block',"background-color":"#003399",}, # <-- This is the line that will be changed by the dropdown callback
-id="kc4-dashboard"),
-
-html.Div([
-    dbc.Row(
-    dbc.Col(
-        [
-            dbc.Row(
-                [
-                    dbc.Col(
-                        FigureCard6(
-                            "Balance",
-                            id="balance",
-                            #description=figure_descriptions.get("summary"),
-                        ),
-                        sm=12,
-                        md=12,
-                    ),
-                ],
-                className="dashboard-row",
-            ),
-        ],
-    ),
-    id="dashboard",
-)
-], style= {'display': 'block',"background-color":"#003399",}, # <-- This is the line that will be changed by the dropdown callback
-id="kc5-dashboard")
-
-],style={"background-color":"#003399", "height": "100%" })
-
-
-
-#Showing the dashboard part only when KPI is selected
-@app.callback(
-   Output(component_id='ka1-dashboard', component_property='style'),
-   [Input(component_id='kpi-selector', component_property='value')])
-def show_hide_element2(visibility_state):
-    if visibility_state == 'ka1':
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
-
-@app.callback(
-   Output(component_id='kc1p-dashboard', component_property='style'),
-   [Input(component_id='kpi-selector', component_property='value')])
-def show_hide_element2(visibility_state):
-    if visibility_state == 'kc1p':
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
-    
-@app.callback(
-   Output(component_id='kc2-dashboard', component_property='style'),
-   [Input(component_id='kpi-selector', component_property='value')])
-def show_hide_element2(visibility_state):
-    if visibility_state == 'kc2':
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
-    
-@app.callback(
-   Output(component_id='kc3-dashboard', component_property='style'),
-   [Input(component_id='kpi-selector', component_property='value')])
-def show_hide_element2(visibility_state):
-    if visibility_state == 'kc3':
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
-    
-
-@app.callback(
-   Output(component_id='kc4-dashboard', component_property='style'),
-   [Input(component_id='kpi-selector', component_property='value')])
-def show_hide_element2(visibility_state):
-    if visibility_state == 'kc4':
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
-    
-@app.callback(
-   Output(component_id='kc5-dashboard', component_property='style'),
-   [Input(component_id='kpi-selector', component_property='value')])
-def show_hide_element2(visibility_state):
-    if visibility_state == 'kc5':
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
-
-@app.callback(
-    Output({"type": "metric-value", "index": "species-count"}, "children"),
-    [Input("kpi-selector", "value")]  # Add this input
-)
-def display_species_count(kpi_value, **kwargs):
-    try:
-        species_count = Product.objects.count()
-        return species_count
-    except Exception as e:
-        return 0
-
-@app.callback(
-    Output({"type": "metric-value", "index": "native-count"}, "children"),
-    [Input("kpi-selector", "value")]  # Add this input
-)
-def display_native_count(kpi_value, **kwargs):
-    try:
-        species_count = Product.objects.filter(locale=True).count()
-        return species_count
-    except Exception as e:
-        return 0
-
-
+def update_kpi_layout(kpi_value):
+    # Generate and return layout for the selected KPI
+    return (
+        create_kpi_layout('ka1') if kpi_value == 'ka1' else html.Div([]),
+        create_kpi_layout('kc1p') if kpi_value == 'kc1p' else html.Div([]),
+        create_kpi_layout('kc2') if kpi_value == 'kc2' else html.Div([]),
+        create_kpi_layout('kc3') if kpi_value == 'kc3' else html.Div([]),
+        create_kpi_layout('kc4') if kpi_value == 'kc4' else html.Div([]),
+        create_kpi_layout('kc5') if kpi_value == 'kc5' else html.Div([])
+    )
 
