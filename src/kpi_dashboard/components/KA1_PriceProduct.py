@@ -1,12 +1,11 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-import plotly.graph_objs as go
 import pandas as pd
-import plotly.express as px
-from waterReport.models import WaterReport, WaterReportIrrigation, WaterReportRainfall
+from dash.dash_table import DataTable
+from salesReport.models import SalesReportDetails  # Assuming you're using Django models for SalesReportDetails
 
-class KA5_FigureCard(dbc.Card):
+class KA1_PriceProduct(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -26,11 +25,20 @@ class KA5_FigureCard(dbc.Card):
                     className="d-flex justify-content-between align-center p-3",
                 ),
                 dbc.Spinner(
-                    dcc.Graph(
-                        id={"type": "graph", "index": id},
-                        responsive=True,
-                        style={"height": "100%"},
-                        figure=fig
+                    html.Div(
+                        id={"type": "table", "index": id},
+                        children=[
+                            DataTable(
+                                id={"type": "sales-table", "index": id},
+                                columns=[
+                                    {"name": "Product", "id": "product"},
+                                    {"name": "Price", "id": "price"},
+                                ],
+                                data=df.to_dict('records'),  # Data passed to the table
+                                style_table={'height': '400px', 'overflowY': 'auto'},  # Optional styling
+                                style_cell={'textAlign': 'center'},  # Optional styling
+                            )
+                        ]
                     ),
                     size="lg",
                     color="dark",
@@ -50,26 +58,15 @@ class KA5_FigureCard(dbc.Card):
         )
 
 
-# Assuming your data is already correct from the database, so let's group it properly
-
+# Fetch data for SalesReportDetails (replace with your actual query)
 data = [{
-    "month": f"{report.start_date.month}-{report.start_date.year}", 
-    "source": report.source,
-    "quantity": report.quantity
-} for report in WaterReportIrrigation.objects.all()]
+    "product": report.product.name,
+    "price": report.price,
+} for report in SalesReportDetails.objects.all()]
 
+# Convert the data into a pandas DataFrame
 df = pd.DataFrame(data)
 
-if not df.empty:
-    # Create a stacked bar chart using Plotly Express
-    fig = px.bar(
-        df,
-        x="month", 
-        y="quantity", 
-        color="source",  # This will create the stack based on source
-        labels={"month": "Month-Year", "quantity": "Water Use Quantity", "source": "Source"},
-        barmode="stack"  # This enables stacking of bars
-    )
-else:
-    fig = go.Figure()  # Empty figure if no data
- 
+if df.empty:
+    # Display an empty DataFrame message or similar if no data is available
+    df = pd.DataFrame(columns=["product", "price"])

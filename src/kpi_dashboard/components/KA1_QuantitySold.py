@@ -4,9 +4,9 @@ from dash import html, dcc
 import plotly.graph_objs as go
 import pandas as pd
 import plotly.express as px
-from waterReport.models import WaterReport, WaterReportIrrigation, WaterReportRainfall
+from salesReport.models import SalesReportDetails  # Assuming you're using Django models for SalesReportDetails
 
-class KA5_FigureCard(dbc.Card):
+class KA1_QuantitySold(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -50,14 +50,14 @@ class KA5_FigureCard(dbc.Card):
         )
 
 
-# Assuming your data is already correct from the database, so let's group it properly
-
+# Fetch data for SalesReportDetails (replace with your actual query)
 data = [{
-    "month": f"{report.start_date.month}-{report.start_date.year}", 
-    "source": report.source,
-    "quantity": report.quantity
-} for report in WaterReportIrrigation.objects.all()]
+    "product": report.product,
+    "quantity": report.quantity,
+    "month": f"{report.sale_date.month}-{report.sale_date.year}",  # Assuming you have a 'date' field
+} for report in SalesReportDetails.objects.all()]
 
+# Convert the data into a pandas DataFrame
 df = pd.DataFrame(data)
 
 if not df.empty:
@@ -66,10 +66,9 @@ if not df.empty:
         df,
         x="month", 
         y="quantity", 
-        color="source",  # This will create the stack based on source
-        labels={"month": "Month-Year", "quantity": "Water Use Quantity", "source": "Source"},
-        barmode="stack"  # This enables stacking of bars
+        color="product",  # Stack by product
+        labels={"month": "Month-Year", "quantity": "Quantity Sold", "product": "Product"},
+        barmode="stack"  # Stack the bars
     )
 else:
     fig = go.Figure()  # Empty figure if no data
- 

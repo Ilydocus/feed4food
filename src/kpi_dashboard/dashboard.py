@@ -6,8 +6,13 @@ from django_plotly_dash import DjangoDash
 import dash_bootstrap_components as dbc
 
 # Import custom FigureCard components
+from .components.KA1_QuantitySold import KA1_QuantitySold
+from .components.KA1_PriceProduct import KA1_PriceProduct
+from .components.KA1_Costs import KA1_CostsCard
+from .components.KA1_Funding import KA1_FundingCard
 from .components.KA5_IrrigationWaterUse import KA5_FigureCard
 from .components.KA5_IrrigationFrequency import KA5_MetricCard
+from .components.KA5_RainwaterHarvested import KA5_RainwaterCard
 
 # Create a Dash app
 app = DjangoDash("KPIVisualisationApp", external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -82,7 +87,7 @@ def create_kpi_layout(kpi_name):
                         dbc.Card(
                             [
                                 dbc.CardHeader(html.H4("Cost and Revenue", className="card-title")),
-                                dbc.CardBody([KA5_FigureCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1"), KA5_FigureCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1")]),
+                                dbc.CardBody([KA1_CostsCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1"), KA5_FigureCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1")]),
                             ],
                         ), sm=12, md=4
                     ),
@@ -92,13 +97,13 @@ def create_kpi_layout(kpi_name):
                             dbc.Card(
                                 [
                                     dbc.CardHeader(html.H4("Product Sales", className="card-title")),
-                                    dbc.CardBody([KA5_FigureCard("Quantity Sold per Product", id="quantitysold-ka1"), KA5_FigureCard("Price per Product", id="priceprod-ka1")]),
+                                    dbc.CardBody([KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-ka1"), KA1_PriceProduct("Price per Product", id="priceprod-ka1")]),
                                 ],
                             ),
                             dbc.Card(
                                 [
                                     dbc.CardHeader(html.H4("Funding", className="card-title")),
-                                    dbc.CardBody([KA5_FigureCard("Project Funding vs. Other Funding", id="funding-ka1")]),
+                                    dbc.CardBody([KA1_FundingCard("Project Funding and Other Funding", id="funding-ka1")]),
                                 ], style={'marginTop': '20px'}  # Add margin to the second card
                             ),
                         ], sm=12, md=4
@@ -185,7 +190,7 @@ def create_kpi_layout(kpi_name):
                         dbc.CardHeader(html.H4("Water Usage", className="card-title")),
                         dbc.CardBody([
                             dbc.Row([
-                                dbc.Col(KA5_FigureCard("Rainwater Harvested", id="graph2-kc5"), sm=6, md=6),  
+                                dbc.Col(KA5_RainwaterCard("Rainwater Harvested", id="graph2-kc5"), sm=6, md=6),  
                                 dbc.Col(KA5_FigureCard("Irrigation Water Use per Source", id="graph3-kc5"), sm=6, md=6), 
                             ])
                         ]),

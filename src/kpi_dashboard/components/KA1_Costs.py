@@ -1,12 +1,12 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-import plotly.graph_objs as go
 import pandas as pd
+import plotly.graph_objs as go
 import plotly.express as px
-from waterReport.models import WaterReport, WaterReportIrrigation, WaterReportRainfall
+from financialReport.models import FinancialReport  # Assuming you're using Django models for FinancialReport
 
-class KA5_FigureCard(dbc.Card):
+class KA1_CostsCard(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -50,26 +50,32 @@ class KA5_FigureCard(dbc.Card):
         )
 
 
-# Assuming your data is already correct from the database, so let's group it properly
-
+# Fetch data for FinancialReport (replace with your actual query)
 data = [{
-    "month": f"{report.start_date.month}-{report.start_date.year}", 
-    "source": report.source,
-    "quantity": report.quantity
-} for report in WaterReportIrrigation.objects.all()]
+    "month": report.month,
+    "year": report.year,
+    "exp_workforce": report.exp_workforce,
+    "exp_purchase": report.exp_purchase,
+    "exp_others": report.exp_others,
+} for report in FinancialReport.objects.all()]
 
+# Convert the data into a pandas DataFrame
 df = pd.DataFrame(data)
 
+# Combine month and year into a single column 'month_year' in the format 'MM-YYYY'
+df['month_year'] = df['month'].astype(str) + '-' + df['year'].astype(str)
+
 if not df.empty:
-    # Create a stacked bar chart using Plotly Express
-    fig = px.bar(
+    # Create a line chart with multiple lines for different costs using Plotly Express
+    fig = px.line(
         df,
-        x="month", 
-        y="quantity", 
-        color="source",  # This will create the stack based on source
-        labels={"month": "Month-Year", "quantity": "Water Use Quantity", "source": "Source"},
-        barmode="stack"  # This enables stacking of bars
+        x="month_year",  # X-axis is the month-year
+        y=["exp_workforce", "exp_purchase", "exp_others"],  # Multiple y-values for different costs
+        labels={
+            "month_year": "Month-Year", 
+            "value": "Cost",  # Default label for y-axis when plotting multiple lines
+        },
+        markers=True  # Show markers for each data point
     )
 else:
     fig = go.Figure()  # Empty figure if no data
- 
