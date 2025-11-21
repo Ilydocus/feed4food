@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+    {# Load the tag library #}
+    {% load django_bootstrap5 %}
+    
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,13 +21,36 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="{% static 'dynamic_options.js' %}"></script>
 </head>
+<style>
+      
+        .terms-content {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            margin-top: 25px;
+            margin-left: 25px;
+            margin-right: 25px;
+            line-height: 1.6;
+            color: #555;
+        }
+              
+        .terms-content p {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+</style>
 <body>
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
 
-    <div class="container">
-        <h1>Informed Consent</h1>
-        
+    
+    <h1>Informed Consent</h1>
+    <div class="terms-content">
         <p>This portal is part of the Feed4Food project, which is about empowering vulnerable communities
                 through our innovative Urban Agriculture Living Labs.  </p>
             
@@ -32,7 +64,7 @@
             </p>
         
         <p>If you would like to download a PDF version of this information:</p>
-        <a href="{% url 'informedConsent_view:download_informedConsent' %}" class="download-btn">Download Informed Consent document</a>
+        <a class="btn btn-primary" href="{% url 'download_informedConsent' %}" role="button">Download Informed Consent document</a>
     </div>
 
 

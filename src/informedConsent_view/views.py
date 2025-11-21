@@ -3,12 +3,12 @@ from django.http import FileResponse, Http404
 import os
 from django.conf import settings
 
-def informedConsent_show(request):
-    context = {
-        'title': 'Informed consent',
-        'description': 'View again the informed consent information.',
-    }
-    return render(request, 'informedConsent_view/informedConsent_show.html', context)
+# def informedConsent_show(request):
+#     context = {
+#         'title': 'Informed consent',
+#         'description': 'View again the informed consent information.',
+#     }
+#     return render(request, 'informedConsent_view/templates/informedConsent_show.html', context)
 
 def download_informedConsent(request):
     # Location of the file
