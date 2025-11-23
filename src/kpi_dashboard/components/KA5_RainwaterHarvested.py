@@ -2,9 +2,11 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import plotly.graph_objs as go
+import pandas as pd
+import plotly.express as px
+from waterReport.models import WaterReportRainfall
 
-
-class FigureCard4(dbc.Card):
+class KA5_RainwaterCard(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -47,18 +49,22 @@ class FigureCard4(dbc.Card):
             className="mb-3 figure-card",
         )
 
-fig = go.Figure(data=go.Scatterpolar(
-  r=[2, 2, 1, 0, 0],
-  theta=['Red','Yellow/Orange','White', 'Green',
-           'Blue/Purple'],
-  fill='toself'
-))
 
-fig.update_layout(
-  polar=dict(
-    radialaxis=dict(
-      visible=True
-    ),
-  ),
-  showlegend=False
-)
+# Collecting data from the WaterReportRainfall model
+data = [{
+    "month": f"{report.start_date.month}-{report.start_date.year}", 
+    "quantity": report.quantity
+} for report in WaterReportRainfall.objects.all()]
+
+df = pd.DataFrame(data)
+
+if not df.empty:
+    # Create a bar graph for rainwater harvested
+    fig = px.bar(
+        df,
+        x="month", 
+        y="quantity", 
+        labels={"month": "Month-Year", "quantity": "Rainwater Harvested Quantity"},
+    )
+else:
+    fig = go.Figure()  # Empty figure if no data

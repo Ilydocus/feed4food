@@ -1,10 +1,11 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-import plotly.graph_objs as go
+import pandas as pd
+from dash.dash_table import DataTable
+from salesReport.models import SalesReportDetails  # Assuming you're using Django models for SalesReportDetails
 
-
-class FigureCard5(dbc.Card):
+class KA1_PriceProduct(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -24,11 +25,20 @@ class FigureCard5(dbc.Card):
                     className="d-flex justify-content-between align-center p-3",
                 ),
                 dbc.Spinner(
-                    dcc.Graph(
-                        id={"type": "graph", "index": id},
-                        responsive=True,
-                        style={"height": "100%"},
-                        figure=fig
+                    html.Div(
+                        id={"type": "table", "index": id},
+                        children=[
+                            DataTable(
+                                id={"type": "sales-table", "index": id},
+                                columns=[
+                                    {"name": "Product", "id": "product"},
+                                    {"name": "Price", "id": "price"},
+                                ],
+                                data=df.to_dict('records'),  # Data passed to the table
+                                style_table={'height': '400px', 'overflowY': 'auto'},  # Optional styling
+                                style_cell={'textAlign': 'center'},  # Optional styling
+                            )
+                        ]
                     ),
                     size="lg",
                     color="dark",
@@ -47,17 +57,16 @@ class FigureCard5(dbc.Card):
             className="mb-3 figure-card",
         )
 
-months = ['November','December','January','February']
 
-fig = go.Figure()
-fig.add_trace(go.Bar(x=months, y=[-200,-400, -600, -320],
-                #base=[-500,-600,-700],
-                marker_color='crimson',
-                name='expenses'))
-fig.add_trace(go.Bar(x=months, y=[300,1500, 200, 750],
-                #base=0,
-                marker_color='green',
-                name='revenues'
-                ))
+# Fetch data for SalesReportDetails (replace with your actual query)
+data = [{
+    "product": report.product.name,
+    "price": report.price,
+} for report in SalesReportDetails.objects.all()]
 
-fig.update_layout(barmode='relative')
+# Convert the data into a pandas DataFrame
+df = pd.DataFrame(data)
+
+if df.empty:
+    # Display an empty DataFrame message or similar if no data is available
+    df = pd.DataFrame(columns=["product", "price"])

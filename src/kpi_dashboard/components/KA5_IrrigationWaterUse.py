@@ -1,9 +1,12 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
+import plotly.graph_objs as go
+import pandas as pd
+import plotly.express as px
+from waterReport.models import WaterReport, WaterReportIrrigation, WaterReportRainfall
 
-
-class FigureCard2(dbc.Card):
+class KA5_FigureCard(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -23,11 +26,12 @@ class FigureCard2(dbc.Card):
                     className="d-flex justify-content-between align-center p-3",
                 ),
                 dbc.Spinner(
-                    dbc.Card(
-        dbc.CardBody(nutrient_indicators),
-        className="shadow-sm",
-        style={"height": "100%"},
-    ),
+                    dcc.Graph(
+                        id={"type": "graph", "index": id},
+                        responsive=True,
+                        style={"height": "100%"},
+                        figure=fig
+                    ),
                     size="lg",
                     color="dark",
                     delay_show=750,
@@ -45,45 +49,27 @@ class FigureCard2(dbc.Card):
             className="mb-3 figure-card",
         )
 
-# # Sample data
-# food_item = {
-#     "name": "Salmon",
-#     "nutrients": {
-#         "Iron": True,
-#         "B12": True,
-#         "Vitamin D": True,
-#         "Calcium": False
-#     }
-# }
 
-#List of nutrients
-all_nutrients = {
-        "Iron": True,
-        "Calcium": False,
-        "Vitamin B12": True,
-        "Vitamin D": True       
-}
+# Assuming your data is already correct from the database, so let's group it properly
 
-# Create indicators programmatically
-nutrient_indicators = []
-for nutrient, present in all_nutrients.items():
-    color = "success" if present else "danger"
-    
-    indicator = dbc.Row([
-        dbc.Col(
-            html.Div(className="rounded-circle bg-" + color, 
-                    style={"width": "20px", "height": "20px"}),
-            width="auto"
-        ),
-        dbc.Col(nutrient, width="auto")
-    ], className="mb-2 align-items-center")
-    
-    nutrient_indicators.append(indicator)
+data = [{
+    "month": f"{report.start_date.month}-{report.start_date.year}", 
+    "source": report.source,
+    "quantity": report.quantity
+} for report in WaterReportIrrigation.objects.all()]
 
-# app.layout = dbc.Container([
-#     html.H3(f"Nutrient Profile: {food_item['name']}", className="my-4"),
-#     dbc.Card(
-#         dbc.CardBody(nutrient_indicators),
-#         className="shadow-sm"
-#     )
-# ])
+df = pd.DataFrame(data)
+
+if not df.empty:
+    # Create a stacked bar chart using Plotly Express
+    fig = px.bar(
+        df,
+        x="month", 
+        y="quantity", 
+        color="source",  # This will create the stack based on source
+        labels={"month": "Month-Year", "quantity": "Water Use Quantity", "source": "Source"},
+        barmode="stack"  # This enables stacking of bars
+    )
+else:
+    fig = go.Figure()  # Empty figure if no data
+ 

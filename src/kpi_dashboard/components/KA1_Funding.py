@@ -1,13 +1,12 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-import plotly.graph_objs as go
 import pandas as pd
+import plotly.graph_objs as go
 import plotly.express as px
-from productionReport.models import Product, ProductionReport, ProductionReportDetails
+from financialReport.models import FinancialReport  # Assuming you're using Django models for FinancialReport
 
-
-class FigureCard6(dbc.Card):
+class KA1_FundingCard(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -51,24 +50,32 @@ class FigureCard6(dbc.Card):
         )
 
 
-# data = [{
-#     "name": product.name or "Unknown",  # Use a default value if None
-#     "unit": product.unit or 0
-# } for product in Product.objects.all()]
+# Fetch data for FinancialReport (replace with your actual query)
+data = [{
+    "month": report.month,
+    "year": report.year,
+    "fun_feed4food": report.fun_feed4food,
+    "fun_others": report.fun_others,
+} for report in FinancialReport.objects.all()]
 
-# # Convert to a pandas DataFrame
-# df = pd.DataFrame(data)
+# Convert the data into a pandas DataFrame
+df = pd.DataFrame(data)
 
-# fig = px.line(df, x='name', y='unit', markers=True)
-df = pd.DataFrame({
-    "months": ["November", "December", "January", "February"],
-    "balance": [100, 1100, -400, 430]
-})
+# Combine month and year into a single column 'month_year' in the format 'MM-YYYY'
+df['month_year'] = df['month'].astype(str) + '-' + df['year'].astype(str)
 
-fig = px.line(df, x='months', y='balance', markers=True)
-
-print("PRODUCTION REPORT:")
-print("----------------------------------")
-print(ProductionReport.objects.all())
-print(Product.objects.all())
-print(ProductionReportDetails.objects.all())
+if not df.empty:
+    # Create a clustered (grouped) bar chart using Plotly Express
+    fig = px.bar(
+        df,
+        x="month_year",  # X-axis is the month-year
+        y=["Project Funding", "Other Funding"],  # Multiple y-values for Feed4Food and Other Funding
+        labels={
+            "month_year": "Month-Year", 
+            "value": "Funding Amount",  # Default label for y-axis when plotting multiple bars
+        },
+        barmode="group",  # This creates a clustered (grouped) bar chart
+        height=400  # Optional height adjustment for the chart
+    )
+else:
+    fig = go.Figure()  # Empty figure if no data

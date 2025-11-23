@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 
 
-class MetricCard(dbc.Card):
+class KA5_MetricCard(dbc.Card):
     def __init__(
         self,
         title,

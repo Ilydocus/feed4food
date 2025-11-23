@@ -1,10 +1,12 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
+import pandas as pd
 import plotly.graph_objs as go
+import plotly.express as px
+from financialReport.models import FinancialReport  # Assuming you're using Django models for FinancialReport
 
-
-class FigureCard(dbc.Card):
+class KA1_CostsCard(dbc.Card):
     def __init__(self, title, id, description=None):
         super().__init__(
             children=[
@@ -28,7 +30,7 @@ class FigureCard(dbc.Card):
                         id={"type": "graph", "index": id},
                         responsive=True,
                         style={"height": "100%"},
-                        figure=fig,
+                        figure=fig
                     ),
                     size="lg",
                     color="dark",
@@ -47,14 +49,33 @@ class FigureCard(dbc.Card):
             className="mb-3 figure-card",
         )
 
-fig = go.Figure(go.Indicator(
-    domain = {'x': [0, 1], 'y': [0, 1]},
-    value = 5,
-    mode = "gauge+number+delta",
-    #title = {'text': "Cultivated varieties"},
-    delta = {'reference': 4},
-    gauge = {'axis': {'range': [None, 20]},
-             #'steps' : [
-             #    {'range': [0, 250], 'color': "lightgray"},
-             #    {'range': [250, 400], 'color': "gray"}],
-             'threshold' : {'line': {'color': "red", 'width': 4}, 'thickness': 0.75, 'value': 15}}))
+
+# Fetch data for FinancialReport (replace with your actual query)
+data = [{
+    "month": report.month,
+    "year": report.year,
+    "exp_workforce": report.exp_workforce,
+    "exp_purchase": report.exp_purchase,
+    "exp_others": report.exp_others,
+} for report in FinancialReport.objects.all()]
+
+# Convert the data into a pandas DataFrame
+df = pd.DataFrame(data)
+
+# Combine month and year into a single column 'month_year' in the format 'MM-YYYY'
+df['month_year'] = df['month'].astype(str) + '-' + df['year'].astype(str)
+
+if not df.empty:
+    # Create a line chart with multiple lines for different costs using Plotly Express
+    fig = px.line(
+        df,
+        x="month_year",  # X-axis is the month-year
+        y=["exp_workforce", "exp_purchase", "exp_others"],  # Multiple y-values for different costs
+        labels={
+            "month_year": "Month-Year", 
+            "value": "Cost",  # Default label for y-axis when plotting multiple lines
+        },
+        markers=True  # Show markers for each data point
+    )
+else:
+    fig = go.Figure()  # Empty figure if no data
