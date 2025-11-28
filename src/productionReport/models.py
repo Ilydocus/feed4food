@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from core import reportUtils
 
@@ -54,6 +55,7 @@ class Product(models.Model):
     category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, null=True)
     unit = models.CharField(max_length=100, blank=False, null=False)
     cultivation_type = models.CharField(choices=reportUtils.CultivationTypes, max_length=100, blank=False, default=reportUtils.CultivationTypes.Surface)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.name
@@ -63,6 +65,7 @@ class LLLocation(models.Model):
         max_length=100, blank=False, null=False, unique=True, primary_key=True
     )
     living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.name
@@ -73,6 +76,7 @@ class Garden(models.Model):
     )
     living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
     location = models.ForeignKey(LLLocation, on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.name
