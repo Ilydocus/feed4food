@@ -3,10 +3,24 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
 from dash.dash_table import DataTable
-from salesReport.models import SalesReportDetails  # Assuming you're using Django models for SalesReportDetails
+from salesReport.models import SalesReportDetails
+
+
+def load_sales_data():
+    qs = SalesReportDetails.objects.select_related("product").all()
+    rows = [
+        {"product": r.product.name, "price": r.price}
+        for r in qs
+    ]
+    if not rows:
+        return pd.DataFrame(columns=["product", "price"])
+    return pd.DataFrame(rows)
+
 
 class KA1_PriceProduct(dbc.Card):
     def __init__(self, title, id, description=None):
+        df = load_sales_data()  # ← now executes *after* Django startup
+
         super().__init__(
             children=[
                 html.Div(
@@ -34,11 +48,11 @@ class KA1_PriceProduct(dbc.Card):
                                     {"name": "Product", "id": "product"},
                                     {"name": "Price", "id": "price"},
                                 ],
-                                data=df.to_dict('records'),  # Data passed to the table
-                                style_table={'height': '400px', 'overflowY': 'auto'},  # Optional styling
-                                style_cell={'textAlign': 'center'},  # Optional styling
+                                data=df.to_dict("records"),
+                                style_table={"height": "400px", "overflowY": "auto"},
+                                style_cell={"textAlign": "center"},
                             )
-                        ]
+                        ],
                     ),
                     size="lg",
                     color="dark",
@@ -56,17 +70,3 @@ class KA1_PriceProduct(dbc.Card):
             ],
             className="mb-3 figure-card",
         )
-
-
-# Fetch data for SalesReportDetails (replace with your actual query)
-data = [{
-    "product": report.product.name,
-    "price": report.price,
-} for report in SalesReportDetails.objects.all()]
-
-# Convert the data into a pandas DataFrame
-df = pd.DataFrame(data)
-
-if df.empty:
-    # Display an empty DataFrame message or similar if no data is available
-    df = pd.DataFrame(columns=["product", "price"])

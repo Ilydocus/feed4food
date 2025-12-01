@@ -1,0 +1,171 @@
+import datetime
+from django.db.models import Sum, F
+import pandas as pd
+
+from dash import html, dcc
+import dash_bootstrap_components as dbc
+import plotly.express as px
+
+from financialReport.models import FinancialReport
+from salesReport.models import SalesReportDetails
+
+
+# ------------------------------------------------------------
+# MAIN COMPONENT (NO user argument)
+# ------------------------------------------------------------
+class KA1_MonthlyBreakdownCard(dbc.Card):
+    def __init__(self, title, id):
+
+        fig = build_monthly_breakdown_figure()
+
+        super().__init__(
+            [
+                dbc.CardHeader(html.H4(title, className="card-title")),
+                dbc.CardBody(
+                    dcc.Graph(
+                        id={"type": "graph", "index": id},
+                        figure=fig,
+                        responsive=True,
+                        config={"displayModeBar": False},
+                    )
+                ),
+            ],
+            className="mb-3",
+        )
+
+
+# ------------------------------------------------------------
+# INTERNAL FIGURE BUILDER
+# ------------------------------------------------------------
+def build_monthly_breakdown_figure():
+    today = datetime.date.today()
+    month = today.month
+    year = today.year
+
+    # --- Financial Report aggregates for current month+year ---
+    fr = FinancialReport.objects.filter(month=str(month), year=year).aggregate(
+        workforce=Sum("exp_workforce"),
+        purchase=Sum("exp_purchase"),
+        other_exp=Sum("exp_others"),
+        project_fund=Sum("fun_feed4food"),
+        other_fund=Sum("fun_others"),
+        restaurant=Sum("rev_restaurant"),
+        other_revenues=Sum("rev_others"),
+    )
+
+    def nz(v): 
+        return v or 0
+
+    workforce = nz(fr.get("workforce"))
+    purchase = nz(fr.get("purchase"))
+    other_costs = nz(fr.get("other_exp"))
+
+    project_funding = nz(fr.get("project_fund"))
+    other_funding = nz(fr.get("other_fund"))
+
+    restaurant_sales = nz(fr.get("restaurant"))
+    other_revenues = nz(fr.get("other_revenues"))
+
+    # --- Events (optional model) ---
+    try:
+        from eventReport.models import EventReport
+        events_total = EventReport.objects.filter(
+            event_date__year=year,
+            event_date__month=month,
+        ).aggregate(t=Sum("event_revenues"))
+        events_revenue = nz(events_total.get("t"))
+    except Exception:
+        events_revenue = 0
+
+    # --- Product Sales (quantity * price) ---
+    product_sales_total = (
+        SalesReportDetails.objects.filter(
+            sale_date__year=year,
+            sale_date__month=month,
+        )
+        .annotate(value=F("quantity") * F("price"))
+        .aggregate(total=Sum("value"))
+    )
+
+    product_sales = nz(product_sales_total.get("total"))
+
+    # ------------------------------------------------------------
+    # DATAFRAME FOR STACKED BAR
+    # ------------------------------------------------------------
+    rows = []
+
+    # 1. Product Sales
+    rows.append(["Revenue from Selling Product", "Product Sales", product_sales])
+
+    # 2. Off-farm Revenues
+    off_farm = {
+        "Sales in Restaurant": restaurant_sales,
+        "Revenue from Events": events_revenue,
+        "Other Revenues": other_revenues,
+    }
+    for k, v in off_farm.items():
+        rows.append(["Revenues from Off-Farm Activities", k, v])
+
+    # 3. Funding
+    funding = {
+        "Project Funding": project_funding,
+        "Other Funding": other_funding,
+    }
+    for k, v in funding.items():
+        rows.append(["Funding Received", k, v])
+
+    # 4. Expenses
+    expenses = {
+        "Workforce Costs": workforce,
+        "Purchase Costs": purchase,
+        "Other Costs": other_costs,
+    }
+    for k, v in expenses.items():
+        rows.append(["Expenses", k, v])
+
+    df = pd.DataFrame(rows, columns=["Category", "Subcategory", "Value"])
+
+    # ------------------------------------------------------------
+    # COMPUTE GRAND TOTALS FOR EACH CATEGORY
+    # ------------------------------------------------------------
+    totals = df.groupby("Category", sort=False)["Value"].sum().to_dict()
+    df["Total"] = df["Category"].map(totals)
+
+    # ------------------------------------------------------------
+    # FIGURE
+    # ------------------------------------------------------------
+    fig = px.bar(
+        df,
+        x="Value",
+        y="Category",
+        color="Subcategory",
+        orientation="h",
+        barmode="stack",
+        title=f"Monthly Breakdown — {today.strftime('%B %Y')}",
+    )
+
+    # ------------------------------------------------------------
+    # ADD TOTAL LABEL AT END OF EACH BAR
+    # ------------------------------------------------------------
+    # We use a small x-offset so labels don't overlap with bar end.
+    for category, total_value in totals.items():
+        # Format with comma thousands and 2 decimals
+        total_text = f"Total: {total_value:,.2f}"
+        fig.add_annotation(
+            x=total_value,
+            y=category,
+            text=total_text,
+            showarrow=False,
+            xanchor="left",
+            yanchor="middle",
+            font=dict(size=12, color="black"),
+            xshift=8,
+        )
+
+    fig.update_layout(
+        height=430,
+        margin=dict(l=40, r=20, t=60, b=40),
+        legend_title="",
+    )
+
+    return fig

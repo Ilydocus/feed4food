@@ -13,11 +13,11 @@
 <head>
     <title>Feed4Food Dashboard Display</title>
 </head>
-<body>
+<body style=" background-color: #003399;"">
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2"> 
     <h1>KPI Dashboard Display</h1>
-    <div  style="height: 70vh; width: 89vw; margin:auto">
+    <div  style="height: 70vh; width: 89vw; margin:auto;">
         {% load plotly_dash %}
         {% plotly_app name="KPIVisualisationApp" ratio=0.45 %}
     </div>

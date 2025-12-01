@@ -1,0 +1,171 @@
+import dash
+import dash_bootstrap_components as dbc
+from dash import html, dcc
+
+import pandas as pd
+import plotly.graph_objects as go
+from django.db.models import Sum
+from django.utils.timezone import now
+
+from waterReport.models import WaterReportRainfall, WaterReportIrrigation
+
+
+def current_year():
+    return now().year
+
+
+def load_totals_rainfall_current_year():
+    year = current_year()
+
+    total = (
+        WaterReportRainfall.objects
+        .filter(start_date__year=year)
+        .aggregate(total=Sum("quantity"))
+        .get("total") or 0
+    )
+    return float(total)
+
+
+def load_totals_irrigation_current_year():
+    year = current_year()
+
+    qs = (
+        WaterReportIrrigation.objects
+        .filter(start_date__year=year)
+        .values("source")
+        .annotate(quantity=Sum("quantity"))
+    )
+
+    rows = [{"source": r["source"], "quantity": r["quantity"]} for r in qs]
+
+    return pd.DataFrame(rows)
+
+
+
+def build_two_bar_water_figure_current_year():
+    rainfall_total = load_totals_rainfall_current_year()
+    df_irr = load_totals_irrigation_current_year()
+
+    fig = go.Figure()
+
+
+    # Irrigation bar (stacked by source)
+    for source in ["harvested", "tap", "other"]:
+        qty = df_irr[df_irr["source"] == source]["quantity"].sum()
+        fig.add_trace(
+            go.Bar(
+                y=["Irrigation Water Use"],
+                x=[qty],
+                name=f"Irrigation – {source}",
+                orientation="h",
+            )
+        )
+    
+        # Rainfall bar
+    fig.add_trace(
+        go.Bar(
+            y=["Rainwater Harvested"],
+            x=[rainfall_total],
+            name="Rainwater Harvested",
+            orientation="h",
+        )
+    )
+
+
+    fig.update_layout(
+        barmode="stack",
+        xaxis_title="Total Water",
+        yaxis_title="",
+        legend_title="Water Type",
+        height=300,
+        margin=dict(l=40, r=20, t=20, b=30),
+    )
+
+    return fig
+
+
+
+def irrigation_coverage_stat():
+    rainfall = load_totals_rainfall_current_year()
+    df_irr = load_totals_irrigation_current_year()
+    irrigation_total = df_irr["quantity"].sum() if not df_irr.empty else 0
+
+    if irrigation_total == 0:
+        return "No irrigation water used this year."
+
+    pct = (rainfall / irrigation_total) * 100
+    return f"{pct:.1f}% of irrigation water use is covered by harvested rainwater."
+
+
+
+class KA5_YearlyWaterCard(dbc.Card):
+    def __init__(self, title, id, description=None):
+        year = current_year()
+        title_with_year = f"{title} ({year})"
+
+        fig = build_two_bar_water_figure_current_year()
+        stat_text = irrigation_coverage_stat()
+
+        super().__init__(
+            children=[
+
+                # Header row
+                html.Div(
+                    [
+                        html.H5(title_with_year, className="m-0"),
+                        dbc.Button(
+                            html.Span(
+                                "help",
+                                className="material-symbols-outlined d-flex",
+                            ),
+                            id={"type": "graph-info-btn", "index": id},
+                            n_clicks=0,
+                            color="light",
+                        ),
+                    ],
+                    className="d-flex justify-content-between align-center p-3",
+                ),
+
+                # Graph + stat side-by-side
+                dbc.Row([
+                    dbc.Col(
+                        dbc.Spinner(
+                            dcc.Graph(
+                                id={"type": "graph", "index": id},
+                                figure=fig,
+                                responsive=True,
+                                style={"height": "100%"},
+                            ),
+                            size="lg",
+                            color="dark",
+                            delay_show=750,
+                        ),
+                        md=10,
+                        sm=12
+                    ),
+
+                    dbc.Col(
+                        html.Div(
+                            stat_text,
+                            className="p-3 fs-5 fw-bold"
+                        ),
+                        md=2,
+                        sm=12
+                    ),
+                ], className="px-3"),
+
+                # Modal
+                dbc.Modal(
+                    [
+                        dbc.ModalHeader(html.H4(title_with_year)),
+                        dbc.ModalBody(
+                            dcc.Markdown(description or "", link_target="_blank")
+                        ),
+                    ],
+                    id={"type": "graph-modal", "index": id},
+                    is_open=False,
+                    size="md",
+                ),
+            ],
+            className="mb-3 figure-card",
+        )

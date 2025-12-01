@@ -2,12 +2,58 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
-import plotly.graph_objs as go
 import plotly.express as px
-from financialReport.models import FinancialReport  # Assuming you're using Django models for FinancialReport
+import plotly.graph_objs as go
+from financialReport.models import FinancialReport
+
+
+def load_funding_data():
+    qs = FinancialReport.objects.all()
+
+    rows = [
+        {
+            "month": r.month,
+            "year": r.year,
+            "fun_feed4food": r.fun_feed4food,
+            "fun_others": r.fun_others,
+        }
+        for r in qs
+    ]
+
+    if not rows:
+        return pd.DataFrame(columns=["month", "year", "fun_feed4food", "fun_others"])
+
+    df = pd.DataFrame(rows)
+    df["month_year"] = df["month"].astype(str) + "-" + df["year"].astype(str)
+    return df
+
+
+def build_figure():
+    df = load_funding_data()
+
+    if df.empty:
+        return go.Figure()
+
+    df = df.rename(
+        columns={
+            "fun_feed4food": "Project Funding",
+            "fun_others": "Other Funding",
+        }
+    )
+
+    return px.bar(
+        df,
+        x="month_year",
+        y=["Project Funding", "Other Funding"],
+        barmode="group",
+        height=400,
+    )
+
 
 class KA1_FundingCard(dbc.Card):
     def __init__(self, title, id, description=None):
+        fig = build_figure()
+
         super().__init__(
             children=[
                 html.Div(
@@ -30,7 +76,7 @@ class KA1_FundingCard(dbc.Card):
                         id={"type": "graph", "index": id},
                         responsive=True,
                         style={"height": "100%"},
-                        figure=fig
+                        figure=fig,
                     ),
                     size="lg",
                     color="dark",
@@ -39,7 +85,9 @@ class KA1_FundingCard(dbc.Card):
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title)),
-                        dbc.ModalBody(dcc.Markdown(description, link_target="_blank")),
+                        dbc.ModalBody(
+                            dcc.Markdown(description, link_target="_blank")
+                        ),
                     ],
                     id={"type": "graph-modal", "index": id},
                     is_open=False,
@@ -48,34 +96,3 @@ class KA1_FundingCard(dbc.Card):
             ],
             className="mb-3 figure-card",
         )
-
-
-# Fetch data for FinancialReport (replace with your actual query)
-data = [{
-    "month": report.month,
-    "year": report.year,
-    "fun_feed4food": report.fun_feed4food,
-    "fun_others": report.fun_others,
-} for report in FinancialReport.objects.all()]
-
-# Convert the data into a pandas DataFrame
-df = pd.DataFrame(data)
-
-# Combine month and year into a single column 'month_year' in the format 'MM-YYYY'
-df['month_year'] = df['month'].astype(str) + '-' + df['year'].astype(str)
-
-if not df.empty:
-    # Create a clustered (grouped) bar chart using Plotly Express
-    fig = px.bar(
-        df,
-        x="month_year",  # X-axis is the month-year
-        y=["Project Funding", "Other Funding"],  # Multiple y-values for Feed4Food and Other Funding
-        labels={
-            "month_year": "Month-Year", 
-            "value": "Funding Amount",  # Default label for y-axis when plotting multiple bars
-        },
-        barmode="group",  # This creates a clustered (grouped) bar chart
-        height=400  # Optional height adjustment for the chart
-    )
-else:
-    fig = go.Figure()  # Empty figure if no data
