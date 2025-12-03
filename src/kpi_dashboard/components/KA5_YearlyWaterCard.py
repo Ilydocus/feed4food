@@ -41,13 +41,17 @@ def load_totals_irrigation_current_year():
     return pd.DataFrame(rows)
 
 
-
 def build_two_bar_water_figure_current_year():
     rainfall_total = load_totals_rainfall_current_year()
     df_irr = load_totals_irrigation_current_year()
 
-    fig = go.Figure()
+    irrigation_total = df_irr["quantity"].sum() if not df_irr.empty else 0
 
+    # --- Target line (15% of irrigation water total) ---
+    target_pct = 0.15
+    target_quantity = irrigation_total * target_pct
+
+    fig = go.Figure()
 
     # Irrigation bar (stacked by source)
     for source in ["harvested", "tap", "other"]:
@@ -60,8 +64,8 @@ def build_two_bar_water_figure_current_year():
                 orientation="h",
             )
         )
-    
-        # Rainfall bar
+
+    # Rainfall bar
     fig.add_trace(
         go.Bar(
             y=["Rainwater Harvested"],
@@ -71,6 +75,15 @@ def build_two_bar_water_figure_current_year():
         )
     )
 
+    # Target line
+    fig.add_vline(
+        x=target_quantity,
+        line_width=2,
+        line_dash="dash",
+        line_color="red",
+        annotation_text="Target (15%)",
+        annotation_position="top",
+    )
 
     fig.update_layout(
         barmode="stack",
@@ -84,18 +97,32 @@ def build_two_bar_water_figure_current_year():
     return fig
 
 
-
 def irrigation_coverage_stat():
     rainfall = load_totals_rainfall_current_year()
     df_irr = load_totals_irrigation_current_year()
     irrigation_total = df_irr["quantity"].sum() if not df_irr.empty else 0
 
     if irrigation_total == 0:
-        return "No irrigation water used this year."
+        return html.Div("No irrigation water used this year.")
 
     pct = (rainfall / irrigation_total) * 100
-    return f"{pct:.1f}% of irrigation water use is covered by harvested rainwater."
 
+    # Determine color
+    color = "green" if pct >= 15 else "red"
+
+    return html.Div(
+        [
+            html.Div(
+                f"{pct:.1f}%",
+                className="fw-bold",
+                style={"fontSize": "2.5rem", "color": color}
+            ),
+            html.Small(
+                "of irrigation demand covered by harvested rainwater.",
+                className="text-muted"
+            ),
+        ]
+    )
 
 
 class KA5_YearlyWaterCard(dbc.Card):
@@ -104,7 +131,7 @@ class KA5_YearlyWaterCard(dbc.Card):
         title_with_year = f"{title} ({year})"
 
         fig = build_two_bar_water_figure_current_year()
-        stat_text = irrigation_coverage_stat()
+        stat_ui = irrigation_coverage_stat()
 
         super().__init__(
             children=[
@@ -146,8 +173,8 @@ class KA5_YearlyWaterCard(dbc.Card):
 
                     dbc.Col(
                         html.Div(
-                            stat_text,
-                            className="p-3 fs-5 fw-bold"
+                            stat_ui,
+                            className="p-3"
                         ),
                         md=2,
                         sm=12

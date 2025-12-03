@@ -16,7 +16,11 @@ from .components.KA5_RainwaterHarvested import KA5_RainwaterCard
 from .components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
 from .components.KA1_BalanceCard import KA1_BalanceCard 
 from .components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard
-
+from .components.KA2_MetricCard import KA2_AreaChemicalCard
+from .components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
+from .components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard
+from .components.KA2_ChemicalUsePerProductCard import KA2_ChemicalUsePerProductCard
+from .components.KA2_SurfaceCultivatedPerProductCard import KA2_SurfaceCultivatedPerProductCard
 # Create a Dash app
 app = DjangoDash("KPIVisualisationApp", external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -129,7 +133,7 @@ def create_kpi_layout(kpi_name):
                                     dbc.CardHeader(html.H4("Product Sales", className="card-title")),
                                     dbc.CardBody([
                                         KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-ka1"),
-                                        KA1_PriceProduct("Price per Product", id="priceprod-ka1")
+                                        # KA1_PriceProduct("Price per Product", id="priceprod-ka1")
                                     ]),
                                 ],
                             ),
@@ -167,8 +171,8 @@ def create_kpi_layout(kpi_name):
                         dbc.CardHeader(html.H4("Cultivated Area", className="card-title")),
                         dbc.CardBody([
                             dbc.Row([
-                                dbc.Col(KA5_MetricCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2"), sm=6, md=6),
-                                dbc.Col(KA5_MetricCard("Number of Plants in Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric-2-kc2"), sm=6, md=6)
+                                dbc.Col(KA2_AreaChemicalCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2"), sm=6, md=6),
+                                dbc.Col(KA2_PlantChemicalCard("Number of Plants in Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric-2-kc2"), sm=6, md=6)
                             ])
                         ]),
                     ]), sm=12, md=6
@@ -191,9 +195,9 @@ def create_kpi_layout(kpi_name):
                         dbc.CardHeader(html.H4("Usage Overview", className="card-title")),
                         dbc.CardBody([
                             dbc.Row([
-                                dbc.Col(KA5_FigureCard("Quantity of Chemical Fertilizer/Pesticide Used per Product", id="graph1-kc2"), sm=4, md=4),
-                                dbc.Col(KA5_FigureCard("Surface Actively Cultivated per Product", id="graph2-kc2"), sm=4, md=4),
-                                dbc.Col(KA5_FigureCard("Plants Actively Cultivated per Product", id="graph3-kc2"), sm=4, md=4),
+                                dbc.Col(KA2_ChemicalUsePerProductCard("Quantity of Chemical Fertilizer/Pesticide Used per Product", id="graph1-kc2"), sm=4, md=4),
+                                dbc.Col(KA2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated per Product", id="graph2-kc2"), sm=4, md=4),
+                                dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated per Product", id="graph3-kc2"), sm=4, md=4),
                             ])
                         ])
                     ]), sm=12, style={'marginTop': '20px'}  # Adding space between rows
@@ -216,9 +220,6 @@ def create_kpi_layout(kpi_name):
         ])
     elif kpi_name == 'kc5':
         return html.Div([
-            # -------------------------
-            # Row 1 — Yearly water card
-            # -------------------------
             dbc.Row([
                 dbc.Col(
                     dbc.Card([
@@ -230,10 +231,6 @@ def create_kpi_layout(kpi_name):
                     sm=12, md=12
                 ),
             ], className="mb-4"),
-
-            # -------------------------
-            # Row 2 — Water usage: two graphs
-            # -------------------------
             dbc.Row([
                 dbc.Col(
                     dbc.Card([

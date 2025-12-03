@@ -10,9 +10,7 @@ from financialReport.models import FinancialReport
 from salesReport.models import SalesReportDetails
 
 
-# ------------------------------------------------------------
-# MAIN COMPONENT (NO user argument)
-# ------------------------------------------------------------
+
 class KA1_MonthlyBreakdownCard(dbc.Card):
     def __init__(self, title, id):
 
@@ -34,15 +32,11 @@ class KA1_MonthlyBreakdownCard(dbc.Card):
         )
 
 
-# ------------------------------------------------------------
-# INTERNAL FIGURE BUILDER
-# ------------------------------------------------------------
 def build_monthly_breakdown_figure():
     today = datetime.date.today()
     month = today.month
     year = today.year
 
-    # --- Financial Report aggregates for current month+year ---
     fr = FinancialReport.objects.filter(month=str(month), year=year).aggregate(
         workforce=Sum("exp_workforce"),
         purchase=Sum("exp_purchase"),
@@ -66,7 +60,6 @@ def build_monthly_breakdown_figure():
     restaurant_sales = nz(fr.get("restaurant"))
     other_revenues = nz(fr.get("other_revenues"))
 
-    # --- Events (optional model) ---
     try:
         from eventReport.models import EventReport
         events_total = EventReport.objects.filter(
@@ -77,7 +70,6 @@ def build_monthly_breakdown_figure():
     except Exception:
         events_revenue = 0
 
-    # --- Product Sales (quantity * price) ---
     product_sales_total = (
         SalesReportDetails.objects.filter(
             sale_date__year=year,
@@ -89,9 +81,7 @@ def build_monthly_breakdown_figure():
 
     product_sales = nz(product_sales_total.get("total"))
 
-    # ------------------------------------------------------------
-    # DATAFRAME FOR STACKED BAR
-    # ------------------------------------------------------------
+
     rows = []
 
     # 1. Product Sales
@@ -116,24 +106,19 @@ def build_monthly_breakdown_figure():
 
     # 4. Expenses
     expenses = {
-        "Workforce Costs": workforce,
-        "Purchase Costs": purchase,
-        "Other Costs": other_costs,
+        "Workforce Costs": workforce * -1,
+        "Purchase Costs": purchase * -1,
+        "Other Costs": other_costs * -1,
     }
     for k, v in expenses.items():
         rows.append(["Expenses", k, v])
 
     df = pd.DataFrame(rows, columns=["Category", "Subcategory", "Value"])
 
-    # ------------------------------------------------------------
-    # COMPUTE GRAND TOTALS FOR EACH CATEGORY
-    # ------------------------------------------------------------
     totals = df.groupby("Category", sort=False)["Value"].sum().to_dict()
     df["Total"] = df["Category"].map(totals)
 
-    # ------------------------------------------------------------
-    # FIGURE
-    # ------------------------------------------------------------
+
     fig = px.bar(
         df,
         x="Value",
@@ -141,13 +126,10 @@ def build_monthly_breakdown_figure():
         color="Subcategory",
         orientation="h",
         barmode="stack",
-        title=f"Monthly Breakdown — {today.strftime('%B %Y')}",
+        title=f"For {today.strftime('%B %Y')}",
     )
 
-    # ------------------------------------------------------------
-    # ADD TOTAL LABEL AT END OF EACH BAR
-    # ------------------------------------------------------------
-    # We use a small x-offset so labels don't overlap with bar end.
+
     for category, total_value in totals.items():
         # Format with comma thousands and 2 decimals
         total_text = f"Total: {total_value:,.2f}"

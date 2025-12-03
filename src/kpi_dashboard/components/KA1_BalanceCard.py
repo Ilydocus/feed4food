@@ -7,20 +7,12 @@ from django.utils.timezone import now
 
 from financialReport.models import FinancialReport
 from salesReport.models import SalesReportDetails
-# If you have EventReport later, you can plug it in here.
 
-
-# -------------------------------------------------
-# HELPERS
-# -------------------------------------------------
 
 def current_year():
     return now().year
 
 
-# -------------------------------------------------
-# DATA LOADERS
-# -------------------------------------------------
 
 def load_financial_totals_current_year():
     year = current_year()
@@ -52,15 +44,11 @@ def load_sales_revenue_current_year():
     return float(total_sales)
 
 
-# -------------------------------------------------
-# COMPUTATION
-# -------------------------------------------------
 
 def compute_revenue_expense_balance():
     fin = load_financial_totals_current_year()
     sales_revenue = load_sales_revenue_current_year()
 
-    # --- Revenues ---
     total_revenue = (
         sales_revenue +
         fin["rev_restaurant"] +
@@ -69,7 +57,6 @@ def compute_revenue_expense_balance():
         fin["fun_others"]
     )
 
-    # --- Expenses ---
     total_expenses = (
         fin["exp_workforce"] +
         fin["exp_purchase"] +
@@ -81,9 +68,6 @@ def compute_revenue_expense_balance():
     return total_revenue, total_expenses, net_balance
 
 
-# -------------------------------------------------
-# DASH CARD
-# -------------------------------------------------
 
 class KA1_BalanceCard(dbc.Card):
     def __init__(self, id):
@@ -93,12 +77,11 @@ class KA1_BalanceCard(dbc.Card):
 
         super().__init__(
             children=[
-                dbc.CardHeader(html.H4(f"Balance ({year})")),
+                dbc.CardHeader(html.H4(f"Balance for {year} (Jan to Present Month)")),
 
                 dbc.CardBody(
                     dbc.Row(
                         [
-                            # --- Total Revenue ---
                             dbc.Col(
                                 html.Div([
                                     html.H6("Total Revenue", className="text-muted"),
@@ -107,7 +90,6 @@ class KA1_BalanceCard(dbc.Card):
                                 md=4, sm=12,
                             ),
 
-                            # --- Total Expenses ---
                             dbc.Col(
                                 html.Div([
                                     html.H6("Total Expenses", className="text-muted"),
@@ -116,7 +98,6 @@ class KA1_BalanceCard(dbc.Card):
                                 md=4, sm=12,
                             ),
 
-                            # --- Net Balance ---
                             dbc.Col(
                                 html.Div([
                                     html.H6("Net Balance", className="text-muted"),
