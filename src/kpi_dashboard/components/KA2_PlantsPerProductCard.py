@@ -3,53 +3,74 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objs as go
-from financialReport.models import FinancialReport
+
+from productionReport.models import ProductionReportDetails
 
 
-def load_costs_data():
-    qs = FinancialReport.objects.all()
+def load_plants_cultivated_data():
+    qs = (
+        ProductionReportDetails.objects
+        .select_related("report_id", "name")
+        .filter(name__cultivation_type="plants")
+    )
 
-    rows = [
-        {
-            "month": r.month,
-            "year": r.year,
-            "exp_workforce": r.exp_workforce,
-            "exp_purchase": r.exp_purchase,
-            "exp_others": r.exp_others,
-        }
-        for r in qs
-    ]
+    rows = []
+    for r in qs:
+        if not r.report_id.production_date:
+            continue
+
+        rows.append({
+            "date": r.report_id.production_date,
+            "product": r.name.name,
+            "quantity": r.quantity,
+        })
 
     if not rows:
-        return pd.DataFrame(columns=["month", "year", "exp_workforce", "exp_purchase", "exp_others"])
+        return pd.DataFrame(columns=["date", "product", "quantity"])
 
     df = pd.DataFrame(rows)
-    df["month_year"] = df["month"].astype(str) + "-" + df["year"].astype(str)
     return df
 
 
-def build_figure():
-    df = load_costs_data()
+def build_plants_line_figure():
+    df = load_plants_cultivated_data()
 
     if df.empty:
-        return go.Figure()
+        return px.area(title="No data available")
 
-    return px.line(
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
+
+    fig = px.area(
         df,
         x="month_year",
-        y=["exp_workforce", "exp_purchase", "exp_others"],
+        y="quantity",
+        color="product",
+        line_group="product",
+        markers=True,
         labels={
             "month_year": "Month-Year",
-            "value": "Cost",
+            "quantity": "Number of Plants",
+            "product": "Product",
         },
-        markers=True,
     )
 
+    fig.update_layout(
+        height=350,
+        margin=dict(l=20, r=20, t=40, b=20),
+        legend_title_text="Product",
+        xaxis=dict(
+            tickformat="%b %Y",
+            title="Month-Year",
+        ),
+    )
 
-class KA1_CostsCard(dbc.Card):
+    return fig
+
+
+class KA2_PlantsPerProductCard(dbc.Card):
     def __init__(self, title, id, description=None):
-        fig = build_figure()
+        fig = build_plants_line_figure()
 
         super().__init__(
             children=[
@@ -59,7 +80,7 @@ class KA1_CostsCard(dbc.Card):
                         dbc.Button(
                             html.Span(
                                 "help",
-                                className="material-symbols-outlined d-flex",
+                                className="material-symbols-outlined d-flex"
                             ),
                             id={"type": "graph-info-btn", "index": id},
                             n_clicks=0,
@@ -71,9 +92,9 @@ class KA1_CostsCard(dbc.Card):
                 dbc.Spinner(
                     dcc.Graph(
                         id={"type": "graph", "index": id},
+                        figure=fig,
                         responsive=True,
                         style={"height": "100%"},
-                        figure=fig,
                     ),
                     size="lg",
                     color="dark",
@@ -83,7 +104,7 @@ class KA1_CostsCard(dbc.Card):
                     [
                         dbc.ModalHeader(html.H4(title)),
                         dbc.ModalBody(
-                            dcc.Markdown(description, link_target="_blank")
+                            dcc.Markdown(description or "", link_target="_blank")
                         ),
                     ],
                     id={"type": "graph-modal", "index": id},

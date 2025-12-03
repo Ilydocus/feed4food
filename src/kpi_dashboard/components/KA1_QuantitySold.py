@@ -4,10 +4,41 @@ from dash import html, dcc
 import plotly.graph_objs as go
 import pandas as pd
 import plotly.express as px
-from salesReport.models import SalesReportDetails  # Assuming you're using Django models for SalesReportDetails
+from salesReport.models import SalesReportDetails
+
+
+def build_figure():
+    qs = SalesReportDetails.objects.all()
+
+    if not qs.exists():
+        return go.Figure()
+
+    data = [{
+        "product": r.product.name,
+        "quantity": r.quantity,
+        "month": f"{r.sale_date.month}-{r.sale_date.year}",
+    } for r in qs]
+
+    df = pd.DataFrame(data)
+
+    return px.bar(
+        df,
+        x="month",
+        y="quantity",
+        color="product",
+        labels={
+            "month": "Month-Year",
+            "quantity": "Quantity Sold",
+            "product": "Product",
+        },
+        barmode="stack",
+    )
+
 
 class KA1_QuantitySold(dbc.Card):
     def __init__(self, title, id, description=None):
+        fig = build_figure()
+
         super().__init__(
             children=[
                 html.Div(
@@ -30,7 +61,7 @@ class KA1_QuantitySold(dbc.Card):
                         id={"type": "graph", "index": id},
                         responsive=True,
                         style={"height": "100%"},
-                        figure=fig
+                        figure=fig,
                     ),
                     size="lg",
                     color="dark",
@@ -39,7 +70,9 @@ class KA1_QuantitySold(dbc.Card):
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title)),
-                        dbc.ModalBody(dcc.Markdown(description, link_target="_blank")),
+                        dbc.ModalBody(
+                            dcc.Markdown(description, link_target="_blank")
+                        ),
                     ],
                     id={"type": "graph-modal", "index": id},
                     is_open=False,
@@ -48,27 +81,3 @@ class KA1_QuantitySold(dbc.Card):
             ],
             className="mb-3 figure-card",
         )
-
-
-# Fetch data for SalesReportDetails (replace with your actual query)
-data = [{
-    "product": report.product,
-    "quantity": report.quantity,
-    "month": f"{report.sale_date.month}-{report.sale_date.year}",  # Assuming you have a 'date' field
-} for report in SalesReportDetails.objects.all()]
-
-# Convert the data into a pandas DataFrame
-df = pd.DataFrame(data)
-
-if not df.empty:
-    # Create a stacked bar chart using Plotly Express
-    fig = px.bar(
-        df,
-        x="month", 
-        y="quantity", 
-        color="product",  # Stack by product
-        labels={"month": "Month-Year", "quantity": "Quantity Sold", "product": "Product"},
-        barmode="stack"  # Stack the bars
-    )
-else:
-    fig = go.Figure()  # Empty figure if no data

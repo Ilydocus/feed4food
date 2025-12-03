@@ -1,13 +1,54 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-import plotly.graph_objs as go
 import pandas as pd
 import plotly.express as px
-from waterReport.models import WaterReport, WaterReportIrrigation, WaterReportRainfall
+import plotly.graph_objs as go
+from waterReport.models import WaterReportIrrigation
+
+
+def load_water_data():
+    qs = WaterReportIrrigation.objects.select_related().all()
+
+    rows = [
+        {
+            "month": f"{r.start_date.month}-{r.start_date.year}",
+            "source": r.source,
+            "quantity": r.quantity,
+        }
+        for r in qs
+    ]
+
+    if not rows:
+        return pd.DataFrame(columns=["month", "source", "quantity"])
+
+    return pd.DataFrame(rows)
+
+
+def build_figure():
+    df = load_water_data()
+
+    if df.empty:
+        return go.Figure()
+
+    return px.bar(
+        df,
+        x="month",
+        y="quantity",
+        color="source",
+        labels={
+            "month": "Month-Year",
+            "quantity": "Water Use Quantity",
+            "source": "Source",
+        },
+        barmode="stack",
+    )
+
 
 class KA5_FigureCard(dbc.Card):
     def __init__(self, title, id, description=None):
+        fig = build_figure()
+
         super().__init__(
             children=[
                 html.Div(
@@ -30,7 +71,7 @@ class KA5_FigureCard(dbc.Card):
                         id={"type": "graph", "index": id},
                         responsive=True,
                         style={"height": "100%"},
-                        figure=fig
+                        figure=fig,
                     ),
                     size="lg",
                     color="dark",
@@ -39,7 +80,9 @@ class KA5_FigureCard(dbc.Card):
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title)),
-                        dbc.ModalBody(dcc.Markdown(description, link_target="_blank")),
+                        dbc.ModalBody(
+                            dcc.Markdown(description, link_target="_blank")
+                        ),
                     ],
                     id={"type": "graph-modal", "index": id},
                     is_open=False,
@@ -48,28 +91,3 @@ class KA5_FigureCard(dbc.Card):
             ],
             className="mb-3 figure-card",
         )
-
-
-# Assuming your data is already correct from the database, so let's group it properly
-
-data = [{
-    "month": f"{report.start_date.month}-{report.start_date.year}", 
-    "source": report.source,
-    "quantity": report.quantity
-} for report in WaterReportIrrigation.objects.all()]
-
-df = pd.DataFrame(data)
-
-if not df.empty:
-    # Create a stacked bar chart using Plotly Express
-    fig = px.bar(
-        df,
-        x="month", 
-        y="quantity", 
-        color="source",  # This will create the stack based on source
-        labels={"month": "Month-Year", "quantity": "Water Use Quantity", "source": "Source"},
-        barmode="stack"  # This enables stacking of bars
-    )
-else:
-    fig = go.Figure()  # Empty figure if no data
- 

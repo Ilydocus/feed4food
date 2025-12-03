@@ -1,13 +1,50 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-import plotly.graph_objs as go
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objs as go
 from waterReport.models import WaterReportRainfall
+
+
+def load_rainfall_data():
+    qs = WaterReportRainfall.objects.all()
+
+    rows = [
+        {
+            "month": f"{r.start_date.month}-{r.start_date.year}",
+            "quantity": r.quantity,
+        }
+        for r in qs
+    ]
+
+    if not rows:
+        return pd.DataFrame(columns=["month", "quantity"])
+
+    return pd.DataFrame(rows)
+
+
+def build_figure():
+    df = load_rainfall_data()
+
+    if df.empty:
+        return go.Figure()
+
+    return px.bar(
+        df,
+        x="month",
+        y="quantity",
+        labels={
+            "month": "Month-Year",
+            "quantity": "Rainwater Harvested Quantity",
+        },
+    )
+
 
 class KA5_RainwaterCard(dbc.Card):
     def __init__(self, title, id, description=None):
+        fig = build_figure()
+
         super().__init__(
             children=[
                 html.Div(
@@ -30,7 +67,7 @@ class KA5_RainwaterCard(dbc.Card):
                         id={"type": "graph", "index": id},
                         responsive=True,
                         style={"height": "100%"},
-                        figure=fig
+                        figure=fig,
                     ),
                     size="lg",
                     color="dark",
@@ -39,7 +76,9 @@ class KA5_RainwaterCard(dbc.Card):
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title)),
-                        dbc.ModalBody(dcc.Markdown(description, link_target="_blank")),
+                        dbc.ModalBody(
+                            dcc.Markdown(description, link_target="_blank")
+                        ),
                     ],
                     id={"type": "graph-modal", "index": id},
                     is_open=False,
@@ -48,23 +87,3 @@ class KA5_RainwaterCard(dbc.Card):
             ],
             className="mb-3 figure-card",
         )
-
-
-# Collecting data from the WaterReportRainfall model
-data = [{
-    "month": f"{report.start_date.month}-{report.start_date.year}", 
-    "quantity": report.quantity
-} for report in WaterReportRainfall.objects.all()]
-
-df = pd.DataFrame(data)
-
-if not df.empty:
-    # Create a bar graph for rainwater harvested
-    fig = px.bar(
-        df,
-        x="month", 
-        y="quantity", 
-        labels={"month": "Month-Year", "quantity": "Rainwater Harvested Quantity"},
-    )
-else:
-    fig = go.Figure()  # Empty figure if no data

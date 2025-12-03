@@ -3,53 +3,71 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objs as go
-from financialReport.models import FinancialReport
+
+from inputReport.models import InputReportDetails
 
 
-def load_costs_data():
-    qs = FinancialReport.objects.all()
+def load_chemical_quantity_data():
+    qs = (
+        InputReportDetails.objects
+        .select_related("report_id", "name_product", "name_input")
+        .filter(
+            name_input__input_category="Synthetic"
+        )
+        .values(
+            "report_id__application_date",
+            "name_product__name",
+            "quantity",
+        )
+    )
 
-    rows = [
-        {
-            "month": r.month,
-            "year": r.year,
-            "exp_workforce": r.exp_workforce,
-            "exp_purchase": r.exp_purchase,
-            "exp_others": r.exp_others,
-        }
-        for r in qs
-    ]
+    if not qs:
+        return pd.DataFrame(columns=["date", "product", "quantity"])
 
-    if not rows:
-        return pd.DataFrame(columns=["month", "year", "exp_workforce", "exp_purchase", "exp_others"])
+    df = pd.DataFrame(qs)
+    df = df.rename(columns={
+        "report_id__application_date": "date",
+        "name_product__name": "product"
+    })
 
-    df = pd.DataFrame(rows)
-    df["month_year"] = df["month"].astype(str) + "-" + df["year"].astype(str)
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df = df.dropna(subset=["date"])
+    df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
+
     return df
 
 
-def build_figure():
-    df = load_costs_data()
+def build_chemical_bar_figure():
+    df = load_chemical_quantity_data()
 
     if df.empty:
-        return go.Figure()
+        return px.bar(title="No data available")
 
-    return px.line(
+    fig = px.bar(
         df,
         x="month_year",
-        y=["exp_workforce", "exp_purchase", "exp_others"],
+        y="quantity",
+        color="product",
+        barmode="stack",
         labels={
             "month_year": "Month-Year",
-            "value": "Cost",
-        },
-        markers=True,
+            "quantity": "Quantity Used",
+            "product": "Product",
+        }
     )
 
+    fig.update_layout(
+        height=350,
+        margin=dict(l=20, r=20, t=40, b=20),
+        xaxis=dict(tickformat="%b %Y", title="Month-Year")
+    )
 
-class KA1_CostsCard(dbc.Card):
+    return fig
+
+
+class KA2_ChemicalUsePerProductCard(dbc.Card):
     def __init__(self, title, id, description=None):
-        fig = build_figure()
+        fig = build_chemical_bar_figure()
 
         super().__init__(
             children=[
@@ -59,7 +77,7 @@ class KA1_CostsCard(dbc.Card):
                         dbc.Button(
                             html.Span(
                                 "help",
-                                className="material-symbols-outlined d-flex",
+                                className="material-symbols-outlined d-flex"
                             ),
                             id={"type": "graph-info-btn", "index": id},
                             n_clicks=0,
@@ -71,9 +89,9 @@ class KA1_CostsCard(dbc.Card):
                 dbc.Spinner(
                     dcc.Graph(
                         id={"type": "graph", "index": id},
+                        figure=fig,
                         responsive=True,
                         style={"height": "100%"},
-                        figure=fig,
                     ),
                     size="lg",
                     color="dark",
@@ -83,7 +101,7 @@ class KA1_CostsCard(dbc.Card):
                     [
                         dbc.ModalHeader(html.H4(title)),
                         dbc.ModalBody(
-                            dcc.Markdown(description, link_target="_blank")
+                            dcc.Markdown(description or "", link_target="_blank")
                         ),
                     ],
                     id={"type": "graph-modal", "index": id},

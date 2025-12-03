@@ -13,7 +13,14 @@ from .components.KA1_Funding import KA1_FundingCard
 from .components.KA5_IrrigationWaterUse import KA5_FigureCard
 from .components.KA5_IrrigationFrequency import KA5_MetricCard
 from .components.KA5_RainwaterHarvested import KA5_RainwaterCard
-
+from .components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
+from .components.KA1_BalanceCard import KA1_BalanceCard 
+from .components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard
+from .components.KA2_MetricCard import KA2_AreaChemicalCard
+from .components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
+from .components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard
+from .components.KA2_ChemicalUsePerProductCard import KA2_ChemicalUsePerProductCard
+from .components.KA2_SurfaceCultivatedPerProductCard import KA2_SurfaceCultivatedPerProductCard
 # Create a Dash app
 app = DjangoDash("KPIVisualisationApp", external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -72,45 +79,81 @@ def show_hide_dashboards(kpi_value):
 def create_kpi_layout(kpi_name):
     if kpi_name == 'ka1':
         return html.Div([
+
+            dbc.Row([
+                dbc.Col(
+                    KA1_BalanceCard(id="balance-ka1"),
+                    sm=12, md=12,
+                    className="mb-4"
+                )
+            ]),
+            dbc.Row([
+                dbc.Col(
+                    KA1_MonthlyBreakdownCard(
+                        "Monthly Financial Breakdown",
+                        id="monthly-breakdown-ka1"
+                    ),
+                    sm=12, md=12
+                )
+            ]),
+
+
             dbc.Row(
                 [
                     dbc.Col(
                         dbc.Card(
                             [
                                 dbc.CardHeader(html.H4("Revenue and Sales", className="card-title")),
-                                dbc.CardBody([KA5_FigureCard("Revenue per Event", id="revenue-ka1"), KA5_FigureCard("Production Sales and Sales in Restaurant", id="prodsales-ka1")]),
+                                dbc.CardBody([
+                                    KA5_FigureCard("Revenue per Event", id="revenue-ka1"),
+                                    KA5_FigureCard("Production Sales and Sales in Restaurant", id="prodsales-ka1")
+                                ]),
                             ],
-                        ), sm=12, md=4
+                        ),
+                        sm=12, md=4
                     ),
-                    
+
                     dbc.Col(
                         dbc.Card(
                             [
                                 dbc.CardHeader(html.H4("Cost and Revenue", className="card-title")),
-                                dbc.CardBody([KA1_CostsCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1"), KA5_FigureCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1")]),
+                                dbc.CardBody([
+                                    KA1_CostsCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1"),
+                                    KA5_FigureCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1")
+                                ]),
                             ],
-                        ), sm=12, md=4
+                        ),
+                        sm=12, md=4
                     ),
-                    
+
                     dbc.Col(
                         [
                             dbc.Card(
                                 [
                                     dbc.CardHeader(html.H4("Product Sales", className="card-title")),
-                                    dbc.CardBody([KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-ka1"), KA1_PriceProduct("Price per Product", id="priceprod-ka1")]),
+                                    dbc.CardBody([
+                                        KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-ka1"),
+                                        # KA1_PriceProduct("Price per Product", id="priceprod-ka1")
+                                    ]),
                                 ],
                             ),
+
                             dbc.Card(
                                 [
                                     dbc.CardHeader(html.H4("Funding", className="card-title")),
-                                    dbc.CardBody([KA1_FundingCard("Project Funding and Other Funding", id="funding-ka1")]),
-                                ], style={'marginTop': '20px'}  # Add margin to the second card
+                                    dbc.CardBody([
+                                        KA1_FundingCard("Project Funding and Other Funding", id="funding-ka1")
+                                    ]),
+                                ],
+                                style={'marginTop': '20px'}
                             ),
-                        ], sm=12, md=4
+                        ],
+                        sm=12, md=4
                     )
                 ]
             ),
         ])
+
 
 
     elif kpi_name == 'kc1p':
@@ -128,8 +171,8 @@ def create_kpi_layout(kpi_name):
                         dbc.CardHeader(html.H4("Cultivated Area", className="card-title")),
                         dbc.CardBody([
                             dbc.Row([
-                                dbc.Col(KA5_MetricCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2"), sm=6, md=6),
-                                dbc.Col(KA5_MetricCard("Number of Plants in Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric-2-kc2"), sm=6, md=6)
+                                dbc.Col(KA2_AreaChemicalCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2"), sm=6, md=6),
+                                dbc.Col(KA2_PlantChemicalCard("Number of Plants in Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric-2-kc2"), sm=6, md=6)
                             ])
                         ]),
                     ]), sm=12, md=6
@@ -152,9 +195,9 @@ def create_kpi_layout(kpi_name):
                         dbc.CardHeader(html.H4("Usage Overview", className="card-title")),
                         dbc.CardBody([
                             dbc.Row([
-                                dbc.Col(KA5_FigureCard("Quantity of Chemical Fertilizer/Pesticide Used per Product", id="graph1-kc2"), sm=4, md=4),
-                                dbc.Col(KA5_FigureCard("Surface Actively Cultivated per Product", id="graph2-kc2"), sm=4, md=4),
-                                dbc.Col(KA5_FigureCard("Plants Actively Cultivated per Product", id="graph3-kc2"), sm=4, md=4),
+                                dbc.Col(KA2_ChemicalUsePerProductCard("Quantity of Chemical Fertilizer/Pesticide Used per Product", id="graph1-kc2"), sm=4, md=4),
+                                dbc.Col(KA2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated per Product", id="graph2-kc2"), sm=4, md=4),
+                                dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated per Product", id="graph3-kc2"), sm=4, md=4),
                             ])
                         ])
                     ]), sm=12, style={'marginTop': '20px'}  # Adding space between rows
@@ -181,20 +224,32 @@ def create_kpi_layout(kpi_name):
                 dbc.Col(
                     dbc.Card([
                         dbc.CardHeader(html.H4("Irrigation Details", className="card-title")),
-                        dbc.CardBody([KA5_FigureCard("Irrigation Frequency", id="graph1-kc5")]),
-                    ]), sm=12, md=4  
+                        dbc.CardBody([
+                            KA5_YearlyWaterCard("Irrigation Frequency", id="graph1-kc5")
+                        ]),
+                    ]),
+                    sm=12, md=12
                 ),
-                
+            ], className="mb-4"),
+            dbc.Row([
                 dbc.Col(
                     dbc.Card([
-                        dbc.CardHeader(html.H4("Water Usage", className="card-title")),
+                        dbc.CardHeader(html.H4("Rainwater Harvested", className="card-title")),
                         dbc.CardBody([
-                            dbc.Row([
-                                dbc.Col(KA5_RainwaterCard("Rainwater Harvested", id="graph2-kc5"), sm=6, md=6),  
-                                dbc.Col(KA5_FigureCard("Irrigation Water Use per Source", id="graph3-kc5"), sm=6, md=6), 
-                            ])
+                            KA5_RainwaterCard("Rainwater Harvested", id="graph2-kc5")
                         ]),
-                    ]), sm=12, md=8  
+                    ]),
+                    sm=12, md=6
+                ),
+
+                dbc.Col(
+                    dbc.Card([
+                        dbc.CardHeader(html.H4("Irrigation Water Use per Source", className="card-title")),
+                        dbc.CardBody([
+                            KA5_FigureCard("Irrigation Water Use per Source", id="graph3-kc5")
+                        ]),
+                    ]),
+                    sm=12, md=6
                 ),
             ])
         ])
