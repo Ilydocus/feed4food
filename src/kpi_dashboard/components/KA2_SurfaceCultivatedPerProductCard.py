@@ -7,7 +7,27 @@ import plotly.express as px
 from productionReport.models import ProductionReportDetails
 
 
-def load_surface_cultivation_data():
+def load_surface_cultivation_data(dummy=False):
+    if dummy:
+        data = [
+            {"date": "2025-01-01", "product": "Lettuce", "quantity": 120},
+            {"date": "2025-02-01", "product": "Lettuce", "quantity": 150},
+            {"date": "2025-03-01", "product": "Lettuce", "quantity": 160},
+            {"date": "2025-04-01", "product": "Lettuce", "quantity": 180},
+            {"date": "2025-05-01", "product": "Lettuce", "quantity": 200},
+
+            {"date": "2025-01-01", "product": "Spinach", "quantity": 80},
+            {"date": "2025-02-01", "product": "Spinach", "quantity": 95},
+            {"date": "2025-03-01", "product": "Spinach", "quantity": 110},
+            {"date": "2025-04-01", "product": "Spinach", "quantity": 130},
+            {"date": "2025-05-01", "product": "Spinach", "quantity": 140},
+        ]
+        df = pd.DataFrame(data)
+        df["date"] = pd.to_datetime(df["date"])
+        df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
+        return df
+
+    # normal DB mode
     qs = (
         ProductionReportDetails.objects
         .select_related("report_id", "name")
@@ -36,8 +56,8 @@ def load_surface_cultivation_data():
     return df
 
 
-def build_surface_line_figure():
-    df = load_surface_cultivation_data()
+def build_surface_line_figure(dummy=False):
+    df = load_surface_cultivation_data(dummy=dummy)
 
     if df.empty:
         return px.area(title="No data available")
@@ -66,20 +86,14 @@ def build_surface_line_figure():
 
 
 class KA2_SurfaceCultivatedPerProductCard(dbc.Card):
-    def __init__(self, title, id, description=None):
-        fig = build_surface_line_figure()
+    def __init__(self, title, id, description=None, dummy=False):
+        fig = build_surface_line_figure(dummy=dummy)
 
         super().__init__(
             children=[
                 html.Div(
                     [
                         html.H5(title, className="m-0 align-center"),
-                        dbc.Button(
-                            html.Span("help", className="material-symbols-outlined d-flex"),
-                            id={"type": "graph-info-btn", "index": id},
-                            n_clicks=0,
-                            color="light",
-                        ),
                     ],
                     className="d-flex justify-content-between align-center p-3",
                 ),

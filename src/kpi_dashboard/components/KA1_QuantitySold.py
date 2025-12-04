@@ -7,52 +7,76 @@ import plotly.express as px
 from salesReport.models import SalesReportDetails
 
 
-def build_figure():
-    qs = SalesReportDetails.objects.all()
+def build_figure(dummy=False):
+    if dummy:
+        data = [
+            {"product": "Tomatoes", "quantity": 40, "month": "1-2025"},
+            {"product": "Lettuce",  "quantity": 25, "month": "1-2025"},
+            {"product": "Carrots",  "quantity": 30, "month": "1-2025"},
 
-    if not qs.exists():
-        return go.Figure()
+            {"product": "Tomatoes", "quantity": 55, "month": "2-2025"},
+            {"product": "Lettuce",  "quantity": 29, "month": "2-2025"},
+            {"product": "Carrots",  "quantity": 34, "month": "2-2025"},
 
-    data = [{
-        "product": r.product.name,
-        "quantity": r.quantity,
-        "month": f"{r.sale_date.month}-{r.sale_date.year}",
-    } for r in qs]
+            {"product": "Tomatoes", "quantity": 48, "month": "3-2025"},
+            {"product": "Lettuce",  "quantity": 32, "month": "3-2025"},
+            {"product": "Carrots",  "quantity": 37, "month": "3-2025"},
 
-    df = pd.DataFrame(data)
+            {"product": "Tomatoes", "quantity": 62, "month": "4-2025"},
+            {"product": "Lettuce",  "quantity": 28, "month": "4-2025"},
+            {"product": "Carrots",  "quantity": 41, "month": "4-2025"},
 
-    return px.bar(
+            {"product": "Tomatoes", "quantity": 58, "month": "5-2025"},
+            {"product": "Lettuce",  "quantity": 31, "month": "5-2025"},
+            {"product": "Carrots",  "quantity": 38, "month": "5-2025"},
+        ]
+        df = pd.DataFrame(data)
+
+    else:
+        qs = SalesReportDetails.objects.all()
+        if not qs.exists():
+            return go.Figure()
+
+        data = [{
+            "product": r.product.name,
+            "quantity": r.quantity,
+            "month": f"{r.sale_date.month}-{r.sale_date.year}",
+        } for r in qs]
+
+        df = pd.DataFrame(data)
+
+    df["month_year"] = pd.to_datetime(df["month"], format="%m-%Y", errors="coerce")
+    df = df.dropna(subset=["month_year"])
+
+    fig = px.bar(
         df,
-        x="month",
+        x="month_year",
         y="quantity",
         color="product",
         labels={
-            "month": "Month-Year",
+            "month_year": "Month-Year",
             "quantity": "Quantity Sold",
             "product": "Product",
         },
         barmode="stack",
     )
 
+    fig.update_layout(
+        xaxis=dict(tickformat="%b %Y")
+    )
+
+    return fig
+
 
 class KA1_QuantitySold(dbc.Card):
-    def __init__(self, title, id, description=None):
-        fig = build_figure()
+    def __init__(self, title, id, description=None, dummy=False):
+        fig = build_figure(dummy=dummy)
 
         super().__init__(
             children=[
                 html.Div(
                     [
                         html.H5(title, className="m-0 align-center"),
-                        dbc.Button(
-                            html.Span(
-                                "help",
-                                className="material-symbols-outlined d-flex",
-                            ),
-                            id={"type": "graph-info-btn", "index": id},
-                            n_clicks=0,
-                            color="light",
-                        ),
                     ],
                     className="d-flex justify-content-between align-center p-3",
                 ),

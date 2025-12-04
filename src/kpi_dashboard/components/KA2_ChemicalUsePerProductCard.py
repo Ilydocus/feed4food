@@ -37,11 +37,39 @@ def load_chemical_quantity_data():
     return df
 
 
-def build_chemical_bar_figure():
-    df = load_chemical_quantity_data()
+def build_chemical_bar_figure(dummy=False):
+    if dummy:
+        # --- Dummy stacked bar dataset for 5 months ----
+        dummy_data = [
+            {"month_year": "2025-01", "product": "NitroX",  "quantity": 40},
+            {"month_year": "2025-01", "product": "FertiPlus", "quantity": 25},
+            {"month_year": "2025-01", "product": "ChemGrow",  "quantity": 15},
 
-    if df.empty:
-        return px.bar(title="No data available")
+            {"month_year": "2025-02", "product": "NitroX",  "quantity": 50},
+            {"month_year": "2025-02", "product": "FertiPlus", "quantity": 20},
+            {"month_year": "2025-02", "product": "ChemGrow",  "quantity": 18},
+
+            {"month_year": "2025-03", "product": "NitroX",  "quantity": 45},
+            {"month_year": "2025-03", "product": "FertiPlus", "quantity": 30},
+            {"month_year": "2025-03", "product": "ChemGrow",  "quantity": 10},
+
+            {"month_year": "2025-04", "product": "NitroX",  "quantity": 55},
+            {"month_year": "2025-04", "product": "FertiPlus", "quantity": 25},
+            {"month_year": "2025-04", "product": "ChemGrow",  "quantity": 20},
+
+            {"month_year": "2025-05", "product": "NitroX",  "quantity": 60},
+            {"month_year": "2025-05", "product": "FertiPlus", "quantity": 28},
+            {"month_year": "2025-05", "product": "ChemGrow",  "quantity": 25},
+        ]
+
+        df = pd.DataFrame(dummy_data)
+        df["month_year"] = pd.to_datetime(df["month_year"])
+
+    else:
+        df = load_chemical_quantity_data()
+
+        if df.empty:
+            return px.bar(title="No data available")
 
     fig = px.bar(
         df,
@@ -66,23 +94,14 @@ def build_chemical_bar_figure():
 
 
 class KA2_ChemicalUsePerProductCard(dbc.Card):
-    def __init__(self, title, id, description=None):
-        fig = build_chemical_bar_figure()
+    def __init__(self, title, id, description=None, dummy=False):
+        fig = build_chemical_bar_figure(dummy=dummy)
 
         super().__init__(
             children=[
                 html.Div(
                     [
                         html.H5(title, className="m-0 align-center"),
-                        dbc.Button(
-                            html.Span(
-                                "help",
-                                className="material-symbols-outlined d-flex"
-                            ),
-                            id={"type": "graph-info-btn", "index": id},
-                            n_clicks=0,
-                            color="light",
-                        ),
                     ],
                     className="d-flex justify-content-between align-center p-3",
                 ),

@@ -7,7 +7,23 @@ import plotly.graph_objs as go
 from waterReport.models import WaterReportIrrigation
 
 
-def load_water_data():
+def load_water_data(dummy=False):
+    if dummy:
+        data = [
+            {"month": "1-2025", "source": "Rainwater", "quantity": 500},
+            {"month": "2-2025", "source": "Rainwater", "quantity": 450},
+            {"month": "3-2025", "source": "Rainwater", "quantity": 600},
+            {"month": "4-2025", "source": "Rainwater", "quantity": 550},
+            {"month": "5-2025", "source": "Rainwater", "quantity": 620},
+
+            {"month": "1-2025", "source": "Well", "quantity": 300},
+            {"month": "2-2025", "source": "Well", "quantity": 320},
+            {"month": "3-2025", "source": "Well", "quantity": 280},
+            {"month": "4-2025", "source": "Well", "quantity": 310},
+            {"month": "5-2025", "source": "Well", "quantity": 330},
+        ]
+        return pd.DataFrame(data)
+
     qs = WaterReportIrrigation.objects.select_related().all()
 
     rows = [
@@ -25,13 +41,13 @@ def load_water_data():
     return pd.DataFrame(rows)
 
 
-def build_figure():
-    df = load_water_data()
+def build_figure(dummy=False):
+    df = load_water_data(dummy=dummy)
 
     if df.empty:
         return go.Figure()
 
-    return px.bar(
+    fig = px.bar(
         df,
         x="month",
         y="quantity",
@@ -44,44 +60,45 @@ def build_figure():
         barmode="stack",
     )
 
+    # Keep consistent layout across cards
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=30, b=0),
+        legend_title_text="",
+    )
+
+    return fig
+
 
 class KA5_FigureCard(dbc.Card):
-    def __init__(self, title, id, description=None):
-        fig = build_figure()
+    def __init__(self, title, id, description=None, dummy=False):
+        fig = build_figure(dummy=dummy)
 
         super().__init__(
             children=[
+                # Standardized card header
                 html.Div(
                     [
-                        html.H5(title, className="m-0 align-center"),
-                        dbc.Button(
-                            html.Span(
-                                "help",
-                                className="material-symbols-outlined d-flex",
-                            ),
-                            id={"type": "graph-info-btn", "index": id},
-                            n_clicks=0,
-                            color="light",
-                        ),
+                        html.H5(title, className="m-0"),
                     ],
-                    className="d-flex justify-content-between align-center p-3",
+                    className="d-flex justify-content-between align-items-center p-3",
                 ),
+
                 dbc.Spinner(
                     dcc.Graph(
                         id={"type": "graph", "index": id},
-                        responsive=True,
-                        style={"height": "100%"},
                         figure=fig,
+                        style={"height": "300px"},
                     ),
                     size="lg",
                     color="dark",
                     delay_show=750,
                 ),
+
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title)),
                         dbc.ModalBody(
-                            dcc.Markdown(description, link_target="_blank")
+                            dcc.Markdown(description or "", link_target="_blank")
                         ),
                     ],
                     id={"type": "graph-modal", "index": id},

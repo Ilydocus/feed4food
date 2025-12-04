@@ -8,11 +8,20 @@ class KA5_MetricCard(dbc.Card):
         self,
         title,
         id,
+        dummy=False,
     ):
+        value = "9" if dummy else "-"
+
         super().__init__(
             children=[
-                html.H1("9", id={"type": "metric-value", "index": id}),#html.H1("-", id={"type": "metric-value", "index": id}),
-                html.P(title, id={"type": "metric-text", "index": id}),
+                html.H1(
+                    value,
+                    id={"type": "metric-value", "index": id}
+                ),
+                html.P(
+                    title,
+                    id={"type": "metric-text", "index": id}
+                ),
             ],
             body=True,
             className="mb-3",

@@ -26,46 +26,62 @@ def load_costs_data():
 
     df = pd.DataFrame(rows)
     df["month_year"] = df["month"].astype(str) + "-" + df["year"].astype(str)
+
+    df = df.groupby("month_year", as_index=False).sum()
+
+    # ---- FIX: convert to real datetime and sort ----
+    df["month_dt"] = pd.to_datetime(df["month_year"], format="%m-%Y", errors="coerce")
+    df = df.sort_values("month_dt")
+
     return df
 
 
-def build_figure():
-    df = load_costs_data()
+def build_figure(dummy=False):
+    if dummy:
+        data = [
+            {"month_year": "1-2025", "exp_workforce": 1200, "exp_purchase": 800, "exp_others": 300},
+            {"month_year": "2-2025", "exp_workforce": 1350, "exp_purchase": 900, "exp_others": 320},
+            {"month_year": "3-2025", "exp_workforce": 1280, "exp_purchase": 1100, "exp_others": 280},
+            {"month_year": "4-2025", "exp_workforce": 1400, "exp_purchase": 1000, "exp_others": 310},
+            {"month_year": "5-2025", "exp_workforce": 1500, "exp_purchase": 1200, "exp_others": 350},
+        ]
+        df = pd.DataFrame(data)
 
-    if df.empty:
-        return go.Figure()
+        # dummy datetime conversion
+        df["month_dt"] = pd.to_datetime(df["month_year"], format="%m-%Y", errors="coerce")
 
-    return px.line(
+    else:
+        df = load_costs_data()
+        if df.empty:
+            return go.Figure()
+
+    fig = px.line(
         df,
-        x="month_year",
+        x="month_dt",                # <-- FIX
         y=["exp_workforce", "exp_purchase", "exp_others"],
         labels={
-            "month_year": "Month-Year",
+            "month_dt": "Month-Year",
             "value": "Cost",
         },
         markers=True,
     )
 
+    # show axis as "Jan 2025"
+    fig.update_layout(
+        xaxis=dict(tickformat="%b %Y")
+    )
+
+    return fig
+
 
 class KA1_CostsCard(dbc.Card):
-    def __init__(self, title, id, description=None):
-        fig = build_figure()
+    def __init__(self, title, id, description=None, dummy=False):
+        fig = build_figure(dummy=dummy)
 
         super().__init__(
             children=[
                 html.Div(
-                    [
-                        html.H5(title, className="m-0 align-center"),
-                        dbc.Button(
-                            html.Span(
-                                "help",
-                                className="material-symbols-outlined d-flex",
-                            ),
-                            id={"type": "graph-info-btn", "index": id},
-                            n_clicks=0,
-                            color="light",
-                        ),
-                    ],
+                    [html.H5(title, className="m-0 align-center")],
                     className="d-flex justify-content-between align-center p-3",
                 ),
                 dbc.Spinner(

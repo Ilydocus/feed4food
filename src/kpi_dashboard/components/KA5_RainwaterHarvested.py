@@ -7,7 +7,18 @@ import plotly.graph_objs as go
 from waterReport.models import WaterReportRainfall
 
 
-def load_rainfall_data():
+def load_rainfall_data(dummy=False):
+    if dummy:
+        # ---- Dummy 5-month dataset ----
+        data = [
+            {"month": "1-2025", "quantity": 120},
+            {"month": "2-2025", "quantity": 95},
+            {"month": "3-2025", "quantity": 150},
+            {"month": "4-2025", "quantity": 130},
+            {"month": "5-2025", "quantity": 160},
+        ]
+        return pd.DataFrame(data)
+
     qs = WaterReportRainfall.objects.all()
 
     rows = [
@@ -24,8 +35,8 @@ def load_rainfall_data():
     return pd.DataFrame(rows)
 
 
-def build_figure():
-    df = load_rainfall_data()
+def build_figure(dummy=False):
+    df = load_rainfall_data(dummy=dummy)
 
     if df.empty:
         return go.Figure()
@@ -42,23 +53,14 @@ def build_figure():
 
 
 class KA5_RainwaterCard(dbc.Card):
-    def __init__(self, title, id, description=None):
-        fig = build_figure()
+    def __init__(self, title, id, description=None, dummy=False):
+        fig = build_figure(dummy=dummy)
 
         super().__init__(
             children=[
                 html.Div(
                     [
                         html.H5(title, className="m-0 align-center"),
-                        dbc.Button(
-                            html.Span(
-                                "help",
-                                className="material-symbols-outlined d-flex",
-                            ),
-                            id={"type": "graph-info-btn", "index": id},
-                            n_clicks=0,
-                            color="light",
-                        ),
                     ],
                     className="d-flex justify-content-between align-center p-3",
                 ),
@@ -77,7 +79,7 @@ class KA5_RainwaterCard(dbc.Card):
                     [
                         dbc.ModalHeader(html.H4(title)),
                         dbc.ModalBody(
-                            dcc.Markdown(description, link_target="_blank")
+                            dcc.Markdown(description or "", link_target="_blank")
                         ),
                     ],
                     id={"type": "graph-modal", "index": id},
