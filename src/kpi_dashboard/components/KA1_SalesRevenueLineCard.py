@@ -27,6 +27,36 @@ def load_sales_data(dummy=False):
                 "value": 520,
             },
             {
+                "date": pd.to_datetime("2025-03-01"),
+                "source": "Production Sales",
+                "value": 600,
+            },
+            {
+                "date": pd.to_datetime("2025-03-15"),
+                "source": "Production Sales",
+                "value": 480,
+            },
+            {
+                "date": pd.to_datetime("2025-04-05"),
+                "source": "Production Sales",
+                "value": 550,
+            },
+            {
+                "date": pd.to_datetime("2025-04-20"),
+                "source": "Production Sales",
+                "value": 620,
+            },
+            {
+                "date": pd.to_datetime("2025-05-02"),
+                "source": "Production Sales",
+                "value": 530,
+            },
+            {
+                "date": pd.to_datetime("2025-05-15"),
+                "source": "Production Sales",
+                "value": 700,
+            },
+            {
                 "date": pd.to_datetime("2025-01-01"),
                 "source": "Restaurant Sales",
                 "value": 800,
@@ -36,7 +66,23 @@ def load_sales_data(dummy=False):
                 "source": "Restaurant Sales",
                 "value": 950,
             },
+            {
+                "date": pd.to_datetime("2025-03-01"),
+                "source": "Restaurant Sales",
+                "value": 1050,
+            },
+            {
+                "date": pd.to_datetime("2025-04-01"),
+                "source": "Restaurant Sales",
+                "value": 1100,
+            },
+            {
+                "date": pd.to_datetime("2025-05-01"),
+                "source": "Restaurant Sales",
+                "value": 1200,
+            },
         ]
+
         df = pd.DataFrame(rows)
         df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
         df["month_year"] = pd.to_datetime(df["month_year"])

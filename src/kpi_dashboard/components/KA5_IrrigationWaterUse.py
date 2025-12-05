@@ -10,17 +10,17 @@ from waterReport.models import WaterReportIrrigation
 def load_water_data(dummy=False):
     if dummy:
         data = [
-            {"month": "1-2025", "source": "Rainwater", "quantity": 500},
-            {"month": "2-2025", "source": "Rainwater", "quantity": 450},
-            {"month": "3-2025", "source": "Rainwater", "quantity": 600},
-            {"month": "4-2025", "source": "Rainwater", "quantity": 550},
-            {"month": "5-2025", "source": "Rainwater", "quantity": 620},
+            {"month": "Jan-2025", "source": "Rainwater", "quantity": 500},
+            {"month": "Feb-2025", "source": "Rainwater", "quantity": 450},
+            {"month": "Mar-2025", "source": "Rainwater", "quantity": 600},
+            {"month": "Apr-2025", "source": "Rainwater", "quantity": 550},
+            {"month": "May-2025", "source": "Rainwater", "quantity": 620},
 
-            {"month": "1-2025", "source": "Well", "quantity": 300},
-            {"month": "2-2025", "source": "Well", "quantity": 320},
-            {"month": "3-2025", "source": "Well", "quantity": 280},
-            {"month": "4-2025", "source": "Well", "quantity": 310},
-            {"month": "5-2025", "source": "Well", "quantity": 330},
+            {"month": "Jan-2025", "source": "Well", "quantity": 300},
+            {"month": "Feb-2025", "source": "Well", "quantity": 320},
+            {"month": "Mar-2025", "source": "Well", "quantity": 280},
+            {"month": "Apr-2025", "source": "Well", "quantity": 310},
+            {"month": "May-2025", "source": "Well", "quantity": 330},
         ]
         return pd.DataFrame(data)
 

@@ -124,7 +124,7 @@ def irrigation_coverage_stat(dummy=False):
 class KA5_YearlyWaterCard(dbc.Card):
     def __init__(self, title, id, description=None, dummy=False):
         year = current_year()
-        title_with_year = f"{title} ({year})"
+        title_with_year = f"{title} (Jan {year} to Present)"
 
         fig = build_two_bar_water_figure_current_year(dummy=dummy)
         stat_ui = irrigation_coverage_stat(dummy=dummy)

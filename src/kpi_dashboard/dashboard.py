@@ -11,7 +11,7 @@ from .components.KA1_PriceProduct import KA1_PriceProduct
 from .components.KA1_Costs import KA1_CostsCard
 from .components.KA1_Funding import KA1_FundingCard
 from .components.KA5_IrrigationWaterUse import KA5_FigureCard
-from .components.KA5_IrrigationFrequency import KA5_MetricCard
+from .components.KA2_MetricCard_2 import KA2_MetricCard
 from .components.KA5_RainwaterHarvested import KA5_RainwaterCard
 from .components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
 from .components.KA1_BalanceCard import KA1_BalanceCard 
@@ -185,8 +185,8 @@ def create_kpi_layout(kpi_name):
                         dbc.CardHeader(html.H4("Additional Information", className="card-title")),
                         dbc.CardBody([
                             dbc.Row([
-                                dbc.Col(KA5_MetricCard("Gardens/Holdings in Use", id="metric3-kc2", dummy = True), sm=6, md=6),
-                                dbc.Col(KA5_MetricCard("Active Ingredient in Pesticide/Fertilizer Commercial Product", id="metric4-trend-kc2", dummy = True), sm=6, md=6)
+                                dbc.Col(KA2_MetricCard("Gardens/Holdings in Use", id="metric3-kc2", dummy = True), sm=6, md=6),
+                                dbc.Col(KA2_MetricCard("Active Ingredient in Pesticide/Fertilizer Commercial Product", id="metric4-trend-kc2", dummy = True), sm=6, md=6)
                             ])
                         ]),
                     ]), sm=12, md=6

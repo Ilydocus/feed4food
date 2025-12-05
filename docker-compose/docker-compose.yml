@@ -1,107 +1,3 @@
-# services:
-
-#   postgres:
-#     image: postgres:latest
-#     container_name: postgres_container
-#     environment:
-#       - POSTGRES_DB
-#       - POSTGRES_USER
-#       - POSTGRES_PASSWORD
-#     volumes:
-#       - ../db_data:/var/lib/postgresql
-#     ports:
-#       - "5432:5432"
-#     healthcheck:
-#       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-#       interval: 10s
-#       retries: 5
-#       start_period: 30s
-#       timeout: 10s
-#     restart: unless-stopped
-
-#   django:
-#     build:
-#       context: ../
-#       dockerfile: Dockerfile
-#     container_name: django_container
-#     working_dir: /app
-#     command: >
-#       bash -c "
-#       cd src;
-#       pixi run python manage.py makemigrations &&
-#       pixi run python manage.py migrate &&
-#       pixi run python manage.py createsuperuser --noinput;
-#       pixi run gunicorn --bind 0.0.0.0:8000 core.wsgi
-#       "
-#     volumes:
-#       - ../src/:/app/src/
-#     ports:
-#       - "8000:8000"
-#     depends_on:
-#       postgres:
-#         condition: service_healthy
-#     environment:
-#       POSTGRES_DB:     ${POSTGRES_DB}
-#       POSTGRES_USER:   ${POSTGRES_USER}
-#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-#       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-#       DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
-#       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
-#       DJANGO_SUPERUSER_EMAIL:    ${DJANGO_SUPERUSER_EMAIL}
-#       SECRET_KEY: ${SECRET_KEY}
-#     restart: unless-stopped
-
-#   grafana:
-#     build:
-#       context: ./grafana
-#     environment:
-#       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/metrics/scaphandre_dashboard.json
-#       - GF_SECURITY_ADMIN_PASSWORD
-#       - POSTGRES_DB
-#       - POSTGRES_USER
-#       - POSTGRES_PASSWORD
-#     depends_on:
-#       - prometheus
-#     ports:
-#       - "3000:3000"
-#     restart: unless-stopped
-
-#   scaphandre:
-#     image: hubblo/scaphandre
-#     privileged: true
-#     ports:
-#       - "8080:8080"
-#     volumes:
-#       - type: bind
-#         source: /proc
-#         target: /proc
-#       - type: bind
-#         source: /sys/class/powercap
-#         target: /sys/class/powercap
-#     command: ["prometheus"]
-#     restart: unless-stopped
-
-#   prometheus:
-#     build:
-#       context: ./prometheus
-#     user: root
-#     ports:
-#       - "9090:9090"
-#     volumes:
-#       - ../prometheus:/prometheus
-#     restart: unless-stopped
-
-
-
-#   node_exporter:
-#     image: quay.io/prometheus/node-exporter:latest
-#     container_name: node_exporter
-#     command:
-#       - '--path.rootfs=/host'
-#     pid: host
-#     volumes:
-#       - '/:/host:ro,rslave'
-#     restart: unless-stopped
 services:
 
   postgres:
@@ -112,7 +8,7 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     volumes:
-      - ../db_data:/var/lib/postgresql
+      - ../db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -170,6 +66,21 @@ services:
       - "3000:3000"
     restart: unless-stopped
 
+  scaphandre:
+    image: hubblo/scaphandre
+    privileged: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - type: bind
+        source: /proc
+        target: /proc
+      - type: bind
+        source: /sys/class/powercap
+        target: /sys/class/powercap
+    command: ["prometheus"]
+    restart: unless-stopped
+
   prometheus:
     build:
       context: ./prometheus
@@ -180,3 +91,14 @@ services:
       - ../prometheus:/prometheus
     restart: unless-stopped
 
+
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+    restart: unless-stopped

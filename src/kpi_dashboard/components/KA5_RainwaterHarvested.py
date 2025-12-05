@@ -11,11 +11,11 @@ def load_rainfall_data(dummy=False):
     if dummy:
         # ---- Dummy 5-month dataset ----
         data = [
-            {"month": "1-2025", "quantity": 120},
-            {"month": "2-2025", "quantity": 95},
-            {"month": "3-2025", "quantity": 150},
-            {"month": "4-2025", "quantity": 130},
-            {"month": "5-2025", "quantity": 160},
+            {"month": "Jan-2025", "quantity": 120},
+            {"month": "Feb-2025", "quantity": 95},
+            {"month": "Mar-2025", "quantity": 150},
+            {"month": "Apr-2025", "quantity": 130},
+            {"month": "May-2025", "quantity": 160},
         ]
         return pd.DataFrame(data)
 

@@ -25,6 +25,21 @@ def load_event_revenue_data(dummy=False):
                 "event_name": "Charity Run",
                 "revenue": 1500,
             },
+            {
+                "date": pd.to_datetime("2025-03-15"),
+                "event_name": "Spring Carnival",
+                "revenue": 2000,
+            },
+            {
+                "date": pd.to_datetime("2025-04-20"),
+                "event_name": "Art Exhibition",
+                "revenue": 2500,
+            },
+            {
+                "date": pd.to_datetime("2025-05-10"),
+                "event_name": "Summer Concert",
+                "revenue": 1800,
+            },
         ]
         df = pd.DataFrame(rows)
         df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
