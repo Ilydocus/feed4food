@@ -83,7 +83,7 @@ def build_event_revenue_figure(dummy=False):
         hover_name="event_name",
         labels={
             "month_year": "Month-Year",
-            "revenue": "Revenue (€)",
+            "revenue": "Revenue",
             "event_name": "Event",
         }
     )

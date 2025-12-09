@@ -10,21 +10,42 @@ from financialReport.models import FinancialReport
 from salesReport.models import SalesReportDetails
 
 
-def build_dummy_monthly_breakdown_figure():
-    rows = [
-        ["Revenue from Selling Product", "Product Sales", 12000],
-        ["Revenues from Off-Farm Activities", "Sales in Restaurant", 4000],
-        ["Revenues from Off-Farm Activities", "Revenue from Events", 1500],
-        ["Revenues from Off-Farm Activities", "Other Revenues", 2000],
-        ["Funding Received", "Project Funding", 3000],
-        ["Funding Received", "Other Funding", 1000],
-        ["Expenses", "Workforce Costs", -5000],
-        ["Expenses", "Purchase Costs", -4000],
-        ["Expenses", "Other Costs", -2000],
-    ]
+
+def build_dummy_monthly_breakdown_figure(month_key):
+    # Accept "01" or "02"
+    if month_key == "01":
+        rows = [
+            ["Revenue from Selling Product", "Product Sales", 12000],
+            ["Revenues from Off-Farm Activities", "Sales in Restaurant", 4000],
+            ["Revenues from Off-Farm Activities", "Revenue from Events", 1500],
+            ["Revenues from Off-Farm Activities", "Other Revenues", 2000],
+            ["Funding Received", "Project Funding", 3000],
+            ["Funding Received", "Other Funding", 1000],
+            ["Expenses", "Workforce Costs", -5000],
+            ["Expenses", "Purchase Costs", -4000],
+            ["Expenses", "Other Costs", -2000],
+        ]
+        month_name = "Jan"
+        year = 2025
+    else:  # "02"
+        rows = [
+            ["Revenue from Selling Product", "Product Sales", 9000],
+            ["Revenues from Off-Farm Activities", "Sales in Restaurant", 3500],
+            ["Revenues from Off-Farm Activities", "Revenue from Events", 1000],
+            ["Revenues from Off-Farm Activities", "Other Revenues", 1500],
+            ["Funding Received", "Project Funding", 2500],
+            ["Funding Received", "Other Funding", 800],
+            ["Expenses", "Workforce Costs", -5200],
+            ["Expenses", "Purchase Costs", -3800],
+            ["Expenses", "Other Costs", -1500],
+        ]
+        month_name = "Feb"
+        year = 2025
+
     df = pd.DataFrame(rows, columns=["Category", "Subcategory", "Value"])
     totals = df.groupby("Category", sort=False)["Value"].sum().to_dict()
     df["Total"] = df["Category"].map(totals)
+
     fig = px.bar(
         df,
         x="Value",
@@ -32,7 +53,7 @@ def build_dummy_monthly_breakdown_figure():
         color="Subcategory",
         orientation="h",
         barmode="stack",
-        title="For Jan 2025",
+        title=f"For {month_name} {year}",
     )
     for category, total_value in totals.items():
         total_text = f"Total: {total_value:,.2f}"
@@ -50,14 +71,24 @@ def build_dummy_monthly_breakdown_figure():
     return fig
 
 
-def build_monthly_breakdown_figure(dummy=False):
+
+def build_monthly_breakdown_figure(month_key="01", dummy=False):
+    """
+    month_key: string "01".."12"
+    dummy: if True, return dummy figure for the month_key
+    """
     if dummy:
-        return build_dummy_monthly_breakdown_figure()
+        return build_dummy_monthly_breakdown_figure(month_key)
 
-    today = datetime.date.today()
-    month = today.month
-    year = today.year
+    # Convert month_key to int month
+    try:
+        month = int(month_key)
+    except Exception:
+        month = datetime.date.today().month
 
+    year = datetime.date.today().year
+
+    # original aggregations (you had these)
     fr = FinancialReport.objects.filter(month=str(month), year=year).aggregate(
         workforce=Sum("exp_workforce"),
         purchase=Sum("exp_purchase"),
@@ -68,7 +99,7 @@ def build_monthly_breakdown_figure(dummy=False):
         other_revenues=Sum("rev_others"),
     )
 
-    def nz(v): 
+    def nz(v):
         return v or 0
 
     workforce = nz(fr.get("workforce"))
@@ -126,6 +157,8 @@ def build_monthly_breakdown_figure(dummy=False):
     totals = df.groupby("Category", sort=False)["Value"].sum().to_dict()
     df["Total"] = df["Category"].map(totals)
 
+    month_name = datetime.date(2000, month, 1).strftime("%B")
+
     fig = px.bar(
         df,
         x="Value",
@@ -133,7 +166,7 @@ def build_monthly_breakdown_figure(dummy=False):
         color="Subcategory",
         orientation="h",
         barmode="stack",
-        title=f"For {today.strftime('%B %Y')}",
+        title=f"For {month_name} {year}",
     )
     for category, total_value in totals.items():
         total_text = f"Total: {total_value:,.2f}"
@@ -153,17 +186,39 @@ def build_monthly_breakdown_figure(dummy=False):
 
 class KA1_MonthlyBreakdownCard(dbc.Card):
     def __init__(self, title, id, dummy=False):
-        fig = build_monthly_breakdown_figure(dummy=dummy)
+        if dummy:
+            default_month = "01"
+        else:
+            default_month = datetime.date.today().strftime("%m")
+
+        fig = build_monthly_breakdown_figure(default_month, dummy=dummy)
+
         super().__init__(
             [
                 dbc.CardHeader(html.H4(title, className="card-title")),
+
                 dbc.CardBody(
-                    dcc.Graph(
-                        id={"type": "graph", "index": id},
-                        figure=fig,
-                        responsive=True,
-                        config={"displayModeBar": False},
-                    )
+                    [
+                        dcc.Dropdown(
+                            id={"type": "month-dropdown", "index": id},
+                            options=[
+                                {"label": "January", "value": "01"},
+                                {"label": "February", "value": "02"},
+                                # add more months if you want
+                            ],
+                            value=default_month,
+                            clearable=False,
+                            style={"marginBottom": "12px", "width": "200px"},
+                        ),
+
+                        dcc.Graph(
+                            id={"type": "graph", "index": id},
+                            figure=fig,
+                            responsive=True,
+                            config={"displayModeBar": False},
+                            style={"height": "430px"}
+                        ),
+                    ]
                 ),
             ],
             className="mb-3",

@@ -1,29 +1,31 @@
-from productionReport.models import ProductionReport, ProductionReportDetails, Product
 from dash import dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, MATCH
 import plotly.graph_objs as go
 from django_plotly_dash import DjangoDash
 import dash_bootstrap_components as dbc
 
 # Import custom FigureCard components
-from .components.KA1_QuantitySold import KA1_QuantitySold
 from .components.KA1_PriceProduct import KA1_PriceProduct
-from .components.KA1_Costs import KA1_CostsCard
+from .components.KA1_Costs import KA1_CostsCard, build_figure
 from .components.KA1_Funding import KA1_FundingCard
-from .components.KA5_IrrigationWaterUse import KA5_FigureCard
+from .components.KA5_IrrigationWaterUse import KA5_WaterUseCard, build_wateruse_figure
 from .components.KA2_MetricCard_2 import KA2_MetricCard
-from .components.KA5_RainwaterHarvested import KA5_RainwaterCard
+from .components.KA5_RainwaterHarvested import KA5_RainwaterCard, build_rainwater_figure
 from .components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
 from .components.KA1_BalanceCard import KA1_BalanceCard 
 from .components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard
 from .components.KA2_MetricCard import KA2_AreaChemicalCard
 from .components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
-from .components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard
+from .components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard, build_plants_cultivated_figure
 from .components.KA2_ChemicalUsePerProductCard import KA2_ChemicalUsePerProductCard
-from .components.KA2_SurfaceCultivatedPerProductCard import KA2_SurfaceCultivatedPerProductCard
+from .components.KA2_SurfaceCultivatedPerProductCard import KA2_SurfaceCultivatedPerProductCard, build_surface_cultivation_figure
 from .components.KA1_EventRevenueScatterCard import KA1_EventRevenueScatterCard
-from .components.KA1_SalesRevenueLineCard import KA1_SalesRevenueLineCard
+from .components.KA1_SalesRevenueLineCard import KA1_SalesRevenueLineCard, build_sales_figure
 from .components.KA1_EventsAndOtherRevenuesBarCard import KA1_EventsAndOtherRevenuesBarCard
+from .components.KA1_MonthlyBreakdownCard import build_monthly_breakdown_figure
+from .components.KA2_FertilizerActiveIngredientTable import KA2_FertilizerActiveIngredientTable
+from .components.KA1_QuantitySold import KA1_QuantitySold, build_figure
+
 # Create a Dash app
 app = DjangoDash("KPIVisualisationApp", external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -186,7 +188,7 @@ def create_kpi_layout(kpi_name):
                         dbc.CardBody([
                             dbc.Row([
                                 dbc.Col(KA2_MetricCard("Gardens/Holdings in Use", id="metric3-kc2", dummy = True), sm=6, md=6),
-                                dbc.Col(KA2_MetricCard("Active Ingredient in Pesticide/Fertilizer Commercial Product", id="metric4-trend-kc2", dummy = True), sm=6, md=6)
+                                dbc.Col(KA2_FertilizerActiveIngredientTable("Active Ingredient in Pesticide/Fertilizer Commercial Product", id="metric4-trend-kc2", dummy = True), sm=6, md=6)
                             ])
                         ]),
                     ]), sm=12, md=6
@@ -249,7 +251,7 @@ def create_kpi_layout(kpi_name):
                     dbc.Card([
                         dbc.CardHeader(html.H4("Irrigation Water Use per Source", className="card-title")),
                         dbc.CardBody([
-                            KA5_FigureCard("Irrigation Water Use per Source", id="graph3-kc5", dummy = True)
+                            KA5_WaterUseCard("Irrigation Water Use per Source", id="graph3-kc5", dummy = True)
                         ]),
                     ]),
                     sm=12, md=6
@@ -283,3 +285,60 @@ def update_kpi_layout(kpi_value):
         create_kpi_layout('kc5') if kpi_value == 'kc5' else html.Div([])
     )
 
+@app.callback(
+    Output({"type": "graph", "index": MATCH}, "figure"),
+    Input({"type": "month-dropdown", "index": MATCH}, "value"),
+)
+def update_monthly_breakdown_graph(month_key):
+    return build_monthly_breakdown_figure(month_key, dummy=True)
+
+@app.callback(
+    Output({"type": "quantitysold-graph", "index": MATCH}, "figure"),
+    Input({"type": "quantitysold-graph-mode", "index": MATCH}, "value"),
+)
+def callback_update_KA1_QuantitySold(mode):
+    return build_figure(mode=mode, dummy=True)
+
+@app.callback(
+    Output({"type": "costscard-graph", "index": MATCH}, "figure"),
+    Input({"type": "costscard-graph-mode", "index": MATCH}, "value"),
+)
+def update_costs_card_chart(mode):
+    return build_figure(mode=mode, dummy=True)
+
+
+@app.callback(
+    Output({"type": "salesrevenue-graph", "index": MATCH}, "figure"),
+    Input({"type": "salesrevenue-graph-mode", "index": MATCH}, "value"),
+)
+def update_sales_revenue_chart(mode):
+    return build_sales_figure(mode=mode, dummy=True)
+
+@app.callback(
+    Output({"type": "surfacecultivated-graph", "index": MATCH}, "figure"),
+    Input({"type": "surfacecultivated-graph-mode", "index": MATCH}, "value"),
+)
+def callback_update_surfacecultivated_chart(chart_type):
+    return build_surface_cultivation_figure(chart_type=chart_type, dummy=True)
+
+
+@app.callback(
+    Output({"type": "plantscultivated-graph", "index": MATCH}, "figure"),
+    Input({"type": "plantscultivated-graph-mode", "index": MATCH}, "value"),
+)
+def callback_update_plantscultivated_chart(chart_type):
+    return build_plants_cultivated_figure(chart_type=chart_type, dummy=True)
+
+@app.callback(
+    Output({"type": "rainwater-graph", "index": MATCH}, "figure"),
+    Input({"type": "rainwater-graph-mode", "index": MATCH}, "value"),
+)
+def callback_update_rainwater_chart(chart_type):
+    return build_rainwater_figure(chart_type=chart_type, dummy=True)
+
+@app.callback(
+    Output({"type": "wateruse-graph", "index": MATCH}, "figure"),
+    Input({"type": "wateruse-graph-mode", "index": MATCH}, "value"),
+)
+def callback_update_wateruse_chart(chart_type):
+    return build_wateruse_figure(chart_type=chart_type, dummy=True)

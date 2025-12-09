@@ -1,4 +1,3 @@
-import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
@@ -41,57 +40,85 @@ def load_water_data(dummy=False):
     return pd.DataFrame(rows)
 
 
-def build_figure(dummy=False):
+def build_wateruse_figure(chart_type="stackedbar", dummy=False):
     df = load_water_data(dummy=dummy)
 
     if df.empty:
         return go.Figure()
 
-    fig = px.bar(
-        df,
-        x="month",
-        y="quantity",
-        color="source",
-        labels={
-            "month": "Month-Year",
-            "quantity": "Water Use Quantity",
-            "source": "Source",
-        },
-        barmode="stack",
-    )
+    if chart_type == "stackedline":
+        fig = px.line(
+            df,
+            x="month",
+            y="quantity",
+            color="source",
+            markers=True,
+            labels={
+                "month": "Month-Year",
+                "quantity": "Water Use Quantity",
+                "source": "Source",
+            },
+        )
+    else:
+        fig = px.bar(
+            df,
+            x="month",
+            y="quantity",
+            color="source",
+            barmode="stack",
+            labels={
+                "month": "Month-Year",
+                "quantity": "Water Use Quantity",
+                "source": "Source",
+            },
+        )
 
-    # Keep consistent layout across cards
     fig.update_layout(
-        margin=dict(l=0, r=0, t=30, b=0),
-        legend_title_text="",
+        height=350,
+        margin=dict(l=20, r=20, t=30, b=20),
     )
 
     return fig
 
 
-class KA5_FigureCard(dbc.Card):
+class KA5_WaterUseCard(dbc.Card):
     def __init__(self, title, id, description=None, dummy=False):
-        fig = build_figure(dummy=dummy)
+        fig = build_wateruse_figure("stackedbar", dummy=dummy)
 
         super().__init__(
             children=[
-                # Standardized card header
                 html.Div(
                     [
                         html.H5(title, className="m-0"),
+                        dcc.Dropdown(
+                            id={"type": "wateruse-graph-mode", "index": id},
+                            options=[
+                                {"label": "Stacked Bar", "value": "stackedbar"},
+                                {"label": "Stacked Line", "value": "stackedline"},
+                            ],
+                            value="stackedbar",
+                            clearable=False,
+                            style={"width": "200px"},
+                        ),
                     ],
                     className="d-flex justify-content-between align-items-center p-3",
                 ),
 
-                dbc.Spinner(
-                    dcc.Graph(
-                        id={"type": "graph", "index": id},
-                        figure=fig,
-                        style={"height": "300px"},
-                    ),
-                    size="lg",
-                    color="dark",
-                    delay_show=750,
+                dbc.CardBody(
+                    [
+                        dbc.Spinner(
+                            dcc.Graph(
+                                id={"type": "wateruse-graph", "index": id},
+                                figure=fig,
+                                responsive=True,
+                                style={"height": "350px", "width": "100%"},
+                            ),
+                            size="lg",
+                            color="dark",
+                            delay_show=750,
+                        ),
+                    ],
+                    style={"height": "380px", "padding": "0.5rem"},
                 ),
 
                 dbc.Modal(
@@ -101,7 +128,7 @@ class KA5_FigureCard(dbc.Card):
                             dcc.Markdown(description or "", link_target="_blank")
                         ),
                     ],
-                    id={"type": "graph-modal", "index": id},
+                    id={"type": "wateruse-graph-modal", "index": id},
                     is_open=False,
                     size="md",
                 ),

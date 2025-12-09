@@ -1,4 +1,3 @@
-import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
@@ -26,17 +25,15 @@ def load_costs_data():
 
     df = pd.DataFrame(rows)
     df["month_year"] = df["month"].astype(str) + "-" + df["year"].astype(str)
-
     df = df.groupby("month_year", as_index=False).sum()
 
-    # ---- FIX: convert to real datetime and sort ----
     df["month_dt"] = pd.to_datetime(df["month_year"], format="%m-%Y", errors="coerce")
     df = df.sort_values("month_dt")
 
     return df
 
 
-def build_figure(dummy=False):
+def build_figure(mode="line", dummy=False):
     if dummy:
         data = [
             {"month_year": "1-2025", "exp_workforce": 1200, "exp_purchase": 800, "exp_others": 300},
@@ -46,8 +43,6 @@ def build_figure(dummy=False):
             {"month_year": "5-2025", "exp_workforce": 1500, "exp_purchase": 1200, "exp_others": 350},
         ]
         df = pd.DataFrame(data)
-
-        # dummy datetime conversion
         df["month_dt"] = pd.to_datetime(df["month_year"], format="%m-%Y", errors="coerce")
 
     else:
@@ -55,20 +50,30 @@ def build_figure(dummy=False):
         if df.empty:
             return go.Figure()
 
-    fig = px.line(
-        df,
-        x="month_dt",                # <-- FIX
-        y=["exp_workforce", "exp_purchase", "exp_others"],
-        labels={
-            "month_dt": "Month-Year",
-            "value": "Cost",
-        },
-        markers=True,
-    )
+    if mode == "line":
+        fig = px.line(
+            df,
+            x="month_dt",
+            y=["exp_workforce", "exp_purchase", "exp_others"],
+            labels={"month_dt": "Month-Year", "value": "Cost"},
+            markers=True,
+        )
+    else:  # stacked bar
+        df_melt = df.melt(id_vars=["month_dt"], value_vars=["exp_workforce", "exp_purchase", "exp_others"],
+                          var_name="type", value_name="cost")
+        fig = px.bar(
+            df_melt,
+            x="month_dt",
+            y="cost",
+            color="type",
+            barmode="stack",
+            labels={"month_dt": "Month-Year", "cost": "Cost"},
+        )
 
-    # show axis as "Jan 2025"
     fig.update_layout(
-        xaxis=dict(tickformat="%b %Y")
+        xaxis=dict(tickformat="%b %Y"),
+        height=320,
+        margin=dict(l=10, r=10, t=10, b=10)
     )
 
     return fig
@@ -81,14 +86,26 @@ class KA1_CostsCard(dbc.Card):
         super().__init__(
             children=[
                 html.Div(
-                    [html.H5(title, className="m-0 align-center")],
+                    [
+                        html.H5(title, className="m-0 align-center"),
+                        dcc.Dropdown(
+                            id={"type": "costscard-graph-mode", "index": id},
+                            options=[
+                                {"label": "Line Chart", "value": "line"},
+                                {"label": "Stacked Bar Chart", "value": "bar"},
+                            ],
+                            value="line",
+                            clearable=False,
+                            style={"width": "180px"},
+                        ),
+                    ],
                     className="d-flex justify-content-between align-center p-3",
                 ),
                 dbc.Spinner(
                     dcc.Graph(
-                        id={"type": "graph", "index": id},
+                        id={"type": "costscard-graph", "index": id},
                         responsive=True,
-                        style={"height": "100%"},
+                        style={"height": "320px"},
                         figure=fig,
                     ),
                     size="lg",

@@ -1,4 +1,3 @@
-import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
@@ -9,7 +8,6 @@ from waterReport.models import WaterReportRainfall
 
 def load_rainfall_data(dummy=False):
     if dummy:
-        # ---- Dummy 5-month dataset ----
         data = [
             {"month": "Jan-2025", "quantity": 120},
             {"month": "Feb-2025", "quantity": 95},
@@ -35,46 +33,82 @@ def load_rainfall_data(dummy=False):
     return pd.DataFrame(rows)
 
 
-def build_figure(dummy=False):
+def build_rainwater_figure(chart_type="bar", dummy=False):
     df = load_rainfall_data(dummy=dummy)
 
     if df.empty:
         return go.Figure()
 
-    return px.bar(
-        df,
-        x="month",
-        y="quantity",
-        labels={
-            "month": "Month-Year",
-            "quantity": "Rainwater Harvested Quantity",
-        },
+    if chart_type == "line":
+        fig = px.line(
+            df,
+            x="month",
+            y="quantity",
+            markers=True,
+            labels={
+                "month": "Month-Year",
+                "quantity": "Rainwater Harvested Quantity",
+            },
+        )
+    else:
+        fig = px.bar(
+            df,
+            x="month",
+            y="quantity",
+            labels={
+                "month": "Month-Year",
+                "quantity": "Rainwater Harvested Quantity",
+            },
+        )
+
+    fig.update_layout(
+        height=350,
+        margin=dict(l=20, r=20, t=30, b=20),
     )
+
+    return fig
 
 
 class KA5_RainwaterCard(dbc.Card):
     def __init__(self, title, id, description=None, dummy=False):
-        fig = build_figure(dummy=dummy)
+        fig = build_rainwater_figure("bar", dummy=dummy)
 
         super().__init__(
             children=[
                 html.Div(
                     [
                         html.H5(title, className="m-0 align-center"),
+                        dcc.Dropdown(
+                            id={"type": "rainwater-graph-mode", "index": id},
+                            options=[
+                                {"label": "Bar Chart", "value": "bar"},
+                                {"label": "Line Chart", "value": "line"},
+                            ],
+                            value="bar",
+                            clearable=False,
+                            style={"width": "200px"},
+                        ),
                     ],
                     className="d-flex justify-content-between align-center p-3",
                 ),
-                dbc.Spinner(
-                    dcc.Graph(
-                        id={"type": "graph", "index": id},
-                        responsive=True,
-                        style={"height": "100%"},
-                        figure=fig,
-                    ),
-                    size="lg",
-                    color="dark",
-                    delay_show=750,
+
+                dbc.CardBody(
+                    [
+                        dbc.Spinner(
+                            dcc.Graph(
+                                id={"type": "rainwater-graph", "index": id},
+                                figure=fig,
+                                responsive=True,
+                                style={"height": "350px", "width": "100%"},
+                            ),
+                            size="lg",
+                            color="dark",
+                            delay_show=750,
+                        ),
+                    ],
+                    style={"height": "380px", "padding": "0.5rem"},
                 ),
+
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title)),
@@ -82,7 +116,7 @@ class KA5_RainwaterCard(dbc.Card):
                             dcc.Markdown(description or "", link_target="_blank")
                         ),
                     ],
-                    id={"type": "graph-modal", "index": id},
+                    id={"type": "rainwater-graph-modal", "index": id},
                     is_open=False,
                     size="md",
                 ),

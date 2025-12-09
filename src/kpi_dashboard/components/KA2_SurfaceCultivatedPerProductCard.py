@@ -1,4 +1,3 @@
-import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
@@ -15,7 +14,6 @@ def load_surface_cultivation_data(dummy=False):
             {"date": "2025-03-01", "product": "Lettuce", "quantity": 160},
             {"date": "2025-04-01", "product": "Lettuce", "quantity": 180},
             {"date": "2025-05-01", "product": "Lettuce", "quantity": 200},
-
             {"date": "2025-01-01", "product": "Spinach", "quantity": 80},
             {"date": "2025-02-01", "product": "Spinach", "quantity": 95},
             {"date": "2025-03-01", "product": "Spinach", "quantity": 110},
@@ -27,7 +25,6 @@ def load_surface_cultivation_data(dummy=False):
         df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
         return df
 
-    # normal DB mode
     qs = (
         ProductionReportDetails.objects
         .select_related("report_id", "name")
@@ -38,7 +35,6 @@ def load_surface_cultivation_data(dummy=False):
     for r in qs:
         if not r.report_id.production_date:
             continue
-
         rows.append({
             "date": r.report_id.production_date,
             "product": r.name.name,
@@ -52,68 +48,94 @@ def load_surface_cultivation_data(dummy=False):
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df = df.dropna(subset=["date"])
     df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
-
     return df
 
 
-def build_surface_line_figure(dummy=False):
+def build_surface_cultivation_figure(chart_type="area", dummy=False):
     df = load_surface_cultivation_data(dummy=dummy)
-
     if df.empty:
         return px.area(title="No data available")
 
-    fig = px.area(
-        df,
-        x="month_year",
-        y="quantity",
-        color="product",
-        line_group="product",
-        markers=True,
-        labels={
-            "month_year": "Month-Year",
-            "quantity": "Surface (m²)",
-            "product": "Product",
-        }
-    )
+    if chart_type == "stacked":
+        fig = px.bar(
+            df,
+            x="month_year",
+            y="quantity",
+            color="product",
+            barmode="stack",
+            labels={
+                "month_year": "Month-Year",
+                "quantity": "Surface (m²)",
+                "product": "Product",
+            }
+        )
+    else:
+        fig = px.area(
+            df,
+            x="month_year",
+            y="quantity",
+            color="product",
+            line_group="product",
+            markers=True,
+            labels={
+                "month_year": "Month-Year",
+                "quantity": "Surface (m²)",
+                "product": "Product",
+            }
+        )
 
     fig.update_layout(
         height=350,
-        margin=dict(l=20, r=20, t=40, b=20),
+        margin=dict(l=20, r=20, t=30, b=20),
         xaxis=dict(tickformat="%b %Y", title="Month-Year"),
     )
-
     return fig
 
 
 class KA2_SurfaceCultivatedPerProductCard(dbc.Card):
     def __init__(self, title, id, description=None, dummy=False):
-        fig = build_surface_line_figure(dummy=dummy)
+        fig = build_surface_cultivation_figure("area", dummy=dummy)
 
         super().__init__(
             children=[
                 html.Div(
                     [
                         html.H5(title, className="m-0 align-center"),
+                        dcc.Dropdown(
+                            id={"type": "surfacecultivated-graph-mode", "index": id},
+                            options=[
+                                {"label": "Area Chart", "value": "area"},
+                                {"label": "Stacked Bar", "value": "stacked"},
+                            ],
+                            value="area",
+                            clearable=False,
+                            style={"width": "200px"},
+                        )
                     ],
                     className="d-flex justify-content-between align-center p-3",
                 ),
-                dbc.Spinner(
-                    dcc.Graph(
-                        id={"type": "graph", "index": id},
-                        figure=fig,
-                        responsive=True,
-                        style={"height": "100%"},
-                    ),
-                    size="lg",
-                    color="dark",
-                    delay_show=750,
+                dbc.CardBody(
+                    [
+                        dbc.Spinner(
+                            dcc.Graph(
+                                id={"type": "surfacecultivated-graph", "index": id},
+                                figure=fig,
+                                responsive=True,
+                                style={"height": "350px", "width": "100%"},
+                            ),
+                            size="lg",
+                            color="dark",
+                            delay_show=750,
+                        ),
+                    ],
+                    style={"height": "380px", "padding": "0.5rem"},
                 ),
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title)),
                         dbc.ModalBody(dcc.Markdown(description or "", link_target="_blank")),
                     ],
-                    id={"type": "graph-modal", "index": id},
+                    id={"type": "surfacecultivated-graph-modal", "index": id},
                     is_open=False,
                     size="md",
                 ),
