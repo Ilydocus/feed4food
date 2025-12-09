@@ -14,9 +14,10 @@ def current_year():
     return now().year
 
 
-def load_totals_rainfall_current_year():
+def load_totals_rainfall_current_year(dummy=False):
+    if dummy:
+        return 420.0
     year = current_year()
-
     total = (
         WaterReportRainfall.objects
         .filter(start_date__year=year)
@@ -26,34 +27,33 @@ def load_totals_rainfall_current_year():
     return float(total)
 
 
-def load_totals_irrigation_current_year():
+def load_totals_irrigation_current_year(dummy=False):
+    if dummy:
+        data = {
+            "source": ["harvested", "tap", "other"],
+            "quantity": [120, 260, 90],
+        }
+        return pd.DataFrame(data)
     year = current_year()
-
     qs = (
         WaterReportIrrigation.objects
         .filter(start_date__year=year)
         .values("source")
         .annotate(quantity=Sum("quantity"))
     )
-
     rows = [{"source": r["source"], "quantity": r["quantity"]} for r in qs]
-
     return pd.DataFrame(rows)
 
 
-def build_two_bar_water_figure_current_year():
-    rainfall_total = load_totals_rainfall_current_year()
-    df_irr = load_totals_irrigation_current_year()
+def build_two_bar_water_figure_current_year(dummy=False):
+    rainfall_total = load_totals_rainfall_current_year(dummy=dummy)
+    df_irr = load_totals_irrigation_current_year(dummy=dummy)
 
     irrigation_total = df_irr["quantity"].sum() if not df_irr.empty else 0
-
-    # --- Target line (15% of irrigation water total) ---
-    target_pct = 0.15
-    target_quantity = irrigation_total * target_pct
+    target_quantity = irrigation_total * 0.15
 
     fig = go.Figure()
 
-    # Irrigation bar (stacked by source)
     for source in ["harvested", "tap", "other"]:
         qty = df_irr[df_irr["source"] == source]["quantity"].sum()
         fig.add_trace(
@@ -65,7 +65,6 @@ def build_two_bar_water_figure_current_year():
             )
         )
 
-    # Rainfall bar
     fig.add_trace(
         go.Bar(
             y=["Rainwater Harvested"],
@@ -75,7 +74,6 @@ def build_two_bar_water_figure_current_year():
         )
     )
 
-    # Target line
     fig.add_vline(
         x=target_quantity,
         line_width=2,
@@ -97,17 +95,15 @@ def build_two_bar_water_figure_current_year():
     return fig
 
 
-def irrigation_coverage_stat():
-    rainfall = load_totals_rainfall_current_year()
-    df_irr = load_totals_irrigation_current_year()
+def irrigation_coverage_stat(dummy=False):
+    rainfall = load_totals_rainfall_current_year(dummy=dummy)
+    df_irr = load_totals_irrigation_current_year(dummy=dummy)
     irrigation_total = df_irr["quantity"].sum() if not df_irr.empty else 0
 
     if irrigation_total == 0:
         return html.Div("No irrigation water used this year.")
 
     pct = (rainfall / irrigation_total) * 100
-
-    # Determine color
     color = "green" if pct >= 15 else "red"
 
     return html.Div(
@@ -126,34 +122,21 @@ def irrigation_coverage_stat():
 
 
 class KA5_YearlyWaterCard(dbc.Card):
-    def __init__(self, title, id, description=None):
+    def __init__(self, title, id, description=None, dummy=False):
         year = current_year()
-        title_with_year = f"{title} ({year})"
+        title_with_year = f"{title} (Jan {year} to Present)"
 
-        fig = build_two_bar_water_figure_current_year()
-        stat_ui = irrigation_coverage_stat()
+        fig = build_two_bar_water_figure_current_year(dummy=dummy)
+        stat_ui = irrigation_coverage_stat(dummy=dummy)
 
         super().__init__(
             children=[
-
-                # Header row
                 html.Div(
                     [
                         html.H5(title_with_year, className="m-0"),
-                        dbc.Button(
-                            html.Span(
-                                "help",
-                                className="material-symbols-outlined d-flex",
-                            ),
-                            id={"type": "graph-info-btn", "index": id},
-                            n_clicks=0,
-                            color="light",
-                        ),
                     ],
                     className="d-flex justify-content-between align-center p-3",
                 ),
-
-                # Graph + stat side-by-side
                 dbc.Row([
                     dbc.Col(
                         dbc.Spinner(
@@ -170,7 +153,6 @@ class KA5_YearlyWaterCard(dbc.Card):
                         md=10,
                         sm=12
                     ),
-
                     dbc.Col(
                         html.Div(
                             stat_ui,
@@ -180,8 +162,6 @@ class KA5_YearlyWaterCard(dbc.Card):
                         sm=12
                     ),
                 ], className="px-3"),
-
-                # Modal
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title_with_year)),

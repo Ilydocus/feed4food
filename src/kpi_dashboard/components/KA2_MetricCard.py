@@ -10,8 +10,9 @@ def current_year():
     return now().year
 
 
-def load_surface_area_current_year():
-    """All gardens with products cultivated in m²."""
+def load_surface_area_current_year(dummy=False):
+    if dummy:
+        return [1, 2, 3]
     return (
         ProductionReportDetails.objects
         .filter(name__cultivation_type="m²")
@@ -20,8 +21,9 @@ def load_surface_area_current_year():
     )
 
 
-def load_total_surface_area():
-    """Total surface area (m²) cultivated in the selected gardens."""
+def load_total_surface_area(dummy=False):
+    if dummy:
+        return 1200
     qs = (
         ProductionReportDetails.objects
         .filter(name__cultivation_type="m²")
@@ -30,11 +32,11 @@ def load_total_surface_area():
     return sum(qs) if qs else 0
 
 
-def load_chemical_treated_area():
-    """Surface area treated with chemical fertilizers/pesticides."""
+def load_chemical_treated_area(dummy=False):
+    if dummy:
+        return 450
     year = current_year()
     surface_gardens = load_surface_area_current_year()
-
     qs = (
         InputReportDetails.objects
         .filter(
@@ -44,18 +46,44 @@ def load_chemical_treated_area():
         )
         .values_list("area", flat=True)
     )
-
     return sum(qs) if qs else 0
 
 
+def load_last_year_treated_area(dummy=False):
+    if dummy:
+        return 380  # placeholder
+    year = current_year() - 1
+    surface_gardens = load_surface_area_current_year()
+    qs = (
+        InputReportDetails.objects
+        .filter(
+            report_id__application_date__year=year,
+            name_input__input_category__in=["Chemical Fertilizer", "Pesticide"],
+            report_id__garden__in=surface_gardens,
+        )
+        .values_list("area", flat=True)
+    )
+    return sum(qs) if qs else 0
+
+
+def trend_arrow(curr, prev):
+    if curr > prev:
+        return "▲", "green"
+    if curr < prev:
+        return "▼", "red"
+    return "►", "gray"
+
+
 class KA2_AreaChemicalCard(dbc.Card):
-    def __init__(self, title, id, description=None):
-        treated = load_chemical_treated_area()
-        total = load_total_surface_area()
+    def __init__(self, title, id, description=None, dummy=False):
+        treated = load_chemical_treated_area(dummy=dummy)
+        total = load_total_surface_area(dummy=dummy)
+        last_year = load_last_year_treated_area(dummy=dummy)
+
+        arrow, arrow_color = trend_arrow(treated, last_year)
 
         super().__init__(
             children=[
-                # Header
                 html.Div(
                     [
                         html.H5(title, className="m-0"),
@@ -63,23 +91,40 @@ class KA2_AreaChemicalCard(dbc.Card):
                     className="d-flex justify-content-between align-items-center p-3",
                 ),
 
-                # KPI display
                 html.Div(
                     [
                         html.Div(
-                            f"{treated:.0f} m²",
-                            style={"fontSize": "44px", "fontWeight": "700"},
-                            className="mt-2",
+                            [
+                                html.Span(
+                                    f"{treated:.0f} m²",
+                                    style={"fontSize": "44px", "fontWeight": "700"},
+                                ),
+                                html.Span(
+                                    f" {arrow}",
+                                    style={
+                                        "fontSize": "32px",
+                                        "fontWeight": "900",
+                                        "color": arrow_color,
+                                        "marginLeft": "8px",
+                                    },
+                                ),
+                            ],
+                            className="mt-2 d-flex align-items-center",
                         ),
+
                         html.Div(
                             f"out of {total:.0f} m² total",
+                            className="text-muted mt-1",
+                        ),
+
+                        html.Div(
+                            f"Compared to same period last year",
                             className="text-muted mt-1",
                         ),
                     ],
                     className="p-3 pt-0",
                 ),
 
-                # Modal
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title)),
