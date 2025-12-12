@@ -33,7 +33,7 @@ def load_costs_data():
     return df
 
 
-def build_figure(mode="line", dummy=False):
+def build_costs_figure(mode="line", dummy=False):
     if dummy:
         data = [
             {"month_year": "1-2025", "exp_workforce": 1200, "exp_purchase": 800, "exp_others": 300},
@@ -81,7 +81,7 @@ def build_figure(mode="line", dummy=False):
 
 class KA1_CostsCard(dbc.Card):
     def __init__(self, title, id, description=None, dummy=False):
-        fig = build_figure(dummy=dummy)
+        fig = build_costs_figure(dummy=dummy)
 
         super().__init__(
             children=[
