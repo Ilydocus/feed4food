@@ -12,12 +12,12 @@ from django.conf import settings
 
 def download_informedConsent(request):
     # Location of the file
-    file_path = os.path.join(settings.BASE_DIR, 'static/files/sample_file.pdf')
+    file_path = os.path.join(settings.BASE_DIR, 'static/files/Informed_consent_Feed4Food.pdf')
     
     try:
         # Open the file and return as response
         response = FileResponse(open(file_path, 'rb'), as_attachment=True)
-        response['Content-Disposition'] = f'attachment; filename="sample_file.pdf"'
+        response['Content-Disposition'] = f'attachment; filename="Informed_consent_Feed4Food.pdf"'
         return response
     except FileNotFoundError:
         raise Http404("File not found")
