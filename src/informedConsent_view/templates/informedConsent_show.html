@@ -69,7 +69,7 @@
 
         <p>I have read the above information and have received answers to any questions I asked. I consent to take part in the study and provide consent for the processing of the research data / personal data (if any) that is collected derived from my participation. </p>
 
-        <p>You have consented on {{request.user.ethics_consent.consent_given_at|date:"Y-m-d g:i A"}}</p>
+        <p>You have given consent on {{request.user.ethics_consent.consent_given_at|date:"Y-m-d g:i A"}}</p>
 
         <p>If you would like to download a PDF version of this information:</p>
         <a class="btn btn-primary" href="{% url 'download_informedConsent' %}" role="button">Download Informed Consent document</a>
