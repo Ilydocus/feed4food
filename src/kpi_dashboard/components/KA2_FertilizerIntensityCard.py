@@ -21,47 +21,34 @@ def load_surface_area_current_year(dummy=False):
     )
 
 
-def load_total_surface_area(dummy=False):
+def load_chemical_fertilizer_area(dummy=False, year=None):
     if dummy:
-        return 1200
+        return 450 if year == current_year() else 360
+    surface_gardens = load_surface_area_current_year()
     qs = (
-        ProductionReportDetails.objects
-        .filter(name__cultivation_type="m²")
+        InputReportDetails.objects
+        .filter(
+            report_id__application_date__year=year,
+            name_input__input_category="Chemical Fertilizer",
+            report_id__garden__in=surface_gardens,
+        )
+        .values_list("area", flat=True)
+    )
+    return sum(qs) if qs else 0
+
+
+def load_chemical_fertilizer_quantity(dummy=False, year=None):
+    if dummy:
+        return 900 if year == current_year() else 760
+    surface_gardens = load_surface_area_current_year()
+    qs = (
+        InputReportDetails.objects
+        .filter(
+            report_id__application_date__year=year,
+            name_input__input_category="Chemical Fertilizer",
+            report_id__garden__in=surface_gardens,
+        )
         .values_list("quantity", flat=True)
-    )
-    return sum(qs) if qs else 0
-
-
-def load_chemical_treated_area(dummy=False):
-    if dummy:
-        return 450
-    year = current_year()
-    surface_gardens = load_surface_area_current_year()
-    qs = (
-        InputReportDetails.objects
-        .filter(
-            report_id__application_date__year=year,
-            name_input__input_category__in=["Chemical Fertilizer", "Pesticide"],
-            report_id__garden__in=surface_gardens,
-        )
-        .values_list("area", flat=True)
-    )
-    return sum(qs) if qs else 0
-
-
-def load_last_year_treated_area(dummy=False):
-    if dummy:
-        return 380  # placeholder
-    year = current_year() - 1
-    surface_gardens = load_surface_area_current_year()
-    qs = (
-        InputReportDetails.objects
-        .filter(
-            report_id__application_date__year=year,
-            name_input__input_category__in=["Chemical Fertilizer", "Pesticide"],
-            report_id__garden__in=surface_gardens,
-        )
-        .values_list("area", flat=True)
     )
     return sum(qs) if qs else 0
 
@@ -74,13 +61,20 @@ def trend_arrow(curr, prev):
     return "►", "gray"
 
 
-class KA2_AreaChemicalCard(dbc.Card):
+class KA2_FertilizerIntensityCard(dbc.Card):
     def __init__(self, title, id, description=None, dummy=False):
-        treated = load_chemical_treated_area(dummy=dummy)
-        total = load_total_surface_area(dummy=dummy)
-        last_year = load_last_year_treated_area(dummy=dummy)
+        year = current_year()
+        last_year = year - 1
 
-        arrow, arrow_color = trend_arrow(treated, last_year)
+        quantity = load_chemical_fertilizer_quantity(dummy=dummy, year=year)
+        area = load_chemical_fertilizer_area(dummy=dummy, year=year)
+        intensity = (quantity / area) if area else 0
+
+        prev_quantity = load_chemical_fertilizer_quantity(dummy=dummy, year=last_year)
+        prev_area = load_chemical_fertilizer_area(dummy=dummy, year=last_year)
+        prev_intensity = (prev_quantity / prev_area) if prev_area else 0
+
+        arrow, arrow_color = trend_arrow(intensity, prev_intensity)
 
         super().__init__(
             children=[
@@ -96,7 +90,7 @@ class KA2_AreaChemicalCard(dbc.Card):
                         html.Div(
                             [
                                 html.Span(
-                                    f"{treated:.0f} m²",
+                                    f"{intensity:.2f} kg/m²",
                                     style={"fontSize": "44px", "fontWeight": "700"},
                                 ),
                                 html.Span(
@@ -109,16 +103,16 @@ class KA2_AreaChemicalCard(dbc.Card):
                                     },
                                 ),
                             ],
-                            className="mt-2 d-flex align-items-center",
+                            className="mt-2 d-flex align-items-end",
                         ),
 
                         html.Div(
-                            f"out of {total:.0f} m² total",
+                            f"{quantity:.0f} kg fertilizer over {area:.0f} m²",
                             className="text-muted mt-1",
                         ),
 
                         html.Div(
-                            f"Compared to same period last year",
+                            "Compared to same period last year",
                             className="text-muted mt-1",
                         ),
                     ],

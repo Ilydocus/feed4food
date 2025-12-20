@@ -13,7 +13,7 @@ from .components.KA5_RainwaterHarvested import KA5_RainwaterCard, build_rainwate
 from .components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
 from .components.KA1_BalanceCard import KA1_BalanceCard 
 from .components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard
-from .components.KA2_MetricCard import KA2_AreaChemicalCard
+from .components.KA2_AreaChemicalCard import KA2_AreaChemicalCard
 from .components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
 from .components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard, build_plants_cultivated_figure
 from .components.KA2_ChemicalUsePerProductCard import KA2_ChemicalUsePerProductCard
@@ -24,6 +24,8 @@ from .components.KA1_EventsAndOtherRevenuesBarCard import KA1_EventsAndOtherReve
 from .components.KA1_MonthlyBreakdownCard import build_monthly_breakdown_figure
 from .components.KA2_FertilizerActiveIngredientTable import KA2_FertilizerActiveIngredientTable
 from .components.KA1_QuantitySold import KA1_QuantitySold, build_quantitysold_figure
+from .components.KA2_FertilizerIntensityCard import KA2_FertilizerIntensityCard
+from. components.KA2_PesticideSharePieCard import KA2_PesticideSharePieCard
 
 app = DjangoDash("KPIVisualisationApp", external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -132,7 +134,10 @@ def create_kpi_layout(kpi_name):
                     dbc.CardBody([
                         dbc.Row([
                             dbc.Col(KA2_AreaChemicalCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2", dummy=True), sm=6, md=6),
-                            dbc.Col(KA2_PlantChemicalCard("Number of Plants in Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric-2-kc2", dummy=True), sm=6, md=6)
+                            dbc.Col(KA2_FertilizerIntensityCard("Quantity of Chemical Fertilizer/Pesticides over Cultivated Area", id="metric1-kc2", dummy=True), sm=6, md=6),
+                        ]),
+                        dbc.Row([
+                            dbc.Col(KA2_PesticideSharePieCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2", dummy=True), sm=12, md=12),
                         ])
                     ]),
                 ]), sm=12, md=6),
@@ -141,7 +146,8 @@ def create_kpi_layout(kpi_name):
                     dbc.CardBody([
                         dbc.Row([
                             dbc.Col(KA2_MetricCard("Gardens/Holdings in Use", id="metric3-kc2", dummy=True), sm=6, md=6),
-                            dbc.Col(KA2_FertilizerActiveIngredientTable("Active Ingredient in Pesticide/Fertilizer Commercial Product", id="metric4-trend-kc2", dummy=True), sm=6, md=6)
+                            dbc.Col(KA2_FertilizerActiveIngredientTable("Active Ingredient in Pesticide/Fertilizer Commercial Product", id="metric4-trend-kc2", dummy=True), sm=6, md=6),
+                            # dbc.Col(KA2_PlantChemicalCard("Number of Plants in Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric-2-kc2", dummy=True), sm=6, md=6)
                         ])
                     ]),
                 ]), sm=12, md=6),
@@ -152,7 +158,7 @@ def create_kpi_layout(kpi_name):
                         dbc.CardHeader(html.H4("Usage Overview")),
                         dbc.CardBody([
                             dbc.Row([
-                                dbc.Col(KA2_ChemicalUsePerProductCard("Quantity of Chemical Fertilizer/Pesticide Used per Product", id="graph1-kc2", dummy=True), sm=4, md=4),
+                                dbc.Col(KA2_ChemicalUsePerProductCard("Quantity of Chemical Fertilizer/Pesticide Used per Commercial Product", id="graph1-kc2", dummy=True), sm=4, md=4),
                                 dbc.Col(KA2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated per Product", id="graph2-kc2", dummy=True), sm=4, md=4),
                                 dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated per Product", id="graph3-kc2", dummy=True), sm=4, md=4),
                             ])
@@ -176,8 +182,8 @@ def create_kpi_layout(kpi_name):
         return html.Div([
             dbc.Row([
                 dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Irrigation Details")),
-                    dbc.CardBody([KA5_YearlyWaterCard("Irrigation Frequency", id="graph1-kc5", dummy=True)]),
+                    dbc.CardHeader(html.H4("Water Reuse")),
+                    dbc.CardBody([KA5_YearlyWaterCard("Irrigation Details", id="graph1-kc5", dummy=True)]),
                 ]), sm=12, md=12),
             ], className="mb-4"),
             dbc.Row([
@@ -194,7 +200,12 @@ def create_kpi_layout(kpi_name):
 
     elif kpi_name == 'gard':
         return html.Div([
-
+            dbc.Row([
+                dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=True), sm=12, md=12, className="mb-4")
+            ]),
+            dbc.Row([
+                dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=True), sm=12, md=12)
+            ]),
             dbc.Row([
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Sales Overview")),

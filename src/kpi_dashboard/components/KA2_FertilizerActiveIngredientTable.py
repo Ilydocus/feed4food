@@ -1,6 +1,5 @@
 import dash_bootstrap_components as dbc
 from dash import html
-from productionReport.models import Product
 from inputReport.models import Input, InputReportDetails  
 
 class KA2_FertilizerActiveIngredientTable(dbc.Card):

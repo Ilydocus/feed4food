@@ -45,18 +45,38 @@ def load_totals_irrigation_current_year(dummy=False):
     return pd.DataFrame(rows)
 
 
-def build_two_bar_water_figure_current_year(dummy=False):
+def build_two_bar_water_figures_current_year(dummy=False):
     rainfall_total = load_totals_rainfall_current_year(dummy=dummy)
     df_irr = load_totals_irrigation_current_year(dummy=dummy)
 
     irrigation_total = df_irr["quantity"].sum() if not df_irr.empty else 0
     target_quantity = irrigation_total * 0.15
 
-    fig = go.Figure()
+    x_max = max(rainfall_total, irrigation_total) * 1.1
 
+    fig_in = go.Figure()
+    fig_in.add_trace(
+        go.Bar(
+            y=["Rainwater Harvested"],
+            x=[rainfall_total],
+            name="Rainwater Harvested",
+            orientation="h",
+        )
+    )
+    fig_in.update_layout(
+        xaxis_title="Total Water",
+        xaxis=dict(range=[0, x_max]),
+        yaxis_title="",
+        height=120,
+        bargap=0.5,
+        margin=dict(l=40, r=20, t=20, b=25),
+        showlegend=True,
+    )
+
+    fig_out = go.Figure()
     for source in ["harvested", "tap", "other"]:
         qty = df_irr[df_irr["source"] == source]["quantity"].sum()
-        fig.add_trace(
+        fig_out.add_trace(
             go.Bar(
                 y=["Irrigation Water Use"],
                 x=[qty],
@@ -65,45 +85,43 @@ def build_two_bar_water_figure_current_year(dummy=False):
             )
         )
 
-    fig.add_trace(
-        go.Bar(
-            y=["Rainwater Harvested"],
-            x=[rainfall_total],
-            name="Rainwater Harvested",
-            orientation="h",
-        )
-    )
-
-    fig.add_vline(
+    fig_out.add_vline(
         x=target_quantity,
         line_width=2,
         line_dash="dash",
         line_color="red",
         annotation_text="Target (15%)",
-        annotation_position="top",
+        annotation_position="top right",
+        annotation_font=dict(size=12),
     )
 
-    fig.update_layout(
+    fig_out.update_layout(
         barmode="stack",
         xaxis_title="Total Water",
+        xaxis=dict(range=[0, x_max]),
         yaxis_title="",
-        legend_title="Water Type",
-        height=300,
-        margin=dict(l=40, r=20, t=20, b=30),
+        height=120,
+        bargap=0.5,
+        margin=dict(l=40, r=20, t=30, b=25),
+        showlegend=True,
     )
 
-    return fig
+    return fig_in, fig_out
 
 
 def irrigation_coverage_stat(dummy=False):
     rainfall = load_totals_rainfall_current_year(dummy=dummy)
     df_irr = load_totals_irrigation_current_year(dummy=dummy)
-    irrigation_total = df_irr["quantity"].sum() if not df_irr.empty else 0
 
-    if irrigation_total == 0:
-        return html.Div("No irrigation water used this year.")
+    harvested_irr = (
+        df_irr[df_irr["source"] == "harvested"]["quantity"].sum()
+        if not df_irr.empty else 0
+    )
 
-    pct = (rainfall / irrigation_total) * 100
+    if rainfall == 0:
+        return html.Div("No rainwater harvested this year.")
+
+    pct = (harvested_irr / rainfall) * 100
     color = "green" if pct >= 15 else "red"
 
     return html.Div(
@@ -111,13 +129,14 @@ def irrigation_coverage_stat(dummy=False):
             html.Div(
                 f"{pct:.1f}%",
                 className="fw-bold",
-                style={"fontSize": "2.5rem", "color": color}
+                style={"fontSize": "2.5rem", "color": color, "textAlign": "center"},
             ),
             html.Small(
-                "of irrigation demand covered by harvested rainwater.",
-                className="text-muted"
+                "of harvested rainwater used for irrigation.",
+                className="text-muted",
             ),
-        ]
+        ],
+        style={"display": "flex", "flexDirection": "column", "alignItems": "center"},
     )
 
 
@@ -126,42 +145,43 @@ class KA5_YearlyWaterCard(dbc.Card):
         year = current_year()
         title_with_year = f"{title} (Jan {year} to Present)"
 
-        fig = build_two_bar_water_figure_current_year(dummy=dummy)
+        fig_in, fig_out = build_two_bar_water_figures_current_year(dummy=dummy)
         stat_ui = irrigation_coverage_stat(dummy=dummy)
 
         super().__init__(
             children=[
                 html.Div(
-                    [
-                        html.H5(title_with_year, className="m-0"),
-                    ],
+                    [html.H5(title_with_year, className="m-0")],
                     className="d-flex justify-content-between align-center p-3",
                 ),
-                dbc.Row([
-                    dbc.Col(
-                        dbc.Spinner(
-                            dcc.Graph(
-                                id={"type": "graph", "index": id},
-                                figure=fig,
-                                responsive=True,
-                                style={"height": "100%"},
-                            ),
-                            size="lg",
-                            color="dark",
-                            delay_show=750,
+                dbc.Row(
+                    [
+                        # Graphs column
+                        dbc.Col(
+                            [
+                                dcc.Graph(
+                                    id={"type": "graph-in", "index": id},
+                                    figure=fig_in,
+                                    responsive=True,
+                                    style={"height": "120px"},
+                                ),
+                                dcc.Graph(
+                                    id={"type": "graph-out", "index": id},
+                                    figure=fig_out,
+                                    responsive=True,
+                                    style={"height": "120px"},
+                                ),
+                            ],
+                            md=10,
                         ),
-                        md=10,
-                        sm=12
-                    ),
-                    dbc.Col(
-                        html.Div(
-                            stat_ui,
-                            className="p-3"
+                        # Percentage stat column
+                        dbc.Col(
+                            html.Div(stat_ui, className="p-3 d-flex align-items-center justify-content-center"),
+                            md=2,
                         ),
-                        md=2,
-                        sm=12
-                    ),
-                ], className="px-3"),
+                    ],
+                    className="px-3",
+                ),
                 dbc.Modal(
                     [
                         dbc.ModalHeader(html.H4(title_with_year)),
