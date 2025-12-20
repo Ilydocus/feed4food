@@ -6,7 +6,7 @@ import pandas as pd
 from salesReport.models import SalesReportDetails
 
 
-def build_figure(mode="bar", dummy=False):
+def build_quantitysold_figure(mode="bar", dummy=False):
     if dummy:
         data = [
             {"product": "Tomatoes", "quantity": 40, "price": 2.5, "month": "1-2025"},
@@ -77,7 +77,7 @@ def build_figure(mode="bar", dummy=False):
 
 class KA1_QuantitySold(dbc.Card):
     def __init__(self, title, id, description=None, dummy=False):
-        fig = build_figure(dummy=dummy)
+        fig = build_quantitysold_figure(dummy=dummy)
 
         super().__init__(
             children=[
@@ -99,7 +99,6 @@ class KA1_QuantitySold(dbc.Card):
                     className="d-flex justify-content-between align-center p-3",
                 ),
 
-                # Body with fixed height
                 dbc.CardBody(
                     [
                         dbc.Spinner(

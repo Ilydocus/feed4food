@@ -19,7 +19,7 @@ def load_sales_data():
 
 class KA1_PriceProduct(dbc.Card):
     def __init__(self, title, id, description=None):
-        df = load_sales_data()  # ← now executes *after* Django startup
+        df = load_sales_data() 
 
         super().__init__(
             children=[

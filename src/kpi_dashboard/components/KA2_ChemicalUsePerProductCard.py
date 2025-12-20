@@ -39,7 +39,6 @@ def load_chemical_quantity_data():
 
 def build_chemical_bar_figure(dummy=False):
     if dummy:
-        # --- Dummy stacked bar dataset for 5 months ----
         dummy_data = [
             {"month_year": "2025-01", "product": "NitroX",  "quantity": 40},
             {"month_year": "2025-01", "product": "FertiPlus", "quantity": 25},

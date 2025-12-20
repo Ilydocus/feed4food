@@ -9,15 +9,17 @@ import calendar
 
 
 def build_dummy_balance_data():
-    total_revenue = 25000
-    total_expenses = 18000
+    total_revenue = 18300
+    total_expenses = 10500
     net_balance = total_revenue - total_expenses
     return total_revenue, total_expenses, net_balance
 
 
 def dummy_trend():
-    return "+5%", "▲", "green"
+    return "+5%", "▲", "black"
 
+def dummy_bal_trend():
+    return "+5%", "▲", "green"
 
 class KA1_BalanceCard(dbc.Card):
     def __init__(self, id, dummy=False):
@@ -63,9 +65,9 @@ class KA1_BalanceCard(dbc.Card):
         # Dummy YoY trends
         rev_pct, rev_arrow, rev_color = dummy_trend()
         exp_pct, exp_arrow, exp_color = dummy_trend()
-        bal_pct, bal_arrow, bal_color = dummy_trend()
+        bal_pct, bal_arrow, bal_color = dummy_bal_trend()
 
-        comparison_text = f"Trend compared to {month_name} {compare_year}"
+        comparison_text = f"Trend compared to January to {month_name} {compare_year}"
 
         super().__init__(
             children=[

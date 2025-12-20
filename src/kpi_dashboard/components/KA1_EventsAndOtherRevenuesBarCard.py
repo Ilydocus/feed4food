@@ -115,18 +115,6 @@ class KA1_EventsAndOtherRevenuesBarCard(dbc.Card):
 
         super().__init__(
             children=[
-                html.Div(
-                    [
-                        html.H5(title, className="m-0 align-center"),
-                        dbc.Button(
-                            html.Span("help", className="material-symbols-outlined d-flex"),
-                            id={"type": "graph-info-btn", "index": id},
-                            n_clicks=0,
-                            color="light",
-                        ),
-                    ],
-                    className="d-flex justify-content-between align-center p-3",
-                ),
                 dbc.Spinner(
                     dcc.Graph(
                         id={"type": "graph", "index": id},
