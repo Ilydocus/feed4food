@@ -47,7 +47,7 @@ def load_event_other_revenues_data():
     return df
 
 
-def build_events_other_bar_figure(dummy=False):
+def build_events_other_bar_figure(title=None, dummy=False):
     if dummy:
         dummy_data = [
             {"month_year": "2025-01", "source": "Event Revenues",  "value": 1200},
@@ -73,7 +73,7 @@ def build_events_other_bar_figure(dummy=False):
         df = load_event_other_revenues_data()
 
         if df.empty:
-            return px.bar(title="No data available")
+            return px.bar(title=title or "No data available")
 
         df["month_year"] = pd.to_datetime(df["month_year"])
 
@@ -89,6 +89,7 @@ def build_events_other_bar_figure(dummy=False):
         y="value",
         color="source",
         barmode="stack",
+        title=title,  # Applied the title to the graph here
         labels={
             "month_year": "Month-Year",
             "value": "Revenue",
@@ -111,7 +112,7 @@ def build_events_other_bar_figure(dummy=False):
 
 class KA1_EventsAndOtherRevenuesBarCard(dbc.Card):
     def __init__(self, title, id, description=None, dummy=False):
-        fig = build_events_other_bar_figure(dummy=dummy)
+        fig = build_events_other_bar_figure(title=title, dummy=dummy)
 
         super().__init__(
             children=[
