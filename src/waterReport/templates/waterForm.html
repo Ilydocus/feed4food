@@ -218,6 +218,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <p>You are logged in as {{ user.username }}!</p>
       
           <!-- Data portal -->
+          <div class="col-5 col-sm-4 col-md-3">
+            {% bootstrap_button "Back to add data" button_type="link" button_class="btn-custom" href="/add_data_portal" extra_classes="w-100 py-3"  %}
+          </div>
           <div class="col-6 col-sm-4 col-md-3">
             {% bootstrap_button "Back to data portal" button_type="link" button_class="btn-custom" href="/data_portal" extra_classes="w-100 py-3"  %}
           </div>

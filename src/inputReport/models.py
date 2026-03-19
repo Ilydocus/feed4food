@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 from core import reportUtils
 from productionReport.models import Product, LLLocation, Garden
 
@@ -13,6 +14,7 @@ class Input(models.Model):
     input_category = models.CharField(max_length=100, choices=reportUtils.InputCategory)
     active_ingredient = models.CharField(max_length=100, default="")
     living_lab = models.CharField(max_length=100, choices=reportUtils.PartnerCities)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
 class InputReport(models.Model):
         
