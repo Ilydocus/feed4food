@@ -54,6 +54,7 @@ class Product(models.Model):
     native_variety = models.BooleanField()
     category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL, null=True)
     unit = models.CharField(max_length=100, blank=False, null=False)
+    kg_conversion_factor = models.FloatField(default=1.0)  # 1.0 means unit is already kg
     cultivation_type = models.CharField(choices=reportUtils.CultivationTypes, max_length=100, blank=False, default=reportUtils.CultivationTypes.Surface)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 

@@ -7,6 +7,9 @@ from django_plotly_dash import DjangoDash
 import dash_bootstrap_components as dbc
 import pandas as pd
 
+from django.db.models import ExpressionWrapper, FloatField, Sum, F
+from django.db.models.functions import TruncMonth
+
 
 from .components.KA1_Costs import KA1_CostsCard, build_costs_figure
 from .components.KA1_Funding import KA1_FundingCard
@@ -139,7 +142,7 @@ kc1p_content = [
 ]
 
 kc3_content = [
-    html.H5("KC3: Nutritious Food Production", style={"color": "black", "padding": "10px"}),
+    #html.H5("KC3: Nutritious Food Production", style={"color": "black", "padding": "10px"}),
     html.Div([
         html.P("View:", style={"color": "black", "margin-bottom": "4px"}),
         dcc.RadioItems(
@@ -148,7 +151,7 @@ kc3_content = [
                 {'label': '  Living Lab level',  'value': 'll'},
                 {'label': '  Garden drill-down',  'value': 'garden'},
             ],
-            value='ll',
+            value='ll', #default
             inline=True,
             style={"color": "black", "margin-bottom": "10px"},
             inputStyle={"margin-right": "6px", "margin-left": "14px"},
@@ -158,7 +161,7 @@ kc3_content = [
         html.P("Year:", style={"color": "black", "margin-bottom": "4px"}),
         dcc.Dropdown(
             id="kc3-year-selector",
-            options=[{'label': str(y), 'value': y} for y in range(2022, 2026)],
+            options=[{'label': str(y), 'value': y} for y in range(2024, 2027)], #TODO make the end the current year
             value=2025,
             clearable=False,
             style={"margin-bottom": "15px", "max-width": "200px"},
@@ -196,28 +199,28 @@ kc3_content = [
     ], className="dashboard-row"),
 ]
 
-kc4_content = [
-    html.H5("KC4: Native Varieties Cultivation — Progress per Living Lab", style={"color": "black", "padding": "10px"}),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6(lab, style={"color": "black", "text-align": "center"}),
-                dcc.Graph(
-                    id=f"kc4-gauge-{lab.lower()}",
-                    figure=make_gauge(
-                        value=native, target=target, title=f"Native varieties\n(target {target} / total {total})", max_val=total,
-                    ),
-                    config={'displayModeBar': False},
-                ),
-                html.P(
-                    f"{'✅ Target met' if native >= target else '❌ Below target'}  ({native}/{total} varieties are native)",
-                    style={"color": "green" if native >= target else "red", "text-align": "center", "font-weight": "bold"},
-                ),
-            ]), sm=12, md=4,
-        )
-        for lab, native, total, target in KC4_DATA
-    ]),
-]
+# kc4_content = [
+#     html.H5("KC4: Native Varieties Cultivation — Progress per Living Lab", style={"color": "black", "padding": "10px"}),
+#     dbc.Row([
+#         dbc.Col(
+#             html.Div([
+#                 html.H6(lab, style={"color": "black", "text-align": "center"}),
+#                 dcc.Graph(
+#                     id=f"kc4-gauge-{lab.lower()}",
+#                     figure=make_gauge(
+#                         value=native, target=target, title=f"Native varieties\n(target {target} / total {total})", max_val=total,
+#                     ),
+#                     config={'displayModeBar': False},
+#                 ),
+#                 html.P(
+#                     f"{'✅ Target met' if native >= target else '❌ Below target'}  ({native}/{total} varieties are native)",
+#                     style={"color": "green" if native >= target else "red", "text-align": "center", "font-weight": "bold"},
+#                 ),
+#             ]), sm=12, md=4,
+#         )
+#         for lab, native, total, target in KC4_DATA
+#     ]),
+# ]
 
 
 # ─────────────────────────────────────────────
@@ -517,36 +520,65 @@ for aspect in KC1P_ASPECTS:
     Output('kc3-production-line', 'figure'),
     Input('kc3-view-toggle', 'value'),
     Input('kc3-year-selector', 'value'),
+    Input('ll-selector', 'value'),
 )
-def update_kc3_production(view, year):
+def update_kc3_production(view, selected_year,ll):
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    import random
-    random.seed(int(year))
+    # import random
+    # random.seed(int(year))
 
     if view == 'll':
-        series = {
-            'Amsterdam': [random.randint(80, 200) for _ in months],
-            'Bucharest': [random.randint(60, 180) for _ in months],
-            'Drama':     [random.randint(50, 160) for _ in months],
-        }
-        title = f"Production per Living Lab — {year}"
+        # series = {
+        #     'Amsterdam': [random.randint(80, 200) for _ in months],
+        #     'Bucharest': [random.randint(60, 180) for _ in months],
+        #     'Drama':     [random.randint(50, 160) for _ in months],
+        # }
+        title = f"Production per Living Lab — {selected_year}"
     else:
-        series = {
-            'Garden A (AMS)': [random.randint(20, 80)  for _ in months],
-            'Garden B (AMS)': [random.randint(15, 70)  for _ in months],
-            'Garden C (BCH)': [random.randint(10, 60)  for _ in months],
-            'Garden D (DRM)': [random.randint(12, 65)  for _ in months],
-        }
-        title = f"Production per Garden (drill-down) — {year}"
+        # series = {
+        #     'Garden A (AMS)': [random.randint(20, 80)  for _ in months],
+        #     'Garden B (AMS)': [random.randint(15, 70)  for _ in months],
+        #     'Garden C (BCH)': [random.randint(10, 60)  for _ in months],
+        #     'Garden D (DRM)': [random.randint(12, 65)  for _ in months],
+        # }
+        title = f"Production per Garden (drill-down) — {selected_year}"
+
+    # Import data from the database
+    monthly_kg = (
+        ProductionReportDetails.objects
+        .filter(report_id__city=ll)
+        .annotate(month=TruncMonth('report_id__production_date'))
+        .annotate(
+            quantity_kg=ExpressionWrapper(
+                F('quantity') * F('name__kg_conversion_factor'),
+                output_field=FloatField()
+            )
+        )
+        .values('month')
+        .annotate(total_kg=Sum('quantity_kg'))
+        .order_by('month')
+    )
+
+    # df = pd.DataFrame(monthly_kg)
+    # series = df.set_index('month')['total_kg']
+    df = pd.DataFrame(list(monthly_kg))
+    series = df.set_index(pd.to_datetime(df['month']))['total_kg']
 
     fig = go.Figure()
-    for name, values in series.items():
-        fig.add_trace(go.Scatter(x=months, y=values, mode='lines+markers', name=name))
+    #for date, values in series.items():
+    fig.add_trace(go.Scatter(x=series.index, y=series.values, mode='lines+markers', name="Placeholder"))
 
     fig.update_layout(
         title=title, paper_bgcolor='white', plot_bgcolor='white', font_color='black',
         legend=dict(bgcolor='white'), margin=dict(t=40, b=30, l=40, r=20), height=320,
-        xaxis=dict(gridcolor='#e5e5e5'), yaxis=dict(gridcolor='#e5e5e5', title='Quantity (kg)'),
+        xaxis=dict(gridcolor='#e5e5e5',tickmode='array', tickvals=[pd.Timestamp(year=selected_year, month=m, day=1) for m in range(1, 13)],
+            ticktext=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            range=[
+                pd.Timestamp(year=selected_year, month=1, day=1),
+                pd.Timestamp(year=selected_year, month=12, day=31)
+            ]), 
+        yaxis=dict(gridcolor='#e5e5e5', title='Quantity (kg)'),
     )
     return fig
 
@@ -629,6 +661,9 @@ def display_native_count(kpi_value, **kwargs):
         return 0
 
 
+# ─────────────────────────────────────────────
+# Other CALLBACKS
+# ─────────────────────────────────────────────
 
 @app.callback(
     Output({"type": "graph", "index": MATCH}, "figure"),
