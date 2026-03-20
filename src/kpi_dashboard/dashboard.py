@@ -101,7 +101,7 @@ def make_gauge(value, target, title, max_val=None):
 
 
 KC1P_DATA = {
-    'Amsterdam': {'Extent': (14, 15), 'Attractivity': (23, 20), 'Outcome': (34, 30), 'Relevance': (10, 12)},
+    'Strovolos': {'Extent': (14, 15), 'Attractivity': (23, 20), 'Outcome': (34, 30), 'Relevance': (10, 12)},
     'Bucharest': {'Extent': (10, 15), 'Attractivity': (20, 20), 'Outcome': (34, 30), 'Relevance': (8,  12)},
     'Drama':     {'Extent': (10, 15), 'Attractivity': (20, 20), 'Outcome': (34, 30), 'Relevance': (5,  12)},
 }
@@ -117,29 +117,62 @@ KC4_DATA = [
 
 
 kc1p_content = [
-    html.H5("KC1-P: Effective Training — Progress per Living Lab", style={"color": "black", "padding": "10px"}),
-    html.Div([
-        html.P("Filter by Living Lab:", style={"color": "black", "margin-bottom": "4px"}),
-        dcc.Dropdown(
-            id="kc1p-lab-selector",
-            options=[{'label': lab, 'value': lab} for lab in KC1P_LABS] + [{'label': 'All', 'value': 'All'}],
-            value='All',
-            clearable=False,
-            style={"margin-bottom": "15px", "max-width": "300px"},
-        ),
-    ]),
-    *[
+    # html.H5("KC1-P: Effective Training — Progress per Living Lab", style={"color": "black", "padding": "10px"}),
+    # html.Div([
+    #     html.P("Filter by Living Lab:", style={"color": "black", "margin-bottom": "4px"}),
+    #     dcc.Dropdown(
+    #         id="kc1p-lab-selector",
+    #         options=[{'label': lab, 'value': lab} for lab in KC1P_LABS] + [{'label': 'All', 'value': 'All'}],
+    #         value='All',
+    #         clearable=False,
+    #         style={"margin-bottom": "15px", "max-width": "300px"},
+    #     ),
+    # ]),
         dbc.Row([
             dbc.Col(
                 html.Div([
-                    html.H6(aspect, style={"color": "black", "text-align": "center"}),
-                    html.Div(id=f"kc1p-{aspect.lower()}-gauges"),
+                    html.H6("Extent", style={"color": "black", "text-align": "center"}),
+                    html.Div(id=f"kc1p-extent-gauges"),
                 ]),
-                width=12,
+                width=6,
+            ),
+            dbc.Col(
+                html.Div([
+                    html.H6("Attractivity", style={"color": "black", "text-align": "center"}),
+                    html.Div(id=f"kc1p-attractivity-gauges"),
+                ]),
+                width=6,
+            )
+        ], className="dashboard-row", style={"margin-bottom": "10px"}),
+
+        dbc.Row([
+            dbc.Col(
+                html.Div([
+                    html.H6("Outcome", style={"color": "black", "text-align": "center"}),
+                    html.Div(id=f"kc1p-outcome-gauges"),
+                ]),
+                width=6,
+            ),
+            dbc.Col(
+                html.Div([
+                    html.H6("Relevance", style={"color": "black", "text-align": "center"}),
+                    html.Div(id=f"kc1p-relevance-gauges"),
+                ]),
+                width=6,
             )
         ], className="dashboard-row", style={"margin-bottom": "10px"})
-        for aspect in KC1P_ASPECTS
-    ]
+    # *[
+    #     dbc.Row([
+    #         dbc.Col(
+    #             html.Div([
+    #                 html.H6(aspect, style={"color": "black", "text-align": "center"}),
+    #                 html.Div(id=f"kc1p-{aspect.lower()}-gauges"),
+    #             ]),
+    #             width=12,
+    #         )
+    #     ], className="dashboard-row", style={"margin-bottom": "10px"})
+    #     for aspect in KC1P_ASPECTS
+    # ]
 ]
 
 kc3_content = [
@@ -526,27 +559,25 @@ def update_kpi_layout(kpi_value, ll_value):
 # ─────────────────────────────────────────────
 # KC1-P CALLBACKS
 # ─────────────────────────────────────────────
-def _kc1p_gauge_row(aspect, lab_filter):
-    labs = KC1P_LABS if lab_filter == 'All' else [lab_filter]
+def _kc1p_gauge_row(aspect, ll):
+    # labs = KC1P_LABS if lab_filter == 'All' else [lab_filter]
     graphs = []
-    for lab in labs:
-        value, target = KC1P_DATA[lab][aspect]
-        graphs.append(
-            dbc.Col(
-                dcc.Graph(
-                    figure=make_gauge(value, target, f"{lab}  (target {target})"),
-                    config={'displayModeBar': False},
-                ),
-                sm=12, md=4,
-            )
-        )
+    # for lab in labs:
+    value, target = KC1P_DATA[ll][aspect]
+    graphs.append(
+            dcc.Graph(
+                figure=make_gauge(value, target, ""),#, f"{lab}  (target {target})"),
+                config={'displayModeBar': False},
+            ),
+
+    )
     return dbc.Row(graphs)
 
 for aspect in KC1P_ASPECTS:
     def _make_callback(asp):
         @app.callback(
             Output(f"kc1p-{asp.lower()}-gauges", "children"),
-            Input("kc1p-lab-selector", "value"),
+            Input("ll-selector", "value"),
         )
         def update_gauges(lab_filter, _asp=asp):
             return _kc1p_gauge_row(_asp, lab_filter)
