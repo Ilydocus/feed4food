@@ -5,29 +5,46 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 
-#from inputReport.models import InputReportDetails
+from django.db.models import Count, Sum, F, Q
+
+from productionReport.models import ProductionReportDetails, Product, ProductionReport
 
 
-def load_native_cultivation_data():
-    #TODO get the data - with a way to distinguish between LL passed as an argument? Or maybe it automagically works
-    # qs = (
-    #     InputReportDetails.objects
-    #     .select_related("report_id", "name_product", "name_input")
-    #     .filter(
-    #         name_input__input_category="Synthetic"
-    #     )
-    #     .values(
-    #         "report_id__application_date",
-    #         "name_product__name",
-    #         "quantity",
-    #     )
-    # )
+def load_native_cultivation_data(ll):
+    #Get the data from the database
+    # First get all the production reports for the actual LL, group them by product
+    qs = (
+        ProductionReportDetails.objects
+        .filter(
+            report_id__city=ll
+        )
+        .values(
+            "name"#Group by product
+        )
+        .annotate(
+            total_reports=Count('report_id', distinct=True),
+            total_quantity=Sum('quantity'),
+            is_native=F('name__native_variety')
+        )
+    )
+
+    # Then look at the products to see the native ones
+    summary = (
+        Product.objects
+        .filter(productionreportdetails__report_id__city=ll)
+        .distinct()
+        .aggregate(
+            total_products=Count('name'),
+            native_products=Count('name', filter=Q(native_variety=True))
+        )
+    )
 
     # if not qs:
-    #     return pd.DataFrame(columns=["date", "product", "quantity"])
+    #     return pd.DataFrame(columns=["report_id"])
 
     # df = pd.DataFrame(qs)
-    # df = df.rename(columns={
+
+       # df = df.rename(columns={
     #     "report_id__application_date": "date",
     #     "name_product__name": "product"
     # })
@@ -36,11 +53,13 @@ def load_native_cultivation_data():
     # df = df.dropna(subset=["date"])
     # df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
 
-    # return df
-    return
+    df = pd.DataFrame([summary])
+
+    return df
 
 
-def build_native_progress_figure(dummy=False):
+def build_native_progress_figure(dummy=False, ll='strovolos'):
+    #TODO remove the dummy
     if dummy:
         dummy_data = [ #lab, native, total, target
             ('Bucharest', 12, 20, 15),
@@ -48,18 +67,18 @@ def build_native_progress_figure(dummy=False):
     ('Drama',     15, 25, 20),
         ]
 
-        df = pd.DataFrame(dummy_data, columns=["LL", "native", "total", "target"])
+        df = pd.DataFrame(dummy_data, columns=["LL", "native_products", "total_products", "target"])
 
     else:
-        df = load_native_cultivation_data()
+        df = load_native_cultivation_data(ll)
 
         if df.empty:
             return px.bar(title="No data available")
 
-    value = df["native"][1]
-    target = df["target"][1]
-    max_val=df["total"][1]
-    total=df["total"][1]
+    value = df["native_products"][0]
+    target = 10 #TODO make it more generic
+    max_val=df["total_products"][0]
+    total=df["total_products"][0]
 
     if max_val is None:
         max_val = max(value, target) * 1.5 if max(value, target) > 0 else 20 #?
@@ -69,7 +88,7 @@ def build_native_progress_figure(dummy=False):
         domain={'x': [0, 1], 'y': [0, 1]},
         value=value,
         mode="gauge+number+delta",
-        title={'text': f"Native varieties\n(target {target} / total {total})", 'font': {'color': 'black', 'size': 13}},
+        title={'text': f"Native varieties\n(target {target})", 'font': {'color': 'black', 'size': 13}},
         delta={
             'reference': target,
             'valueformat': '.0f',
@@ -98,8 +117,8 @@ def build_native_progress_figure(dummy=False):
 
 
 class KC4_NativeCultivationCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        fig = build_native_progress_figure(dummy=dummy)
+    def __init__(self, title, id, description=None, dummy=False, ll='strovolos'):
+        fig = build_native_progress_figure(dummy=dummy, ll=ll)
 
         #For the text under, could probably done in a nicer way
         if dummy:
@@ -111,14 +130,14 @@ class KC4_NativeCultivationCard(dbc.Card):
 
             df = pd.DataFrame(dummy_data, columns=["LL", "native", "total", "target"])
         else:
-            df = load_native_cultivation_data()
+            df = load_native_cultivation_data(ll)
 
         if df.empty:
             return px.bar(title="No data available")
 
-        value = df["native"][1]
-        target = df["target"][1]
-        total=df["total"][1]
+        value = df["native_products"][0]
+        target = 10
+        total=df["total_products"][0]
 
         super().__init__(
             children=[

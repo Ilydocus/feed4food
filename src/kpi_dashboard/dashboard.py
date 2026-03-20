@@ -224,6 +224,17 @@ kc4_content = [
 # MAIN APP LAYOUT
 # ─────────────────────────────────────────────
 app.layout = html.Div([
+    html.P("Living Lab:", style={"color": "white"}), 
+    dcc.Dropdown(
+        id="ll-selector",
+        placeholder="Select a Living Lab",
+        style={"margin-bottom": "15px"},
+        options=[
+            {'label': 'Bucharest', 'value': 'Bucharest'},
+            {'label': 'Drama', 'value': 'Drama'},
+            {'label': 'Strovolos', 'value': 'Strovolos'},
+        ],
+    ),
     html.P("KPI:", style={"color": "white"}), 
     dcc.Dropdown(
         id="kpi-selector",
@@ -278,7 +289,7 @@ def show_hide_dashboards(kpi_value):
     )
 
 
-def create_kpi_layout(kpi_name):
+def create_kpi_layout(kpi_name, ll_value):
     if kpi_name == 'ka1':
         return html.Div([
             dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=True), sm=12, md=12, className="mb-4")]),
@@ -364,7 +375,7 @@ def create_kpi_layout(kpi_name):
                     dbc.CardHeader(html.H4("Native varieties cultivation progress")),
                     dbc.CardBody([
                         dbc.Row([
-                            dbc.Col(KC4_NativeCultivationCard("Progress", id="metric1-kc4", dummy=True), sm=6, md=6),
+                            dbc.Col(KC4_NativeCultivationCard("Progress", id="metric1-kc4", dummy=False, ll=ll_value), sm=6, md=6),
                         ]),
                     ]),
                 ]), sm=6, md=6),      
@@ -454,16 +465,16 @@ def create_kpi_layout(kpi_name):
         Output('kc5-dashboard', 'children'),
         #Output('gard-dashboard', 'children'),
     ],
-    [Input('kpi-selector', 'value')]
+    [Input('kpi-selector', 'value'), Input('ll-selector', 'value')]
 )
-def update_kpi_layout(kpi_value):
+def update_kpi_layout(kpi_value, ll_value):
     return (
-        create_kpi_layout('ka1') if kpi_value == 'ka1' else html.Div([]),
-        create_kpi_layout('kc1p') if kpi_value == 'kc1p' else html.Div([]),
-        create_kpi_layout('kc2') if kpi_value == 'kc2' else html.Div([]),
-        create_kpi_layout('kc3') if kpi_value == 'kc3' else html.Div([]),
-        create_kpi_layout('kc4') if kpi_value == 'kc4' else html.Div([]),
-        create_kpi_layout('kc5') if kpi_value == 'kc5' else html.Div([]),
+        create_kpi_layout('ka1',ll_value) if kpi_value == 'ka1' else html.Div([]),
+        create_kpi_layout('kc1p',ll_value) if kpi_value == 'kc1p' else html.Div([]),
+        create_kpi_layout('kc2',ll_value) if kpi_value == 'kc2' else html.Div([]),
+        create_kpi_layout('kc3',ll_value) if kpi_value == 'kc3' else html.Div([]),
+        create_kpi_layout('kc4',ll_value) if kpi_value == 'kc4' else html.Div([]),
+        create_kpi_layout('kc5',ll_value) if kpi_value == 'kc5' else html.Div([]),
         #create_kpi_layout('gard') if kpi_value == 'gard' else html.Div([]),
     )
 
