@@ -10,6 +10,7 @@ import pandas as pd
 from django.db.models import ExpressionWrapper, FloatField, Sum, F
 from django.db.models.functions import TruncMonth
 
+from core.kpiUtils import DAILY_NUTRIENT_REQUIREMENTS
 
 from .components.KA1_Costs import KA1_CostsCard, build_costs_figure
 from .components.KA1_Funding import KA1_FundingCard
@@ -145,17 +146,39 @@ kc3_content = [
     #html.H5("KC3: Nutritious Food Production", style={"color": "black", "padding": "10px"}),
     html.Div([
         html.P("View:", style={"color": "black", "margin-bottom": "4px"}),
+        # dcc.RadioItems(
+        #     id="kc3-view-toggle",
+        #     options=[
+        #         {'label': '  Living Lab level',  'value': 'll'},
+        #         {'label': '  Garden drill-down',  'value': 'garden'},
+        #     ],
+        #     value='ll', #default
+        #     inline=True,
+        #     style={"color": "black", "margin-bottom": "10px"},
+        #     inputStyle={"margin-right": "6px", "margin-left": "14px"},
+        # ),
         dcc.RadioItems(
             id="kc3-view-toggle",
             options=[
-                {'label': '  Living Lab level',  'value': 'll'},
-                {'label': '  Garden drill-down',  'value': 'garden'},
+                {
+                    'label': '  Living Lab level',
+                    'value': 'll'
+                },
+                {
+                    'label': html.Span(
+                        '  Garden drill-down',
+                        title='Coming soon',  # this is the tooltip
+                        style={'color': 'gray', 'cursor': 'not-allowed'}
+                    ),
+                    'value': 'garden',
+                    'disabled': True
+                },
             ],
-            value='ll', #default
+            value='ll',
             inline=True,
             style={"color": "black", "margin-bottom": "10px"},
             inputStyle={"margin-right": "6px", "margin-left": "14px"},
-        ),
+        )
     ]),
     html.Div([
         html.P("Year:", style={"color": "black", "margin-bottom": "4px"}),
@@ -185,10 +208,11 @@ kc3_content = [
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("Nutrients coverage", style={"color": "black"}),
-                dcc.Graph(id="kc3-nutrients-chart"),
+                html.H6("Number of days one adult gets the daily calory intake met by garden production", style={"color": "black"}),
+                dcc.Graph(id="kc3-people-visualizer"),
             ]), sm=12, md=6,
         ),
+        
         dbc.Col(
             html.Div([
                 html.H6("Colour coverage", style={"color": "black"}),
@@ -199,10 +223,11 @@ kc3_content = [
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("People Visualizer — % of people whose daily nutrient requirement is met by garden production", style={"color": "black"}),
-                dcc.Graph(id="kc3-people-visualizer"),
+                html.H6("Nutrients coverage (Reference: 30-year old female according to EFSA data)", style={"color": "black"}),
+                dcc.Graph(id="kc3-nutrients-chart"),
             ]), sm=12, md=12,
         ),
+        
     ], className="dashboard-row"),
     dbc.Row([
         dbc.Col(
@@ -242,6 +267,7 @@ kc3_content = [
 # MAIN APP LAYOUT
 # ─────────────────────────────────────────────
 app.layout = html.Div([
+    dcc.Store(id='kc3-adult-days-store'),
     html.P("Living Lab:", style={"color": "white"}), 
     dcc.Dropdown(
         id="ll-selector",
@@ -600,19 +626,74 @@ def update_kc3_production(view, selected_year,ll):
 @app.callback(
     Output('kc3-nutrients-chart', 'figure'),
     Input('kc3-year-selector', 'value'),
+    Input('kc3-month-selector', 'value'),
+    Input('ll-selector', 'value'),
+    Input("kc3-adult-days-store", "data")
 )
-def update_kc3_nutrients(year):
-    nutrients = ['Calories', 'Protein', 'Vitamin C', 'Iron', 'Calcium', 'Fibre']
-    coverage  = [45, 30, 80, 25, 15, 60] 
-    fig = go.Figure(go.Bar(
-        x=nutrients, y=coverage, marker_color=['green' if v >= 50 else 'orange' for v in coverage],
-        text=[f"{v}%" for v in coverage], textposition='outside',
-    ))
-    fig.update_layout(
-        paper_bgcolor='white', plot_bgcolor='white', font_color='black', margin=dict(t=20, b=30, l=40, r=20),
-        height=280, yaxis=dict(range=[0, 110], title='% coverage', gridcolor='#e5e5e5'),
-        xaxis=dict(gridcolor='#e5e5e5'), showlegend=False,
+def update_kc3_nutrients(selected_year,selected_month,ll, adult_days):
+    # nutrients = ['Calories', 'Protein', 'Vitamin C', 'Iron', 'Calcium', 'Fibre']
+    # coverage  = [45, 30, 80, 25, 15, 60] 
+
+    nutrient_fields = [f for f in DAILY_NUTRIENT_REQUIREMENTS.keys()]
+
+    # Build aggregation dict dynamically for all nutrients
+    aggregations = {
+        nutrient: Sum(
+            ExpressionWrapper(
+                F('quantity') * F('name__kg_conversion_factor') * 10 * F(f'name__category__{nutrient}'),
+                output_field=FloatField()
+            )
+        )
+        for nutrient in nutrient_fields
+    }
+
+    qs = ProductionReportDetails.objects.filter(
+        report_id__city=ll,
+        report_id__production_date__year=selected_year,
     )
+    if selected_month != 0:
+        qs = qs.filter(report_id__production_date__month=selected_month)
+
+    nutrient_totals = qs.aggregate(**aggregations)
+
+    nutrient_coverage = {
+        nutrient: (nutrient_totals[nutrient] or 0) / (daily_req * adult_days) * 100
+        for nutrient, daily_req in DAILY_NUTRIENT_REQUIREMENTS.items()
+        if daily_req > 0
+    }
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=list(nutrient_coverage.keys()),
+        y=list(nutrient_coverage.values()),
+        marker_color=[
+            'green' if v >= 100 else 'orange' if v >= 50 else 'red'
+            for v in nutrient_coverage.values()
+        ],
+    ))
+
+    fig.update_layout(
+        yaxis_title="Coverage (%)",
+        yaxis=dict(ticksuffix="%"),
+        shapes=[  # reference line at 100%
+            dict(
+                type='line',
+                x0=-0.5, x1=len(nutrient_coverage) - 0.5,
+                y0=100, y1=100,
+                line=dict(color='black', dash='dash')
+            )
+        ]
+    )
+
+    # fig = go.Figure(go.Bar(
+    #     x=nutrients, y=coverage, marker_color=['green' if v >= 50 else 'orange' for v in coverage],
+    #     text=[f"{v}%" for v in coverage], textposition='outside',
+    # ))
+    # fig.update_layout(
+    #     paper_bgcolor='white', plot_bgcolor='white', font_color='black', margin=dict(t=20, b=30, l=40, r=20),
+    #     height=280, yaxis=dict(range=[0, 110], title='% coverage', gridcolor='#e5e5e5'),
+    #     xaxis=dict(gridcolor='#e5e5e5'), showlegend=False,
+    # )
     return fig
 
 @app.callback(
@@ -677,31 +758,93 @@ def update_kc3_colour(selected_year, selected_month, ll):
 
 @app.callback(
     Output('kc3-people-visualizer', 'figure'),
+    Output("kc3-adult-days-store", "data"),
     Input('kc3-view-toggle', 'value'),
     Input('kc3-year-selector', 'value'),
+    Input('kc3-month-selector', 'value'),
+    Input('ll-selector', 'value'),
 )
-def update_kc3_people(view, year):
-    import random
-    random.seed(42)
-    if view == 'll':
-        entities = ['Amsterdam', 'Bucharest', 'Drama']
-        pct_met  = [62, 41, 55]
-    else:
-        entities = ['Garden A', 'Garden B', 'Garden C', 'Garden D']
-        pct_met  = [70, 35, 58, 48]
+def update_kc3_people(view, selected_year, selected_month, ll):
+    
+    if view != 'll': #TODO Fix the other view later
+        fig = go.Figure()
+        fig.update_layout(
+            title="No data available for the selected period",
+        )
+        return fig
+    
+    # Get the data
+    calorie_qs = (
+        ProductionReportDetails.objects
+        .filter(
+            report_id__city=ll,
+            report_id__production_date__year=selected_year,
+            report_id__production_date__month=selected_month,
+        )
+        .annotate(
+            quantity_kg=ExpressionWrapper(
+                F('quantity') * F('name__kg_conversion_factor'),
+                output_field=FloatField()
+            )
+        )
+        .aggregate(
+            total_calories=Sum(ExpressionWrapper(
+                F('quantity_kg') * 10 * F('name__category__energy_kcal'),
+                # *10 converts kg to 100g units (1kg = 10 * 100g)
+                output_field=FloatField()
+            ))
+        )
+    )
 
-    fig = go.Figure()
-    for entity, pct in zip(entities, pct_met):
-        fig.add_trace(go.Scatter(
-            x=[entity], y=[pct], mode='markers+text',
-            marker=dict(size=pct, color='green' if pct >= 50 else 'orange', opacity=0.7, line=dict(width=2, color='black')),
-            text=[f"{pct}%"], textposition='middle center', textfont=dict(color='black', size=13), name=entity,
-        ))
+    total_calories = calorie_qs['total_calories'] or 0
+    adult_days = total_calories / DAILY_NUTRIENT_REQUIREMENTS['energy_kcal']
+
+    # fig = go.Figure()
+    # for entity, pct in zip(entities, pct_met):
+    #     fig.add_trace(go.Scatter(
+    #         x=[entity], y=[pct], mode='markers+text',
+    #         marker=dict(size=pct, color='green' if pct >= 50 else 'orange', opacity=0.7, line=dict(width=2, color='black')),
+    #         text=[f"{pct}%"], textposition='middle center', textfont=dict(color='black', size=13), name=entity,
+    #     ))
+    fig = go.Figure(go.Indicator(
+        mode="number",
+        value=round(adult_days, 1),
+        number={"suffix": " days", "font": {"size": 60}, "valueformat": ".1f"},
+        title={"text": "🧑 1 Adult is fed for <br><sup>Based on 2072 kcal/day</sup>"},
+    ))
     fig.update_layout(
         paper_bgcolor='white', plot_bgcolor='white', font_color='black', margin=dict(t=20, b=40, l=40, r=20),
-        height=280, showlegend=True, legend=dict(bgcolor='white'), yaxis=dict(range=[0, 110], title='% daily nutrient needs met', gridcolor='#e5e5e5'), xaxis=dict(gridcolor='#e5e5e5'),
+        height=280, showlegend=True, legend=dict(bgcolor='white'), yaxis=dict(range=[0, 110], title='Calory equivalent', gridcolor='#e5e5e5'), xaxis=dict(gridcolor='#e5e5e5'),
     )
-    return fig
+    return fig, adult_days
+
+# @app.callback(
+#     Output('kc3-people-visualizer', 'figure'),
+#     Input('kc3-view-toggle', 'value'),
+#     Input('kc3-year-selector', 'value'),
+# )
+# def update_kc3_people(view, year):
+#     import random
+#     random.seed(42)
+#     if view == 'll':
+#         entities = ['Amsterdam', 'Bucharest', 'Drama']
+#         pct_met  = [62, 41, 55]
+#     else:
+#         entities = ['Garden A', 'Garden B', 'Garden C', 'Garden D']
+#         pct_met  = [70, 35, 58, 48]
+
+#     fig = go.Figure()
+#     for entity, pct in zip(entities, pct_met):
+#         fig.add_trace(go.Scatter(
+#             x=[entity], y=[pct], mode='markers+text',
+#             marker=dict(size=pct, color='green' if pct >= 50 else 'orange', opacity=0.7, line=dict(width=2, color='black')),
+#             text=[f"{pct}%"], textposition='middle center', textfont=dict(color='black', size=13), name=entity,
+#         ))
+#     fig.update_layout(
+#         paper_bgcolor='white', plot_bgcolor='white', font_color='black', margin=dict(t=20, b=40, l=40, r=20),
+#         height=280, showlegend=True, legend=dict(bgcolor='white'), yaxis=dict(range=[0, 110], title='% daily nutrient needs met', gridcolor='#e5e5e5'), xaxis=dict(gridcolor='#e5e5e5'),
+#     )
+#     return fig
 
 @app.callback(
     Output({"type": "metric-value", "index": "species-count"}, "children"),
