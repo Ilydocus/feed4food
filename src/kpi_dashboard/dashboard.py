@@ -166,15 +166,22 @@ kc3_content = [
             clearable=False,
             style={"margin-bottom": "15px", "max-width": "200px"},
         ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("Production over time", style={"color": "black"}),
-                dcc.Graph(id="kc3-production-line"),
-            ]), sm=12, md=12,
+        html.P("Month:", style={"color": "black", "margin-bottom": "4px"}),
+        dcc.Dropdown(
+            id="kc3-month-selector",
+            options=#[{"label": "All", "value": 0}] + TODO Fix the full year option later
+            [
+                {"label": month, "value": i}
+                for i, month in enumerate([
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ], start=1)
+            ],
+            value=0,
+            clearable=False,
+            style={"margin-bottom": "15px", "max-width": "200px"},
         ),
-    ], className="dashboard-row"),
+    ]),
     dbc.Row([
         dbc.Col(
             html.Div([
@@ -194,6 +201,14 @@ kc3_content = [
             html.Div([
                 html.H6("People Visualizer — % of people whose daily nutrient requirement is met by garden production", style={"color": "black"}),
                 dcc.Graph(id="kc3-people-visualizer"),
+            ]), sm=12, md=12,
+        ),
+    ], className="dashboard-row"),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("Production over time", style={"color": "black"}),
+                dcc.Graph(id="kc3-production-line"),
             ]), sm=12, md=12,
         ),
     ], className="dashboard-row"),
@@ -533,7 +548,7 @@ def update_kc3_production(view, selected_year,ll):
         #     'Bucharest': [random.randint(60, 180) for _ in months],
         #     'Drama':     [random.randint(50, 160) for _ in months],
         # }
-        title = f"Production per Living Lab — {selected_year}"
+        title = f"Production in the Living Lab — {selected_year}"
     else:
         # series = {
         #     'Garden A (AMS)': [random.randint(20, 80)  for _ in months],
@@ -603,12 +618,60 @@ def update_kc3_nutrients(year):
 @app.callback(
     Output('kc3-colour-chart', 'figure'),
     Input('kc3-year-selector', 'value'),
+    Input('kc3-month-selector', 'value'),
+    Input('ll-selector', 'value'),
 )
-def update_kc3_colour(year):
-    colours = ['Red', 'Orange', 'Yellow', 'Green', 'Purple', 'White']
-    values  = [15, 10, 12, 35, 8, 20]  
-    colour_map = {'Red': 'red', 'Orange': 'orange', 'Yellow': 'gold', 'Green': 'green', 'Purple': 'purple', 'White': 'lightgrey'}
-    fig = go.Figure(go.Pie(labels=colours, values=values, marker_colors=[colour_map[c] for c in colours], hole=0.4))
+def update_kc3_colour(selected_year, selected_month, ll):
+
+    #Get the data
+    queryset = ProductionReportDetails.objects.filter(
+        report_id__city=ll,
+        report_id__production_date__year=selected_year,
+        report_id__production_date__month=selected_month,
+    )
+
+    kg_by_color = (
+        queryset
+        .annotate(month=TruncMonth('report_id__production_date'))
+        .annotate(
+            quantity_kg=ExpressionWrapper(
+                F('quantity') * F('name__kg_conversion_factor'),
+                output_field=FloatField()
+            )
+        )
+        .values('month', 'name__category__color')
+        .annotate(total_kg=Sum('quantity_kg'))
+        .order_by('month', 'name__category__color')
+    )
+
+    # Compute total kg
+    df = pd.DataFrame(list(kg_by_color))
+
+    if df.empty:
+        fig = go.Figure()
+        fig.update_layout(
+            title="No data available for the selected period",
+        )
+        return fig
+
+    df = df.rename(columns={"name__category__color": "color"})
+    df['month'] = pd.to_datetime(df['month'])
+
+    total_kg = df['total_kg'].sum()
+
+
+    # colours = ['Red', 'Orange', 'Yellow', 'Green', 'Purple', 'White']
+    # values  = [15, 10, 12, 35, 8, 20]  
+    colour_map = {'Red': 'red', 'Yellow/Orange': '#ffae42', 'Green': 'green', 'White': 'lightgrey'}
+    # fig = go.Figure(go.Pie(labels=colours, values=values, marker_colors=[colour_map[c] for c in colours], hole=0.4))
+    fig = go.Figure()
+    fig.add_trace(go.Pie(
+        labels=df['color'],
+        values=df['total_kg'],
+        marker=dict(colors=df['color'].map(colour_map)), 
+        hole=0.4 
+    ))
+
     fig.update_layout(paper_bgcolor='white', font_color='black', margin=dict(t=20, b=20, l=20, r=20), height=280, legend=dict(bgcolor='white'))
     return fig
 
