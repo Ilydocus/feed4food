@@ -1,5 +1,5 @@
 from productionReport.models import ProductionReport, ProductionReportDetails, Product
-from dash import dcc, html
+from dash import dcc, html, callback
 from dash.dependencies import Input, Output, MATCH
 import plotly.graph_objs as go
 import plotly.express as px
@@ -33,10 +33,91 @@ from kpi_dashboard.components.KA2_PesticideSharePieCard import KA2_PesticideShar
 # ─────────────────────────────────────────────
 # APP INITIALIZATION
 # ─────────────────────────────────────────────
-app = DjangoDash("PersonalDisplayApp", external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = DjangoDash("PersonalDisplayApp", external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
 
 fig = go.Figure()
 
+# ─────────────────────────────────────────────
+# ALL POSSIBLE CARDS
+# ─────────────────────────────────────────────
+items = [
+    {"id": "balance", "title": "Balance"},
+    {"id": "breakdown", "title": "Monthly breakdown"},
+    {"id": "sales", "title": "Sales overview"},
+    {"id": "treated", "title": "Treated areas"},
+    {"id": "cultivation", "title": "Cultivation & Chemicals"},
+    {"id": "water", "title": "Water & Irrigation"},
+]
+
+def make_balance_card():
+    return dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=True), sm=12, md=12, className="mb-4")])
+
+def make_breakdown_card():
+    return dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=True), sm=12, md=12)])
+
+
+def make_sales_card():
+    return dbc.Row([
+                dbc.Col(dbc.Card([
+                    dbc.CardHeader(html.H4("Sales Overview")),
+                    dbc.CardBody([
+                        dbc.Row([
+                            dbc.Col(KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-gard", dummy=True), sm=12, md=6),
+                            dbc.Col(KA1_SalesRevenueLineCard("Production Sales", id="sales-gard", dummy=True), sm=12, md=6),
+                        ])
+                    ]),
+                ]), sm=12, md=8),
+            ], className="mb-4")
+
+def make_treated_card():
+    return dbc.Row([
+                dbc.Col(dbc.Card([
+                    dbc.CardHeader(html.H4("Treated Areas")),
+                    dbc.CardBody([
+                        KA2_AreaChemicalCard("Surface Treated with Chemicals", id="areatreat-gard", dummy=True),
+                        KA2_PlantChemicalCard("Plants Treated with Chemicals", id="planttreat-gard", dummy=True),
+                    ]),
+                ]), sm=12, md=4),
+            ], className="mb-4")
+
+
+def make_cultivation_card():
+    return dbc.Row([
+        dbc.Col(dbc.Card([
+            dbc.CardHeader(html.H4("Cultivation & Chemicals")),
+            dbc.CardBody([
+                dbc.Row([
+                    dbc.Col(KA2_ChemicalUsePerProductCard("Chemical Use per Product", id="chemical-gard", dummy=True), sm=12, md=4),
+                    dbc.Col(KA2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated", id="surface-gard", dummy=True), sm=12, md=4),
+                    dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated", id="plants-gard", dummy=True), sm=12, md=4),
+                ])
+            ]),
+        ]), sm=12, md=12),
+    ], className="mb-4")
+
+def make_water_card():
+    return dbc.Row([
+                dbc.Col(dbc.Card([
+                    dbc.CardHeader(html.H4("Water & Irrigation")),
+                    dbc.CardBody([
+                        dbc.Row([
+                            dbc.Col(KA5_RainwaterCard("Rainwater Harvested", id="rain-gard", dummy=True), sm=12, md=6),
+                            dbc.Col(KA5_WaterUseCard("Water Use per Source", id="wateruse-gard", dummy=True), sm=12, md=6),
+                        ]),
+                        KA5_YearlyWaterCard("Irrigation Frequency", id="freq-gard", dummy=True),
+                    ]),
+                ]), sm=12, md=12),
+            ])
+
+# Map id -> card builder function
+CARD_MAP = {
+    "balance": make_balance_card,
+    "breakdown": make_breakdown_card,
+    "sales": make_sales_card,
+    "treated": make_treated_card,
+    "cultivation": make_cultivation_card,
+    "water": make_water_card,
+}
 
 def fetch_user_data(item, user_id):
     user_reports = ProductionReport.objects.filter(user=user_id)
@@ -223,185 +304,127 @@ kc4_content = [
 # MAIN APP LAYOUT
 # ─────────────────────────────────────────────
 app.layout = html.Div([
-    #html.P("KPI:", style={"color": "white"}), 
-    # dcc.Dropdown(
-    #     id="kpi-selector",
-    #     placeholder="Select a KPI to display",
-    #     style={"margin-bottom": "15px"},
-    #     options=[
-    #         {'label': 'KA1: Economic Viability', 'value': 'ka1'},
-    #         {'label': 'KC1-P: Effective training', 'value': 'kc1p'},
-    #         {'label': 'KC2: Pesticide Use', 'value': 'kc2'},
-    #         {'label': 'KC3: Nutritious food production', 'value': 'kc3'},                    
-    #         {'label': 'KC4: Native varieties cultivation', 'value': 'kc4'},
-    #         {'label': 'KC5: Water Use', 'value': 'kc5'},
-    #         #{'label': 'Gardener', 'value': 'gard'},
-    #     ],
-    # ),
+    dbc.Container([
+        dbc.Row([
+            dbc.Col([
+                html.H5("Select visualization"),
+                dbc.Checklist(
+                    options=[{"label": item["title"], "value": item["id"]} for item in items],
+                    value=[item["id"] for item in items],
+                    id="card-checklist",
+                    inline=True,
+                )
+            ])
+        ], className="mb-3 p-3", style={"background": "#f8f9fa"}),
 
-    # Dashboard Containers
-    # html.Div(id="ka1-dashboard", children=[], style={'display': 'none'}),
-    # html.Div(id="kc1p-dashboard", children=[], style={'display': 'none'}),
-    # html.Div(id="kc2-dashboard", children=[], style={'display': 'none'}),
-    # html.Div(id="kc3-dashboard", children=[], style={'display': 'none'}),
-    # html.Div(id="kc4-dashboard", children=[], style={'display': 'none'}),
-    # html.Div(id="kc5-dashboard", children=[], style={'display': 'none'}),
-    #html.Div(id="gard-dashboard", children=[], style={'display': 'block'}),
-    html.Div([
-            dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=True), sm=12, md=12, className="mb-4")]),
-            dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=True), sm=12, md=12)]),
-            dbc.Row([
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Sales Overview")),
-                    dbc.CardBody([
-                        dbc.Row([
-                            dbc.Col(KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-gard", dummy=True), sm=12, md=6),
-                            dbc.Col(KA1_SalesRevenueLineCard("Production Sales", id="sales-gard", dummy=True), sm=12, md=6),
-                        ])
-                    ]),
-                ]), sm=12, md=8),
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Treated Areas")),
-                    dbc.CardBody([
-                        KA2_AreaChemicalCard("Surface Treated with Chemicals", id="areatreat-gard", dummy=True),
-                        KA2_PlantChemicalCard("Plants Treated with Chemicals", id="planttreat-gard", dummy=True),
-                    ]),
-                ]), sm=12, md=4),
-            ], className="mb-4"),
+        # All cards always in the DOM
+        html.Div([
+            html.Div(CARD_MAP[item["id"]](), id=f"wrapper-{item['id']}") 
+            for item in items
+        ], id="cards-container")
 
-            dbc.Row([
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Cultivation & Chemicals")),
-                    dbc.CardBody([
-                        dbc.Row([
-                            dbc.Col(KA2_ChemicalUsePerProductCard("Chemical Use per Product", id="chemical-gard", dummy=True), sm=12, md=4),
-                            dbc.Col(KA2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated", id="surface-gard", dummy=True), sm=12, md=4),
-                            dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated", id="plants-gard", dummy=True), sm=12, md=4),
-                        ])
-                    ]),
-                ]), sm=12, md=12),
-            ], className="mb-4"),
-
-            dbc.Row([
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Water & Irrigation")),
-                    dbc.CardBody([
-                        dbc.Row([
-                            dbc.Col(KA5_RainwaterCard("Rainwater Harvested", id="rain-gard", dummy=True), sm=12, md=6),
-                            dbc.Col(KA5_WaterUseCard("Water Use per Source", id="wateruse-gard", dummy=True), sm=12, md=6),
-                        ]),
-                        KA5_YearlyWaterCard("Irrigation Frequency", id="freq-gard", dummy=True),
-                    ]),
-                ]), sm=12, md=12),
-            ]),
-        ])
+    ], fluid=True)
 
 ], style={"background-color":"#003399", "height": "100%", "padding": "10px"})
+
+
+
+
 
 
 # ─────────────────────────────────────────────
 # CALLBACKS: VISIBILITY & RENDERING
 # ─────────────────────────────────────────────
+
 @app.callback(
-    [
-        # Output('ka1-dashboard', 'style'),
-        # Output('kc1p-dashboard', 'style'),
-        # Output('kc2-dashboard', 'style'),
-        # Output('kc3-dashboard', 'style'),
-        # Output('kc4-dashboard', 'style'),
-        # Output('kc5-dashboard', 'style'),
-        Output('gard-dashboard', 'style'),
-    ],
-    []
+    [Output(f"wrapper-{item['id']}", "style") for item in items],
+    Input("card-checklist", "value"),
 )
-# def show_hide_dashboards():
-#     base_style = {'display': 'none', "background-color": "#003399", "padding": "10px"}
-#     visibility = {kpi: dict(base_style) for kpi in ['ka1','kc1p','kc2','kc3','kc4','kc5','gard']}
-#     visibility['gard']['display'] = 'block'
+def toggle_cards(selected_ids):
+    return [
+        {"display": "block"} if item["id"] in selected_ids else {"display": "none"}
+        for item in items
+    ]
+
+
+# def create_kpi_layout():
+
+
+#     # elif kpi_name == 'gard':
+#         return html.Div([
+#             dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=True), sm=12, md=12, className="mb-4")]),
+#             dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=True), sm=12, md=12)]),
+#             dbc.Row([
+#                 dbc.Col(dbc.Card([
+#                     dbc.CardHeader(html.H4("Sales Overview")),
+#                     dbc.CardBody([
+#                         dbc.Row([
+#                             dbc.Col(KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-gard", dummy=True), sm=12, md=6),
+#                             dbc.Col(KA1_SalesRevenueLineCard("Production Sales", id="sales-gard", dummy=True), sm=12, md=6),
+#                         ])
+#                     ]),
+#                 ]), sm=12, md=8),
+#                 dbc.Col(dbc.Card([
+#                     dbc.CardHeader(html.H4("Treated Areas")),
+#                     dbc.CardBody([
+#                         KA2_AreaChemicalCard("Surface Treated with Chemicals", id="areatreat-gard", dummy=True),
+#                         KA2_PlantChemicalCard("Plants Treated with Chemicals", id="planttreat-gard", dummy=True),
+#                     ]),
+#                 ]), sm=12, md=4),
+#             ], className="mb-4"),
+
+#             dbc.Row([
+#                 dbc.Col(dbc.Card([
+#                     dbc.CardHeader(html.H4("Cultivation & Chemicals")),
+#                     dbc.CardBody([
+#                         dbc.Row([
+#                             dbc.Col(KA2_ChemicalUsePerProductCard("Chemical Use per Product", id="chemical-gard", dummy=True), sm=12, md=4),
+#                             dbc.Col(KA2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated", id="surface-gard", dummy=True), sm=12, md=4),
+#                             dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated", id="plants-gard", dummy=True), sm=12, md=4),
+#                         ])
+#                     ]),
+#                 ]), sm=12, md=12),
+#             ], className="mb-4"),
+
+#             dbc.Row([
+#                 dbc.Col(dbc.Card([
+#                     dbc.CardHeader(html.H4("Water & Irrigation")),
+#                     dbc.CardBody([
+#                         dbc.Row([
+#                             dbc.Col(KA5_RainwaterCard("Rainwater Harvested", id="rain-gard", dummy=True), sm=12, md=6),
+#                             dbc.Col(KA5_WaterUseCard("Water Use per Source", id="wateruse-gard", dummy=True), sm=12, md=6),
+#                         ]),
+#                         KA5_YearlyWaterCard("Irrigation Frequency", id="freq-gard", dummy=True),
+#                     ]),
+#                 ]), sm=12, md=12),
+#             ]),
+#         ])
+
+#     #return html.Div([])
+
+
+# @app.callback(
+#     [
+#         # Output('ka1-dashboard', 'children'),
+#         # Output('kc1p-dashboard', 'children'),
+#         # Output('kc2-dashboard', 'children'),
+#         # Output('kc3-dashboard', 'children'),
+#         # Output('kc4-dashboard', 'children'),
+#         # Output('kc5-dashboard', 'children'),
+#         Output('gard-dashboard', 'children'),
+#     ],
+#     []
+# )
+# def update_kpi_layout():
 #     return (
-#         visibility['ka1'], visibility['kc1p'], visibility['kc2'], visibility['kc3'],
-#         visibility['kc4'], visibility['kc5'], visibility['gard']
+#         # create_kpi_layout('ka1') if kpi_value == 'ka1' else html.Div([]),
+#         # create_kpi_layout('kc1p') if kpi_value == 'kc1p' else html.Div([]),
+#         # create_kpi_layout('kc2') if kpi_value == 'kc2' else html.Div([]),
+#         # create_kpi_layout('kc3') if kpi_value == 'kc3' else html.Div([]),
+#         # create_kpi_layout('kc4') if kpi_value == 'kc4' else html.Div([]),
+#         # create_kpi_layout('kc5') if kpi_value == 'kc5' else html.Div([]),
+#         create_kpi_layout(), #if kpi_value == 'gard' else html.Div([]),
 #     )
-
-
-def create_kpi_layout():
-
-
-    # elif kpi_name == 'gard':
-        return html.Div([
-            dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=True), sm=12, md=12, className="mb-4")]),
-            dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=True), sm=12, md=12)]),
-            dbc.Row([
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Sales Overview")),
-                    dbc.CardBody([
-                        dbc.Row([
-                            dbc.Col(KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-gard", dummy=True), sm=12, md=6),
-                            dbc.Col(KA1_SalesRevenueLineCard("Production Sales", id="sales-gard", dummy=True), sm=12, md=6),
-                        ])
-                    ]),
-                ]), sm=12, md=8),
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Treated Areas")),
-                    dbc.CardBody([
-                        KA2_AreaChemicalCard("Surface Treated with Chemicals", id="areatreat-gard", dummy=True),
-                        KA2_PlantChemicalCard("Plants Treated with Chemicals", id="planttreat-gard", dummy=True),
-                    ]),
-                ]), sm=12, md=4),
-            ], className="mb-4"),
-
-            dbc.Row([
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Cultivation & Chemicals")),
-                    dbc.CardBody([
-                        dbc.Row([
-                            dbc.Col(KA2_ChemicalUsePerProductCard("Chemical Use per Product", id="chemical-gard", dummy=True), sm=12, md=4),
-                            dbc.Col(KA2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated", id="surface-gard", dummy=True), sm=12, md=4),
-                            dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated", id="plants-gard", dummy=True), sm=12, md=4),
-                        ])
-                    ]),
-                ]), sm=12, md=12),
-            ], className="mb-4"),
-
-            dbc.Row([
-                dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Water & Irrigation")),
-                    dbc.CardBody([
-                        dbc.Row([
-                            dbc.Col(KA5_RainwaterCard("Rainwater Harvested", id="rain-gard", dummy=True), sm=12, md=6),
-                            dbc.Col(KA5_WaterUseCard("Water Use per Source", id="wateruse-gard", dummy=True), sm=12, md=6),
-                        ]),
-                        KA5_YearlyWaterCard("Irrigation Frequency", id="freq-gard", dummy=True),
-                    ]),
-                ]), sm=12, md=12),
-            ]),
-        ])
-
-    #return html.Div([])
-
-
-@app.callback(
-    [
-        # Output('ka1-dashboard', 'children'),
-        # Output('kc1p-dashboard', 'children'),
-        # Output('kc2-dashboard', 'children'),
-        # Output('kc3-dashboard', 'children'),
-        # Output('kc4-dashboard', 'children'),
-        # Output('kc5-dashboard', 'children'),
-        Output('gard-dashboard', 'children'),
-    ],
-    []
-)
-def update_kpi_layout():
-    return (
-        # create_kpi_layout('ka1') if kpi_value == 'ka1' else html.Div([]),
-        # create_kpi_layout('kc1p') if kpi_value == 'kc1p' else html.Div([]),
-        # create_kpi_layout('kc2') if kpi_value == 'kc2' else html.Div([]),
-        # create_kpi_layout('kc3') if kpi_value == 'kc3' else html.Div([]),
-        # create_kpi_layout('kc4') if kpi_value == 'kc4' else html.Div([]),
-        # create_kpi_layout('kc5') if kpi_value == 'kc5' else html.Div([]),
-        create_kpi_layout(), #if kpi_value == 'gard' else html.Div([]),
-    )
 
 
 # ─────────────────────────────────────────────
@@ -533,25 +556,25 @@ def update_kc3_people(view, year):
     )
     return fig
 
-@app.callback(
-    Output({"type": "metric-value", "index": "species-count"}, "children"),
-    Input("kpi-selector", "value"),
-)
-def display_species_count(kpi_value, **kwargs):
-    try:
-        return Product.objects.count()
-    except Exception:
-        return 0
+# @app.callback(
+#     Output({"type": "metric-value", "index": "species-count"}, "children"),
+#     Input("kpi-selector", "value"),
+# )
+# def display_species_count(kpi_value, **kwargs):
+#     try:
+#         return Product.objects.count()
+#     except Exception:
+#         return 0
 
-@app.callback(
-    Output({"type": "metric-value", "index": "native-count"}, "children"),
-    Input("kpi-selector", "value"),
-)
-def display_native_count(kpi_value, **kwargs):
-    try:
-        return Product.objects.filter(locale=True).count()
-    except Exception:
-        return 0
+# @app.callback(
+#     Output({"type": "metric-value", "index": "native-count"}, "children"),
+#     Input("kpi-selector", "value"),
+# )
+# def display_native_count(kpi_value, **kwargs):
+#     try:
+#         return Product.objects.filter(locale=True).count()
+#     except Exception:
+#         return 0
 
 
 
