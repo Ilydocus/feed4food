@@ -1,4 +1,6 @@
-# feed4food
+# Feed4food dashboard/knowledge hub
+
+DISCLAIMER: The following code is work-in-progress and not yet fully fonctional. The documentation is also only partial at the moment. 
 
 The following code deploys a web application that allows to input daily produce reports for registered users. 
 The web app is built using Django and the data is stored in a PostgreSQL database.
