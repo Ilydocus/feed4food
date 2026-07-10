@@ -56,7 +56,12 @@ class Product(models.Model):
     unit = models.CharField(max_length=100, blank=False, null=False)
     kg_conversion_factor = models.FloatField(default=1.0)  # 1.0 means unit is already kg
     cultivation_type = models.CharField(choices=reportUtils.CultivationTypes, max_length=100, blank=False, default=reportUtils.CultivationTypes.Surface)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.name
@@ -66,7 +71,12 @@ class LLLocation(models.Model):
         max_length=100, blank=False, null=False, unique=True, primary_key=True
     )
     living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.name
@@ -77,7 +87,12 @@ class Garden(models.Model):
     )
     living_lab = models.CharField(choices=reportUtils.PartnerCities, max_length=100, blank=False)
     location = models.ForeignKey(LLLocation, on_delete=models.SET_NULL, null=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.name

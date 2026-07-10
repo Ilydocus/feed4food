@@ -11,7 +11,12 @@ class WasteType(models.Model):
     is_organic =models.BooleanField(default=False)
     unit = models.CharField(max_length=100, blank=False, null=False)
     living_lab = models.CharField(max_length=100, choices=reportUtils.PartnerCities)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
 
 class WasteReport(models.Model):
     report_id = models.AutoField(blank=False, null=False, unique=True, primary_key=True)

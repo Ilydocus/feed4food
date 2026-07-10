@@ -686,11 +686,15 @@ def update_kc3_nutrients(selected_year,selected_month,ll, adult_days):
         qs = qs.filter(report_id__production_date__month=selected_month)
 
     nutrient_totals = qs.aggregate(**aggregations)
+    safe_adult_days = adult_days or 0
 
     nutrient_coverage = {
-        nutrient: (nutrient_totals[nutrient] or 0) / (daily_req * adult_days) * 100
+        nutrient: (
+            ((nutrient_totals[nutrient] or 0) / (daily_req * safe_adult_days) * 100)
+            if safe_adult_days > 0 and daily_req > 0
+            else 0
+        )
         for nutrient, daily_req in DAILY_NUTRIENT_REQUIREMENTS.items()
-        if daily_req > 0
     }
 
     fig = go.Figure()

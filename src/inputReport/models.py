@@ -14,7 +14,12 @@ class Input(models.Model):
     input_category = models.CharField(max_length=100, choices=reportUtils.InputCategory)
     active_ingredient = models.CharField(max_length=100, default="")
     living_lab = models.CharField(max_length=100, choices=reportUtils.PartnerCities)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
 
 class InputReport(models.Model):
         
