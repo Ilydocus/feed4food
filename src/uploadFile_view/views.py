@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.utils import timezone
 from .models import StagedRow
 
 
@@ -15,16 +16,28 @@ def uploadFile_details(request, row_id):
 
 def approve_row(request, row_id):
     row = get_object_or_404(StagedRow, id=row_id)
-    # TODO: write row.corrected_data into real report tables here
-    row.status = "approved"
-    row.save()
-    messages.success(request, "Row approved.")
+
+    if request.method == "POST":
+        # overwrite corrected_data with user-edited values from the form
+        updated_data = {}
+        for key in row.corrected_data.keys():
+            updated_data[key] = request.POST.get(key, row.corrected_data[key])
+        row.corrected_data = updated_data
+
+        # TODO: write row.corrected_data into real report tables here
+
+        row.status = "approved"
+        row.reviewed_at = timezone.now()
+        row.save()
+        messages.success(request, "Row approved and saved.")
+
     return redirect("uploadFile_list")
 
 
 def reject_row(request, row_id):
     row = get_object_or_404(StagedRow, id=row_id)
     row.status = "rejected"
+    row.reviewed_at = timezone.now()
     row.save()
     messages.info(request, "Row rejected.")
     return redirect("uploadFile_list")

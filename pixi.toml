@@ -26,6 +26,7 @@ flask = ">=2.1.0,<3"
 werkzeug = "==2.2.2"
 gunicorn = ">=23.0.0,<24"
 django-bootstrap5 = ">=24.3,<25"
+openpyxl = ">=3.1.5,<4"
 
 [pypi-dependencies]
 django-prometheus = ">=2.3.1, <3"

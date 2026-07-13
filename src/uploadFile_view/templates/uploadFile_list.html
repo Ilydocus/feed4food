@@ -1,8 +1,24 @@
 {% extends "base.html" %}
-{% load django_bootstrap5 %}
-{% block title %}Review Uploaded Rows{% endblock %}
+
+{% load static %}
+
+{% block title %}Feed4Food - Review Uploaded Rows{% endblock %}
 
 {% block content %}
+
+{# Load the tag library #}
+{% load django_bootstrap5 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2">
+
 <h2 class="center mt-4">Rows Needing Review</h2>
 
 <div class="container mt-4">

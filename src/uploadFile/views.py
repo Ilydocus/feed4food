@@ -1,43 +1,38 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.utils import timezone
-from .models import StagedRow
+from django.contrib.auth.decorators import login_required
+import pandas as pd
 
 
-def uploadFile_list(request):
-    rows = StagedRow.objects.filter(status="needs_review").order_by("upload_batch", "source_row_number")
-    return render(request, "uploadFile_list.html", {"rows": rows})
+@login_required
+def upload_file_view(request):
+    if request.method == "GET":
+        return render(request, "upload_file_form.html")
 
+    elif request.method == "POST":
+        uploaded_file = request.FILES.get("file")
+        template = request.POST.get("template")
 
-def uploadFile_details(request, row_id):
-    row = get_object_or_404(StagedRow, id=row_id)
-    return render(request, "uploadFile_details.html", {"row": row})
+        if not uploaded_file:
+            messages.error(request, "No file selected.")
+            return redirect("upload_file")
 
+        try:
+            if uploaded_file.name.endswith(".csv"):
+                df = pd.read_csv(uploaded_file, header=None)
+            else:
+                df = pd.read_excel(uploaded_file, header=None)
+        except Exception as e:
+            messages.error(request, f"Could not read file: {e}")
+            return redirect("upload_file")
 
-def approve_row(request, row_id):
-    row = get_object_or_404(StagedRow, id=row_id)
+        # TODO: route by `template` value to correct parser
+        # TODO: parse df -> staged rows -> save to staging model
+        # TODO: redirect to uploadFile_view review list
 
-    if request.method == "POST":
-        # overwrite corrected_data with user-edited values from the form
-        updated_data = {}
-        for key in row.corrected_data.keys():
-            updated_data[key] = request.POST.get(key, row.corrected_data[key])
-        row.corrected_data = updated_data
+        messages.success(request, "File uploaded and parsed.")
+        return redirect("uploadFile_list")
 
-        # TODO: write row.corrected_data into real report tables here
-
-        row.status = "approved"
-        row.reviewed_at = timezone.now()
-        row.save()
-        messages.success(request, "Row approved and saved.")
-
-    return redirect("uploadFile_list")
-
-
-def reject_row(request, row_id):
-    row = get_object_or_404(StagedRow, id=row_id)
-    row.status = "rejected"
-    row.reviewed_at = timezone.now()
-    row.save()
-    messages.info(request, "Row rejected.")
-    return redirect("uploadFile_list")
+    else:
+        messages.error(request, "Only GET/POST allowed.")
+        return redirect("upload_file")
