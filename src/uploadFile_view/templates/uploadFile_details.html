@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}Review Row{% endblock %}
+
+{% block content %}
+<h2 class="center mt-4">Review Row {{ row.source_row_number }} ({{ row.action_type }})</h2>
+
+<div class="container mt-4" style="max-width: 700px;">
+
+  <h5>Raw value</h5>
+  <pre>{{ row.raw_data }}</pre>
+
+  <h5>Suggested correction</h5>
+  <form method="post" action="{% url 'uploadFile_approve' row.id %}">
+    {% csrf_token %}
+
+    {% for key, value in row.corrected_data.items %}
+    <div class="mb-3">
+      <label class="form-label">{{ key }}</label>
+      <input type="text" class="form-control" name="{{ key }}" value="{{ value }}">
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-success">Accept / Save</button>
+  </form>
+
+  <form method="post" action="{% url 'uploadFile_reject' row.id %}" class="mt-2">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Reject</button>
+  </form>
+
+</div>
+{% endblock %}

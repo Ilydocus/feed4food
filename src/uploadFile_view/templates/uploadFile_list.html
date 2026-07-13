@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% block title %}Review Uploaded Rows{% endblock %}
+
+{% block content %}
+<h2 class="center mt-4">Rows Needing Review</h2>
+
+<div class="container mt-4">
+  {% if rows %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Row #</th>
+        <th>Action Type</th>
+        <th>Raw Data</th>
+        <th>Suggested Correction</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.source_row_number }}</td>
+        <td>{{ row.action_type }}</td>
+        <td><code>{{ row.raw_data }}</code></td>
+        <td><code>{{ row.corrected_data }}</code></td>
+        <td>
+          <a href="{% url 'uploadFile_details' row.id %}" class="btn btn-sm btn-info">Review</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No rows currently need review.</p>
+  {% endif %}
+</div>
+{% endblock %}
