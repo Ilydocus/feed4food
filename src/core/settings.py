@@ -76,7 +76,9 @@ INSTALLED_APPS = [
     "lluseReport",
     "lluseReport_view",
     "informedConsent_view",
-    "kpi_dashboard"
+    "kpi_dashboard",
+    "uploadFile",
+    "uploadFile_view"
 ]
 
 CHANNEL_LAYERS = {
