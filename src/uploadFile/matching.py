@@ -11,14 +11,47 @@ input fields by the file parser) and decides which "bucket" it lands in:
     - "not_supported"   -> no table for this action type yet (Planting)
     - "ignored"         -> known but intentionally unsupported (Pruning etc.)
     - "unknown"         -> action type not recognised at all
-
 """
 
 import re
 import unicodedata
+import datetime
 
-from productionReport.models import Product, ProductionReportDetails
+from productionReport.models import Product, ProductionReport, ProductionReportDetails
 from inputReport.models import Input
+
+
+def _coerce_date(value):
+    if value is None or value == "":
+        return None
+    if isinstance(value, datetime.date):
+        return value
+    try:
+        return datetime.date.fromisoformat(str(value))
+    except ValueError:
+        return None
+
+
+def _safe_str(value) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, float) and value != value:  # NaN != NaN
+        return ""
+    return str(value)
+
+
+def split_crop_list(crop_raw) -> list:
+    """'Cucumber/Green beans/Courgette' -> ['Cucumber', 'Green beans', 'Courgette']
+    '70 ROCKET-70 CORIANDER' -> ['70 ROCKET', '70 CORIANDER']
+    Returns a single-item list if there's nothing to split."""
+    text = _safe_str(crop_raw)
+    if "/" in text:
+        parts = text.split("/")
+    elif "-" in text:
+        parts = text.split("-")
+    else:
+        parts = [text]
+    return [p.strip() for p in parts if p.strip()]
 
 
 # ---------------------------------------------------------------------------
@@ -30,7 +63,7 @@ HARVEST_LABELS = {"harvest"}
 INPUT_LABELS = {"spraying", "root irrigation"}          # -> InputReport, normal product match
 INSECT_LABELS = {"release of beneficial insects"}       # -> InputReport, input_category = "other"
 
-PLANTING_LABELS = {"planting"}                           # no model yet
+PLANTING_LABELS = {"planting"}                          
 
 IGNORED_LABELS = {
     "pruning",
@@ -72,9 +105,7 @@ GREEK_TO_LATIN = {
 
 
 def _normalize_text(value: str) -> str:
-    if value is None:
-        return ""
-    value = str(value).strip()
+    value = _safe_str(value).strip()
     value = "".join(GREEK_TO_LATIN.get(ch, ch) for ch in value)
     value = unicodedata.normalize("NFKC", value)
     return value.lower()
@@ -152,21 +183,17 @@ def resolve_quantity_for_product(number: float, unit: str, product: Product):
     """
     product_unit = _singularize(product.unit.lower())
 
-    # Same unit already - no conversion needed
     if unit == product_unit:
         return number
 
-    # Both are weight units (kg/g/gr) - convert via kg_conversion_factor
     if unit in WEIGHT_UNITS_TO_KG and product_unit in WEIGHT_UNITS_TO_KG:
         value_in_kg = number * WEIGHT_UNITS_TO_KG[unit]
         return value_in_kg / WEIGHT_UNITS_TO_KG[product_unit]
 
     if unit in WEIGHT_UNITS_TO_KG and product_unit not in WEIGHT_UNITS_TO_KG:
-        # e.g. excel gives "1.2 kg" but product's unit is "bunch" - can't convert
         value_in_kg = number * WEIGHT_UNITS_TO_KG[unit]
         return value_in_kg / product.kg_conversion_factor
 
-    # Non-weight units that don't match (e.g. "bunch" vs "head") - can't auto-convert
     return None
 
 
@@ -194,6 +221,7 @@ def validate_row(row: dict, living_lab: str, garden) -> dict:
     Returns: {"bucket": ..., "message": ..., "product": ..., "quantity": ...}
     """
     action = classify_action_type(row.get("action_type_raw", ""))
+    row = {**row, "production_date": _coerce_date(row.get("production_date"))}
 
     if action == "planting":
         return {"bucket": "not_supported", "message": "Planting rows are not entered - no table for this yet."}
@@ -241,8 +269,7 @@ def validate_row(row: dict, living_lab: str, garden) -> dict:
         return {"bucket": "inserted", "product": product, "quantity": quantity}
 
     if action in ("input", "insect_input"):
-        # For now: multi-product cells and missing quantity are hard errors, no auto-split
-        crop_raw = row.get("crop_raw", "")
+        crop_raw = _safe_str(row.get("crop_raw", ""))
         if "/" in crop_raw or "-" in crop_raw:
             return {
                 "bucket": "error",
