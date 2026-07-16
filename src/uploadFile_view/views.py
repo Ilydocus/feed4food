@@ -231,4 +231,4 @@ def commit_batch(request, batch_id):
             row.save()
 
     messages.success(request, f"{insertable.count()} row(s) entered into the database.")
-    return redirect("uploadFile_list_batch", batch_id=batch_id)
+    return redirect("upload_file")
