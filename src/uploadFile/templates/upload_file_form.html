@@ -18,11 +18,11 @@
     {% csrf_token %}
 
     <div class="mb-3">
-      <label for="gardenSelect" class="form-label text-white">Garden</label>
-      <select class="form-select" id="gardenSelect" name="garden" required>
-        <option value="" disabled selected>Select a garden</option>
-        {% for garden in gardens %}
-        <option value="{{ garden.name }}">{{ garden.name }}</option>
+      <label for="livingLabSelect" class="form-label text-white">Living Lab</label>
+      <select class="form-select" id="livingLabSelect" name="living_lab" required>
+        <option value="" disabled selected>Select a Living Lab</option>
+        {% for value, label in living_labs %}
+        <option value="{{ value }}">{{ label }}</option>
         {% endfor %}
       </select>
     </div>

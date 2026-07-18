@@ -10,15 +10,16 @@ from .models import StagedRow
 from uploadFile.matching import validate_row, split_crop_list
 
 
-def _resolve_row(row_data: dict, living_lab, garden) -> tuple:
+def _resolve_row(row_data: dict, living_lab: str) -> tuple:
     """Runs validate_row and returns (status, message, corrected_data)
     with resolved fields (matched_product/input, resolved_quantity) baked
     in as plain values ready for a JSONField."""
-    result = validate_row(row_data, living_lab, garden)
+    result = validate_row(row_data, living_lab)
     bucket = result["bucket"]
 
     status_map = {
         "duplicate": "duplicate",
+        "needs_suggestion": "needs_review",
         "error": "needs_review",
         "not_supported": "not_supported",
         "ignored": "ignored",
@@ -28,16 +29,24 @@ def _resolve_row(row_data: dict, living_lab, garden) -> tuple:
     message = result.get("message", "")
 
     corrected = dict(row_data)
+    corrected.pop("suggestions", None)  # clear any stale suggestions from a previous attempt
+    corrected.pop("suggestion_field", None)
+
+    if bucket == "needs_suggestion":
+        corrected["suggestions"] = result.get("suggestions", [])
+        corrected["suggestion_field"] = result.get("suggestion_field")
 
     if bucket == "inserted":
+        # NOTE: store pk, not name - commit_batch looks these up by pk
+        # (Product.objects.filter(pk=...) / Input.objects.filter(pk=...)).
+        # Storing .name here silently produced None matches at commit time.
         if "product" in result:
-            corrected["matched_product"] = result["product"].name
+            corrected["matched_product"] = result["product"].pk
         if "input" in result:
-            corrected["matched_input"] = result["input"].name
+            corrected["matched_input"] = result["input"].pk
         corrected["resolved_quantity"] = result.get("quantity")
 
         if "input" in result and not corrected.get("area"):
-            corrected["area"] = corrected.get("area")  
             status = "needs_review"
             message = "Area is required for this row but wasn't in the Excel - please fill it in."
         else:
@@ -76,7 +85,7 @@ def uploadFile_details(request, row_id):
     if can_split and request.GET.get("split"):
         editable_keys = [
             k for k in row.corrected_data.keys()
-            if k not in ("matched_product", "matched_input", "resolved_quantity")
+            if k not in ("matched_product", "matched_input", "resolved_quantity", "suggestions")
         ]
         split_preview = []
         for i, crop in enumerate(crops):
@@ -102,10 +111,9 @@ def confirm_split(request, row_id):
         messages.warning(request, "Nothing to split.")
         return redirect("uploadFile_details", row_id=row.id)
 
-    living_lab = row.garden.living_lab
     editable_keys = [
         k for k in row.corrected_data.keys()
-        if k not in ("matched_product", "matched_input", "resolved_quantity")
+        if k not in ("matched_product", "matched_input", "resolved_quantity", "suggestions")
     ]
 
     created = 0
@@ -114,13 +122,13 @@ def confirm_split(request, row_id):
             k: request.POST.get(f"row__{i}__{k}", row.corrected_data.get(k))
             for k in editable_keys
         }
-        status, message, corrected = _resolve_row(new_row_data, living_lab, row.garden)
+        status, message, corrected = _resolve_row(new_row_data, row.living_lab)
 
         StagedRow.objects.create(
             upload_batch=row.upload_batch,
             source_row_number=row.source_row_number,
             action_type=row.action_type,
-            garden=row.garden,
+            living_lab=row.living_lab,
             raw_data=row.raw_data,  # keep original combined value for traceability
             corrected_data=corrected,
             message=message,
@@ -152,7 +160,7 @@ def edit_row(request, row_id):
         if key in request.POST:
             updated[key] = request.POST.get(key)
 
-    status, message, corrected = _resolve_row(updated, row.garden.living_lab, row.garden)
+    status, message, corrected = _resolve_row(updated, row.living_lab)
 
     row.status = status
     row.message = message
@@ -165,7 +173,46 @@ def edit_row(request, row_id):
     else:
         messages.warning(request, row.message)
 
-    return redirect("uploadFile_list_batch", batch_id=row.upload_batch)
+    # Send the user back to this row's details page (not the batch list) so
+    # they can actually see any new "did you mean?" suggestions or the
+    # updated error message. Redirecting to the list page here was hiding
+    # suggestions from the user entirely.
+    return redirect("uploadFile_details", row_id=row.id)
+
+
+@login_required
+def apply_suggestion(request, row_id):
+    """User clicked a 'did you mean X?' suggestion - apply it to the
+    relevant field and re-validate, same as a manual edit would."""
+    row = get_object_or_404(StagedRow, id=row_id)
+    if request.method != "POST":
+        return redirect("uploadFile_details", row_id=row.id)
+
+    field = request.POST.get("field")  # "crop_raw" or "input_name_raw"
+    value = request.POST.get("value")
+    if field not in ("crop_raw", "input_name_raw") or not value:
+        messages.error(request, "Invalid suggestion.")
+        return redirect("uploadFile_details", row_id=row.id)
+
+    updated = dict(row.corrected_data)
+    updated[field] = value
+
+    status, message, corrected = _resolve_row(updated, row.living_lab)
+
+    row.status = status
+    row.message = message
+    row.corrected_data = corrected
+    row.reviewed_at = timezone.now()
+    row.save()
+
+    if row.status in ("auto_approved", "approved"):
+        messages.success(request, "Row now resolves correctly.")
+    else:
+        messages.warning(request, row.message)
+
+    # Same fix as edit_row - stay on the row's details page after applying
+    # a suggestion, rather than bouncing back to the batch list.
+    return redirect("uploadFile_details", row_id=row.id)
 
 
 @login_required
@@ -196,15 +243,14 @@ def commit_batch(request, batch_id):
     with transaction.atomic():
         for row in insertable:
             data = row.corrected_data
-            garden = row.garden
+            living_lab = row.living_lab
 
             if "matched_input" in data:
                 # Spraying / Root Irrigation / Insect release -> InputReport
                 report, _ = InputReport.objects.get_or_create(
                     application_date=data.get("production_date"),
-                    garden=garden,
+                    city=living_lab,
                     user=row.uploaded_by,
-                    defaults={"city": garden.living_lab, "location": garden.location},
                 )
                 InputReportDetails.objects.create(
                     report_id=report,
@@ -217,9 +263,8 @@ def commit_batch(request, batch_id):
                 # Harvest -> ProductionReport
                 report, _ = ProductionReport.objects.get_or_create(
                     production_date=data.get("production_date"),
-                    garden=garden,
+                    city=living_lab,
                     user=row.uploaded_by,
-                    defaults={"city": garden.living_lab, "location": garden.location},
                 )
                 ProductionReportDetails.objects.create(
                     report_id=report,

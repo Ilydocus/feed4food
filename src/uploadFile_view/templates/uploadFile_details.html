@@ -20,6 +20,20 @@
   <h5 class="text-white">Raw value (from Excel)</h5>
   <pre class="text-white">{{ row.raw_data }}</pre>
 
+  {% if row.corrected_data.suggestions %}
+  <h5 class="text-white mt-3">Did you mean?</h5>
+  <div class="mb-3">
+    {% for suggestion in row.corrected_data.suggestions %}
+    <form method="post" action="{% url 'uploadFile_suggestion' row.id %}" class="d-inline">
+      {% csrf_token %}
+      <input type="hidden" name="field" value="{{ row.corrected_data.suggestion_field }}">
+      <input type="hidden" name="value" value="{{ suggestion }}">
+      <button type="submit" class="btn btn-sm btn-outline-info me-2 mb-2">{{ suggestion }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if split_preview %}
   <h5 class="text-white mt-4">Split into {{ split_preview|length }} rows - review and save</h5>
   <form method="post" action="{% url 'uploadFile_confirm_split' row.id %}">
@@ -48,7 +62,7 @@
     {% csrf_token %}
 
     {% for key, value in row.corrected_data.items %}
-    {% if key != "matched_product" and key != "matched_input" and key != "resolved_quantity" %}
+    {% if key != "matched_product" and key != "matched_input" and key != "resolved_quantity" and key != "suggestions" and key != "suggestion_field" %}
     <div class="mb-3">
       <label class="form-label text-white">{{ key }}</label>
       <input type="text" class="form-control" name="{{ key }}" value="{{ value|default_if_none:"" }}">

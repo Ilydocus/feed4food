@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from productionReport.models import Garden
+from core.reportUtils import PartnerCities
 
 
 class StagedRow(models.Model):
@@ -24,7 +24,7 @@ class StagedRow(models.Model):
     upload_batch = models.CharField(max_length=100)
     source_row_number = models.IntegerField(null=True, blank=True)
     action_type = models.CharField(max_length=50)
-    garden = models.ForeignKey(Garden, on_delete=models.SET_NULL, null=True)
+    living_lab = models.CharField(max_length=100, choices=PartnerCities.choices, default=PartnerCities.Drama)
 
     raw_data = models.JSONField()
     corrected_data = models.JSONField()
@@ -34,6 +34,9 @@ class StagedRow(models.Model):
     uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    # Staged rows are kept indefinitely - even after commit/reject - as an
+    # audit trail. There is currently no cleanup/expiry job.
 
     def __str__(self):
         return f"{self.action_type} row {self.source_row_number} ({self.status})"
