@@ -23,7 +23,7 @@ import difflib
 
 from productionReport.models import Product, ProductionReport, ProductionReportDetails
 from inputReport.models import Input, InputReport, InputReportDetails
-from plantingRepot.models import PlantingReport, PlantingReportDetails
+from plantingReport.models import PlantingReport, PlantingReportDetails
 from core.reportUtils import CultivationTypes
 
 
@@ -493,7 +493,13 @@ def validate_row(row: dict, living_lab: str) -> dict:
         if is_duplicate_harvest(row.get("production_date"), living_lab, product, quantity):
             return {"bucket": "duplicate", "message": f"'{product.name}' entry already exists - skipped."}
 
-        return {"bucket": "inserted", "report_type": "harvest", "product": product, "quantity": quantity}
+        return {
+            "bucket": "inserted",
+            "report_type": "harvest",
+            "product": product,
+            "quantity": quantity,
+            "message": f"Matched to '{product.name}'. {quantity} {product.unit} will be recorded as harvested.",
+        }
 
     if action == "input":
         crop_raw = _safe_str(row.get("crop_raw", ""))
@@ -532,7 +538,14 @@ def validate_row(row: dict, living_lab: str) -> dict:
         if is_duplicate_input(row.get("production_date"), living_lab, input_obj, product, number):
             return {"bucket": "duplicate", "message": f"'{input_obj.name}' on '{product.name}' already exists - skipped."}
 
-        return {"bucket": "inserted", "report_type": "input", "input": input_obj, "product": product, "quantity": number}
+        return {
+            "bucket": "inserted",
+            "report_type": "input",
+            "input": input_obj,
+            "product": product,
+            "quantity": number,
+            "message": f"Matched '{input_obj.name}' applied to '{product.name}'. Quantity: {number}.",
+        }
 
     if action == "planting":
         number, unit, crop_name, split_error = extract_planting_fields(row)
@@ -565,6 +578,7 @@ def validate_row(row: dict, living_lab: str) -> dict:
             "product": product,
             "quantity": number,
             "planting_unit": unit,
+            "message": f"Matched to '{product.name}'. {number} {unit} will be recorded as planted.",
         }
 
     return {"bucket": "unknown", "message": f"Unhandled action type '{action}'."}

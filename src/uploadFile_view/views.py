@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from productionReport.models import ProductionReport, ProductionReportDetails, Product
 from inputReport.models import InputReport, InputReportDetails, Input
-from plantingRepot.models import PlantingReport, PlantingReportDetails
+from plantingReport.models import PlantingReport, PlantingReportDetails
 from .models import StagedRow
 from uploadFile.matching import validate_row, split_crop_list
 
@@ -185,13 +185,14 @@ def edit_row(request, row_id):
 
     if row.status in ("auto_approved", "approved"):
         messages.success(request, "Row now resolves correctly.")
-    else:
-        messages.warning(request, row.message)
+        # Nothing left to review on this row - back to the batch list to
+        # see it land in its new bucket.
+        return redirect("uploadFile_list_batch", batch_id=row.upload_batch)
 
-    # Send the user back to this row's details page (not the batch list) so
-    # they can actually see any new "did you mean?" suggestions or the
-    # updated error message. Redirecting to the list page here was hiding
-    # suggestions from the user entirely.
+    messages.warning(request, row.message)
+    # Still needs attention (new suggestions, still an error) - stay on
+    # this row's details page so the user can actually see why/what's next,
+    # rather than bouncing them away from the very information they need.
     return redirect("uploadFile_details", row_id=row.id)
 
 
@@ -222,11 +223,12 @@ def apply_suggestion(request, row_id):
 
     if row.status in ("auto_approved", "approved"):
         messages.success(request, "Row now resolves correctly.")
-    else:
-        messages.warning(request, row.message)
+        return redirect("uploadFile_list_batch", batch_id=row.upload_batch)
 
-    # Same fix as edit_row - stay on the row's details page after applying
-    # a suggestion, rather than bouncing back to the batch list.
+    messages.warning(request, row.message)
+    # Same reasoning as edit_row - stay on the row's details page only when
+    # there's still something here worth looking at (a new suggestion set,
+    # a still-unresolved error).
     return redirect("uploadFile_details", row_id=row.id)
 
 
