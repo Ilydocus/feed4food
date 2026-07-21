@@ -43,9 +43,9 @@
       <div class="card bg-success text-white text-center mb-4">
       <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="View icon">
         <div class="card-body">
-            <h5 class="card-title">View previous waste reports</h5>
+            <h5 class="card-title">View previous sales reports</h5>
             <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'wasteReport_list' %}" class="btn btn-info" button_type="link">Select</a>
+              <a href="{% url 'salesReport_list' %}" class="btn btn-info" button_type="link">Select</a>
         </div>
       </div>
   </div>
@@ -71,9 +71,9 @@
     <div class="card bg-success text-white text-center mb-4">
       <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="View icon">
         <div class="card-body">
-            <h5 class="card-title">View previous water reports</h5>
+            <h5 class="card-title">View previous waste reports</h5>
             <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'waterReport_list' %}" class="btn btn-info" button_type="link">Select</a>
+              <a href="{% url 'wasteReport_list' %}" class="btn btn-info" button_type="link">Select</a>
         </div>
     </div>
   </div>
@@ -91,9 +91,17 @@
     <div class="card bg-success text-white text-center mb-4">
       <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="View icon">
         <div class="card-body">
-            <h5 class="card-title">View previous production reports</h5>
+            <h5 class="card-title">View previous planting reports</h5>
             <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'productionReport_list' %}" class="btn btn-info" button_type="link">Select</a>
+              <a href="{% url 'plantingReport_list' %}" class="btn btn-info" button_type="link">Select</a>
+        </div>
+    </div>
+    <div class="card bg-success text-white text-center mb-4">
+      <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="View icon">
+        <div class="card-body">
+            <h5 class="card-title">View previous water reports</h5>
+            <!-- <p>Possible help text.</p> -->
+              <a href="{% url 'waterReport_list' %}" class="btn btn-info" button_type="link">Select</a>
         </div>
     </div>
 </div>
@@ -111,11 +119,11 @@
       <div class="card bg-success text-white text-center mb-4">
       <img class="card-img-top icon-report" src="{% static 'images/observe_icon.png' %}" alt="View icon">
         <div class="card-body">
-            <h5 class="card-title">View previous sales reports</h5>
+            <h5 class="card-title">View previous production reports</h5>
             <!-- <p>Possible help text.</p> -->
-              <a href="{% url 'salesReport_list' %}" class="btn btn-info" button_type="link">Select</a>
+              <a href="{% url 'productionReport_list' %}" class="btn btn-info" button_type="link">Select</a>
         </div>
-      </div>
+    </div>
   </div>
 
 <div class="container">
