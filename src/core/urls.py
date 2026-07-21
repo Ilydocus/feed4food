@@ -59,6 +59,4 @@ urlpatterns = [
     path("informedConsent_view/", include("informedConsent_view.urls")),
     path("plantingReport/", include("plantingReport.urls")),
     path("plantingReport_view/", include("plantingReport_view.urls")),
-    path("uploadFile/", include("uploadFile.urls")),
-    path("uploadFile_list/", include("uploadFile_view.urls")),
 ]

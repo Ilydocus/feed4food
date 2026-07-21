@@ -78,9 +78,7 @@ INSTALLED_APPS = [
     "informedConsent_view",
     "kpi_dashboard",
     "plantingReport",
-    "plantingReport_view",
-    "uploadFile",
-    "uploadFile_view"
+    "plantingReport_view"
 ]
 
 CHANNEL_LAYERS = {
