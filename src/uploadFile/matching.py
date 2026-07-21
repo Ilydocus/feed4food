@@ -23,6 +23,8 @@ import difflib
 
 from productionReport.models import Product, ProductionReport, ProductionReportDetails
 from inputReport.models import Input, InputReport, InputReportDetails
+from plantingRepot.models import PlantingReport, PlantingReportDetails
+from core.reportUtils import CultivationTypes
 
 
 def _coerce_date(value):
@@ -64,10 +66,17 @@ def split_crop_list(crop_raw) -> list:
 
 HARVEST_LABELS = {"harvest"}
 
-INPUT_LABELS = {"spraying", "root irrigation"}          # -> InputReport, normal product match
-INSECT_LABELS = {"release of beneficial insects"}       # -> InputReport, input_category = "other"
+# Spraying, Root Irrigation (fertigation despite the name), and Release of
+# Beneficial Insects all collapse into a single "input" action - they were
+# already treated identically downstream in validate_row, this just makes
+# that explicit at classification time instead of splitting them into
+# "input"/"insect_input" and merging them again one line later.
+# "input" itself is included so the new Crop Log template's Task dropdown
+# (Harvest/Input/Planting) classifies directly without needing to know
+# which of the three legacy sub-labels it used to be.
+INPUT_LABELS = {"input", "spraying", "root irrigation", "release of beneficial insects"}
 
-PLANTING_LABELS = {"planting"}                           # no model yet
+PLANTING_LABELS = {"planting"}
 
 IGNORED_LABELS = {
     "pruning",
@@ -88,8 +97,6 @@ def classify_action_type(raw_task: str) -> str:
         return "harvest"
     if task in INPUT_LABELS:
         return "input"
-    if task in INSECT_LABELS:
-        return "insect_input"
     if task in PLANTING_LABELS:
         return "planting"
     if task in IGNORED_LABELS:
@@ -243,6 +250,29 @@ def parse_quantity(raw_value: str):
     return number, _singularize(unit)
 
 
+def extract_quantity_and_unit(row: dict):
+    """
+    Returns (number, unit) for a Harvest/Input row, tolerating either
+    source format:
+      - legacy 'cultivation_tasks_v1' template: quantity and unit combined
+        in one cell (quantity_raw='100ml') -> delegates to parse_quantity.
+      - new 'crop_log_v1' template: quantity and unit already split into
+        separate columns (quantity_raw='100', unit_raw='ml') -> parsed
+        directly, no regex splitting needed since there's nothing to split.
+    This is the one place that needs to know about the two template
+    shapes - everything downstream (resolve_quantity_for_product, duplicate
+    checks, etc.) just sees a plain (number, unit) pair either way.
+    """
+    unit_raw = row.get("unit_raw")
+    if unit_raw:
+        try:
+            number = float(_safe_str(row.get("quantity_raw", "")).strip().replace(",", "."))
+        except ValueError:
+            return None, None
+        return number, _singularize(_safe_str(unit_raw).strip().lower())
+    return parse_quantity(row.get("quantity_raw", ""))
+
+
 def resolve_quantity_for_product(number: float, unit: str, product: Product):
     """
     Convert a parsed (number, unit) into the quantity expected by the
@@ -263,6 +293,104 @@ def resolve_quantity_for_product(number: float, unit: str, product: Product):
         return value_in_kg / product.kg_conversion_factor
 
     return None
+
+
+# ---------------------------------------------------------------------------
+# Planting item parsing
+#
+# Unlike Harvest (crop name and quantity live in separate columns), Planting
+# rows pack quantity + crop name together in one cell, e.g. "70 ROCKET" or
+# "53 BLACK CHERRY TOMATO PLANTS". Multi-crop rows chain several of these
+# with "-" (already handled generically by split_crop_list before this ever
+# runs) - by the time a string reaches parse_planting_item it should be a
+# single "<number> <crop name>[ <unit hint>]" item.
+#
+# ASSUMPTION: when no unit hint word is present at all (no "plants"/"m2"),
+# this defaults to CultivationTypes.NbPlants rather than forcing a review -
+# every sample row with no explicit unit word was unambiguously a plant
+# count. If that's not a safe assumption for other templates/sites, this
+# default should instead return unit=None and let validate_row force
+# needs_review, same as InputReportDetails.area currently does.
+# ---------------------------------------------------------------------------
+
+_PLANTING_UNIT_HINT_RE = re.compile(r"\b(m²|m2|sqm|plants?)\s*$", re.IGNORECASE)
+
+
+def parse_planting_item(raw_token):
+    """'70 ROCKET' -> (70.0, CultivationTypes.NbPlants, 'ROCKET')
+    '53 BLACK CHERRY TOMATO PLANTS' -> (53.0, CultivationTypes.NbPlants, 'BLACK CHERRY TOMATO')
+    '12 m2 SPINACH' or '12 SPINACH m2' -> (12.0, CultivationTypes.Surface, 'SPINACH')
+    Returns (None, None, None) if unparseable."""
+    text = _safe_str(raw_token).strip()
+    if not text:
+        return None, None, None
+
+    match = re.match(r"^(\d+(?:[.,]\d+)?)\s*(.+)$", text)
+    if not match:
+        return None, None, None
+
+    number = float(match.group(1).replace(",", "."))
+    remainder = match.group(2).strip()
+
+    unit = None
+    hint = _PLANTING_UNIT_HINT_RE.search(remainder)
+    crop_name = remainder
+    if hint:
+        token = hint.group(1).lower()
+        crop_name = remainder[: hint.start()].strip()
+        unit = CultivationTypes.Surface if token in ("m²", "m2", "sqm") else CultivationTypes.NbPlants
+
+    if unit is None:
+        unit = CultivationTypes.NbPlants  # see ASSUMPTION note above
+
+    if not crop_name:
+        return None, None, None
+
+    return number, unit, crop_name
+
+
+def extract_planting_fields(row: dict):
+    """
+    Returns (number, unit, crop_name, split_error) for a Planting row,
+    tolerating either source format:
+      - legacy 'cultivation_tasks_v1' template: quantity and crop name
+        packed together in one cell (crop_raw='70 ROCKET'), possibly
+        several chained with '-' or '/' (crop_raw='70 ROCKET-70 CORIANDER')
+        -> the multi-item guard applies here, routing to the existing
+        "Split into Multiple Rows" flow, then parse_planting_item extracts
+        the embedded number once split down to one item per row.
+      - new 'crop_log_v1' template: quantity, unit, and crop name already
+        live in separate columns (crop_raw='Rocket', quantity_raw='70',
+        unit_raw='plants') -> nothing to split, crop_raw is only ever a
+        single crop name for this template, so the multi-item guard is
+        skipped entirely (a literal '-' in a crop name from this template
+        would be a real product name, not a delimiter).
+    split_error is non-None only for the legacy multi-item case, signalling
+    the caller should hard-error rather than treat a parse failure as
+    "unreadable quantity".
+    """
+    unit_raw = row.get("unit_raw")
+
+    if unit_raw:
+        crop_name = _safe_str(row.get("crop_raw", "")).strip()
+        try:
+            number = float(_safe_str(row.get("quantity_raw", "")).strip().replace(",", "."))
+        except ValueError:
+            return None, None, None, None
+        unit_text = _safe_str(unit_raw).strip().lower()
+        unit = CultivationTypes.Surface if unit_text in ("m2", "m²", "sqm") else CultivationTypes.NbPlants
+        if not crop_name:
+            return None, None, None, None
+        return number, unit, crop_name, None
+
+    crop_raw = _safe_str(row.get("crop_raw", ""))
+    if "/" in crop_raw or "-" in crop_raw:
+        return None, None, None, (
+            f"Multiple plantings found in one row ('{crop_raw}'). Fix in Excel and re-upload."
+        )
+
+    number, unit, crop_name = parse_planting_item(crop_raw)
+    return number, unit, crop_name, None
 
 
 # ---------------------------------------------------------------------------
@@ -290,6 +418,15 @@ def is_duplicate_input(application_date, living_lab: str, input_obj: Input, prod
     ).exists()
 
 
+def is_duplicate_planting(planting_date, living_lab: str, product: Product, quantity: float) -> bool:
+    return PlantingReportDetails.objects.filter(
+        name=product,
+        area_quantity_planted=quantity,
+        report_id__planting_date=planting_date,
+        report_id__city=living_lab,
+    ).exists()
+
+
 # ---------------------------------------------------------------------------
 # Main entry point - validate one parsed row
 # ---------------------------------------------------------------------------
@@ -312,9 +449,6 @@ def validate_row(row: dict, living_lab: str) -> dict:
     """
     action = classify_action_type(row.get("action_type_raw", ""))
     row = {**row, "production_date": _coerce_date(row.get("production_date"))}
-
-    if action == "planting":
-        return {"bucket": "not_supported", "message": "Planting rows are not entered - no table for this yet."}
 
     if action == "ignored":
         return {"bucket": "ignored", "message": f"'{row.get('action_type_raw')}' rows are ignored - not supported yet."}
@@ -339,7 +473,7 @@ def validate_row(row: dict, living_lab: str) -> dict:
                 "message": f"'{crop_raw}' does not match any known product. Fix in Excel and re-upload.",
             }
 
-        number, unit = parse_quantity(row.get("quantity_raw", ""))
+        number, unit = extract_quantity_and_unit(row)
         if number is None:
             return {
                 "bucket": "error",
@@ -359,9 +493,9 @@ def validate_row(row: dict, living_lab: str) -> dict:
         if is_duplicate_harvest(row.get("production_date"), living_lab, product, quantity):
             return {"bucket": "duplicate", "message": f"'{product.name}' entry already exists - skipped."}
 
-        return {"bucket": "inserted", "product": product, "quantity": quantity}
+        return {"bucket": "inserted", "report_type": "harvest", "product": product, "quantity": quantity}
 
-    if action in ("input", "insect_input"):
+    if action == "input":
         crop_raw = _safe_str(row.get("crop_raw", ""))
         if "/" in crop_raw or "-" in crop_raw:
             return {
@@ -388,7 +522,7 @@ def validate_row(row: dict, living_lab: str) -> dict:
                 "message": f"'{crop_raw}' does not match any known product. Fix in Excel and re-upload.",
             }
 
-        number, unit = parse_quantity(row.get("quantity_raw", ""))
+        number, unit = extract_quantity_and_unit(row)
         if number is None:
             return {
                 "bucket": "error",
@@ -398,6 +532,39 @@ def validate_row(row: dict, living_lab: str) -> dict:
         if is_duplicate_input(row.get("production_date"), living_lab, input_obj, product, number):
             return {"bucket": "duplicate", "message": f"'{input_obj.name}' on '{product.name}' already exists - skipped."}
 
-        return {"bucket": "inserted", "input": input_obj, "product": product, "quantity": number}
+        return {"bucket": "inserted", "report_type": "input", "input": input_obj, "product": product, "quantity": number}
+
+    if action == "planting":
+        number, unit, crop_name, split_error = extract_planting_fields(row)
+        if split_error:
+            return {
+                "bucket": "error",
+                "message": split_error,
+            }
+        if number is None:
+            return {
+                "bucket": "error",
+                "message": f"Could not read planting quantity from '{row.get('crop_raw')}'. Fix in Excel and re-upload.",
+            }
+
+        product, suggestions = match_product(crop_name, living_lab)
+        if product is None:
+            if suggestions:
+                return _suggestion_result("crop", "crop_raw", crop_name, suggestions)
+            return {
+                "bucket": "error",
+                "message": f"'{crop_name}' does not match any known product. Fix in Excel and re-upload.",
+            }
+
+        if is_duplicate_planting(row.get("production_date"), living_lab, product, number):
+            return {"bucket": "duplicate", "message": f"'{product.name}' planting entry already exists - skipped."}
+
+        return {
+            "bucket": "inserted",
+            "report_type": "planting",
+            "product": product,
+            "quantity": number,
+            "planting_unit": unit,
+        }
 
     return {"bucket": "unknown", "message": f"Unhandled action type '{action}'."}

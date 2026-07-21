@@ -57,6 +57,8 @@ urlpatterns = [
     path("kpi_dashboard/", include("kpi_dashboard.urls")),
     path('ethics-consent/', accounts.views.ethics_consent, name='ethics_consent'),
     path("informedConsent_view/", include("informedConsent_view.urls")),
+    path("plantingReport/", include("plantingReport.urls")),
+    path("plantingReport_view/", include("plantingReport_view.urls")),
     path("uploadFile/", include("uploadFile.urls")),
     path("uploadFile_list/", include("uploadFile_view.urls")),
 ]

@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from productionReport.models import ProductionReport, ProductionReportDetails, Product
 from inputReport.models import InputReport, InputReportDetails, Input
+from plantingRepot.models import PlantingReport, PlantingReportDetails
 from .models import StagedRow
 from uploadFile.matching import validate_row, split_crop_list
 
@@ -37,6 +38,12 @@ def _resolve_row(row_data: dict, living_lab: str) -> tuple:
         corrected["suggestion_field"] = result.get("suggestion_field")
 
     if bucket == "inserted":
+        # Dispatch on the explicit report_type key rather than "which keys
+        # are present" - matched_product is now shared by both Harvest and
+        # Planting rows, so duck-typing on it would collide between the two.
+        report_type = result.get("report_type")
+        corrected["report_type"] = report_type
+
         # NOTE: store pk, not name - commit_batch looks these up by pk
         # (Product.objects.filter(pk=...) / Input.objects.filter(pk=...)).
         # Storing .name here silently produced None matches at commit time.
@@ -44,9 +51,11 @@ def _resolve_row(row_data: dict, living_lab: str) -> tuple:
             corrected["matched_product"] = result["product"].pk
         if "input" in result:
             corrected["matched_input"] = result["input"].pk
+        if "planting_unit" in result:
+            corrected["planting_unit"] = result["planting_unit"]
         corrected["resolved_quantity"] = result.get("quantity")
 
-        if "input" in result and not corrected.get("area"):
+        if report_type == "input" and not corrected.get("area"):
             status = "needs_review"
             message = "Area is required for this row but wasn't in the Excel - please fill it in."
         else:
@@ -85,7 +94,10 @@ def uploadFile_details(request, row_id):
     if can_split and request.GET.get("split"):
         editable_keys = [
             k for k in row.corrected_data.keys()
-            if k not in ("matched_product", "matched_input", "resolved_quantity", "suggestions")
+            if k not in (
+                "matched_product", "matched_input", "resolved_quantity",
+                "suggestions", "suggestion_field", "report_type", "planting_unit",
+            )
         ]
         split_preview = []
         for i, crop in enumerate(crops):
@@ -113,7 +125,10 @@ def confirm_split(request, row_id):
 
     editable_keys = [
         k for k in row.corrected_data.keys()
-        if k not in ("matched_product", "matched_input", "resolved_quantity", "suggestions")
+        if k not in (
+            "matched_product", "matched_input", "resolved_quantity",
+            "suggestions", "suggestion_field", "report_type", "planting_unit",
+        )
     ]
 
     created = 0
@@ -244,8 +259,9 @@ def commit_batch(request, batch_id):
         for row in insertable:
             data = row.corrected_data
             living_lab = row.living_lab
+            report_type = data.get("report_type")
 
-            if "matched_input" in data:
+            if report_type == "input":
                 # Spraying / Root Irrigation / Insect release -> InputReport
                 report, _ = InputReport.objects.get_or_create(
                     application_date=data.get("production_date"),
@@ -259,8 +275,7 @@ def commit_batch(request, batch_id):
                     area=float(data.get("area")),
                     quantity=float(data.get("resolved_quantity")),
                 )
-            elif "matched_product" in data:
-                # Harvest -> ProductionReport
+            elif report_type == "harvest":
                 report, _ = ProductionReport.objects.get_or_create(
                     production_date=data.get("production_date"),
                     city=living_lab,
@@ -270,6 +285,18 @@ def commit_batch(request, batch_id):
                     report_id=report,
                     name=Product.objects.filter(pk=data["matched_product"]).first(),
                     quantity=float(data.get("resolved_quantity")),
+                )
+            elif report_type == "planting":
+                report, _ = PlantingReport.objects.get_or_create(
+                    planting_date=data.get("production_date"),
+                    city=living_lab,
+                    user=row.uploaded_by,
+                )
+                PlantingReportDetails.objects.create(
+                    report_id=report,
+                    name=Product.objects.filter(pk=data["matched_product"]).first(),
+                    area_quantity_planted=float(data.get("resolved_quantity")),
+                    planting_unit=data.get("planting_unit"),
                 )
 
             row.status = "committed"

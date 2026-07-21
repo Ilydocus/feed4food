@@ -77,6 +77,8 @@ INSTALLED_APPS = [
     "lluseReport_view",
     "informedConsent_view",
     "kpi_dashboard",
+    "plantingReport",
+    "plantingReport_view",
     "uploadFile",
     "uploadFile_view"
 ]

@@ -62,7 +62,7 @@
     {% csrf_token %}
 
     {% for key, value in row.corrected_data.items %}
-    {% if key != "matched_product" and key != "matched_input" and key != "resolved_quantity" and key != "suggestions" and key != "suggestion_field" %}
+    {% if key != "matched_product" and key != "matched_input" and key != "resolved_quantity" and key != "suggestions" and key != "suggestion_field" and key != "report_type" and key != "planting_unit" %}
     <div class="mb-3">
       <label class="form-label text-white">{{ key }}</label>
       <input type="text" class="form-control" name="{{ key }}" value="{{ value|default_if_none:"" }}">
