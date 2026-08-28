@@ -58,6 +58,9 @@ class Product(models.Model):
     cultivation_type = models.CharField(choices=reportUtils.CultivationTypes, max_length=100, blank=False, default=reportUtils.CultivationTypes.Surface)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
+    class Meta:
+        ordering =['name']
+
     def __str__(self):
         return self.name
 
