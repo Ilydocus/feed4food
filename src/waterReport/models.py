@@ -33,6 +33,7 @@ class WaterReportIrrigation(models.Model):
     class WaterSources(models.TextChoices):
         HARVESTED = 'harvested','Harvested water'
         TAP = 'tap', 'Tap water'
+        WELL = 'well', 'Private well'
         OTHER = 'other', 'Other'
     start_date = models.DateField()
     end_date = models.DateField(null=True)
