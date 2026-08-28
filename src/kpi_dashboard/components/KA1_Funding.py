@@ -59,14 +59,14 @@ def build_figure(dummy=False):
 
     fig = px.bar(
         df,
-        x="Month-Year",
+        x="month_year",
         y=["Project Funding", "Other Funding"],
         barmode="group",
         height=400,
     )
 
     fig.update_layout(
-        xaxis=dict(tickformat="%b %Y")
+        xaxis=dict(tickformat="%b %Y", title="Month-Year"),
     )
 
     return fig
