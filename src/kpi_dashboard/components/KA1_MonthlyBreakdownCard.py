@@ -77,8 +77,9 @@ def build_monthly_breakdown_figure(month_key="01", dummy=False):
     month_key: string "01".."12"
     dummy: if True, return dummy figure for the month_key
     """
-    if dummy:
-        return build_dummy_monthly_breakdown_figure(month_key)
+    #Note: Not sure why the dummy mode does mot work anymore - removing it for now
+    #if dummy:
+    #    return build_dummy_monthly_breakdown_figure(month_key)
 
     # Convert month_key to int month
     try:
@@ -88,8 +89,8 @@ def build_monthly_breakdown_figure(month_key="01", dummy=False):
 
     year = datetime.date.today().year
 
-    # original aggregations (you had these)
-    fr = FinancialReport.objects.filter(month=str(month), year=year).aggregate(
+    # original aggregations 
+    fr = FinancialReport.objects.filter(month=month_key, year=year).aggregate(
         workforce=Sum("exp_workforce"),
         purchase=Sum("exp_purchase"),
         other_exp=Sum("exp_others"),
@@ -204,7 +205,16 @@ class KA1_MonthlyBreakdownCard(dbc.Card):
                             options=[
                                 {"label": "January", "value": "01"},
                                 {"label": "February", "value": "02"},
-                                # add more months if you want
+                                {"label": "March", "value": "03"},
+                                {"label": "April", "value": "04"},
+                                {"label": "May", "value": "05"},
+                                {"label": "June", "value": "06"},
+                                {"label": "July", "value": "07"},
+                                {"label": "August", "value": "08"},
+                                {"label": "September", "value": "09"},
+                                {"label": "October", "value": "10"},
+                                {"label": "November", "value": "11"},
+                                {"label": "December", "value": "12"},
                             ],
                             value=default_month,
                             clearable=False,
