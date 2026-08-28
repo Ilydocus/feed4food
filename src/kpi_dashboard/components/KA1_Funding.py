@@ -59,7 +59,7 @@ def build_figure(dummy=False):
 
     fig = px.bar(
         df,
-        x="month_year",
+        x="Month-Year",
         y=["Project Funding", "Other Funding"],
         barmode="group",
         height=400,
