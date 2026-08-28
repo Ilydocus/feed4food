@@ -369,31 +369,31 @@ def show_hide_dashboards(kpi_value):
 def create_kpi_layout(kpi_name, ll_value):
     if kpi_name == 'ka1':
         return html.Div([
-            dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=True), sm=12, md=12, className="mb-4")]),
-            dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=True), sm=12, md=12)]),
+            dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=False), sm=12, md=12, className="mb-4")]),
+            dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=False), sm=12, md=12)]),
             dbc.Row([
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Revenue and Sales")),
                     dbc.CardBody([
-                        KA1_EventRevenueScatterCard("Revenue per Event", id="revenue-ka1", dummy=True),
-                        KA1_SalesRevenueLineCard("Production Sales and Sales in Restaurant", id="prodsales-ka1", dummy=True)
+                        KA1_EventRevenueScatterCard("Revenue per Event", id="revenue-ka1", dummy=False),
+                        KA1_SalesRevenueLineCard("Production Sales and Sales in Restaurant", id="prodsales-ka1", dummy=False)
                     ]),
                 ]), sm=12, md=4),
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Cost and Revenue")),
                     dbc.CardBody([
-                        KA1_CostsCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1", dummy=True),
-                        KA1_EventsAndOtherRevenuesBarCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1", dummy=True)
+                        KA1_CostsCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1", dummy=False),
+                        KA1_EventsAndOtherRevenuesBarCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1", dummy=False)
                     ]),
                 ]), sm=12, md=4),
                 dbc.Col([
                     dbc.Card([
                         dbc.CardHeader(html.H4("Product Sales")),
-                        dbc.CardBody([KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-ka1", dummy=True)]),
+                        dbc.CardBody([KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-ka1", dummy=False)]),
                     ]),
                     dbc.Card([
                         dbc.CardHeader(html.H4("Funding")),
-                        dbc.CardBody([KA1_FundingCard("Project Funding and Other Funding", id="funding-ka1", dummy=True)])
+                        dbc.CardBody([KA1_FundingCard("Project Funding and Other Funding", id="funding-ka1", dummy=False)])
                     ], style={'marginTop': '20px'})
                 ], sm=12, md=4)
             ]),
