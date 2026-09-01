@@ -375,7 +375,7 @@ def create_kpi_layout(kpi_name, ll_value):
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Revenue and Sales")),
                     dbc.CardBody([
-                        KA1_EventRevenueScatterCard("Revenue per Event", id="revenue-ka1", dummy=False),
+                        KA1_EventRevenueScatterCard("Revenue per Event", id="revenue-ka1", living_lab=ll_value, dummy=False),
                         KA1_SalesRevenueLineCard("Production Sales and Sales in Restaurant", id="prodsales-ka1", living_lab=ll_value, dummy=False)
                     ]),
                 ]), sm=12, md=4),

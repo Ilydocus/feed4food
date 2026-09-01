@@ -3,11 +3,12 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
 import plotly.express as px
+from django.utils.timezone import now
 
 from eventReport.models import EventReport
 
 
-def load_event_revenue_data(dummy=False):
+def load_event_revenue_data(living_lab, dummy=False):
     if dummy:
         rows = [
             {
@@ -45,7 +46,10 @@ def load_event_revenue_data(dummy=False):
         df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
         return df
 
-    qs = EventReport.objects.all()
+    # Getting information about the date
+    today = now()
+    year = today.year
+    qs = EventReport.objects.filter(city=living_lab, event_date__year=year)
 
     rows = []
     for r in qs:
@@ -67,8 +71,8 @@ def load_event_revenue_data(dummy=False):
     return df
 
 
-def build_event_revenue_figure(dummy=False):
-    df = load_event_revenue_data(dummy=dummy)
+def build_event_revenue_figure(living_lab, dummy=False):
+    df = load_event_revenue_data(living_lab, dummy=dummy)
 
     if df.empty:
         return px.scatter(title="No data available")
@@ -101,8 +105,8 @@ def build_event_revenue_figure(dummy=False):
 
 
 class KA1_EventRevenueScatterCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        fig = build_event_revenue_figure(dummy=dummy)
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        fig = build_event_revenue_figure(living_lab=living_lab, dummy=dummy)
 
         super().__init__(
             children=[
