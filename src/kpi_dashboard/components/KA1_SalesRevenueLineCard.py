@@ -6,35 +6,42 @@ import plotly.express as px
 
 from salesReport.models import SalesReportDetails
 from financialReport.models import FinancialReport
+from django.utils.timezone import now
+from core import reportUtils
 
 
-def load_sales_data(dummy=False):
-    if dummy:
-        rows = [
-            {"date": pd.to_datetime("2025-01-05"), "source": "Production Sales", "value": 300},
-            {"date": pd.to_datetime("2025-01-18"), "source": "Production Sales", "value": 450},
-            {"date": pd.to_datetime("2025-02-02"), "source": "Production Sales", "value": 520},
-            {"date": pd.to_datetime("2025-03-01"), "source": "Production Sales", "value": 600},
-            {"date": pd.to_datetime("2025-03-15"), "source": "Production Sales", "value": 480},
-            {"date": pd.to_datetime("2025-04-05"), "source": "Production Sales", "value": 550},
-            {"date": pd.to_datetime("2025-04-20"), "source": "Production Sales", "value": 620},
-            {"date": pd.to_datetime("2025-05-02"), "source": "Production Sales", "value": 530},
-            {"date": pd.to_datetime("2025-05-15"), "source": "Production Sales", "value": 700},
-            {"date": pd.to_datetime("2025-01-01"), "source": "Restaurant Sales", "value": 800},
-            {"date": pd.to_datetime("2025-02-01"), "source": "Restaurant Sales", "value": 950},
-            {"date": pd.to_datetime("2025-03-01"), "source": "Restaurant Sales", "value": 1050},
-            {"date": pd.to_datetime("2025-04-01"), "source": "Restaurant Sales", "value": 1100},
-            {"date": pd.to_datetime("2025-05-01"), "source": "Restaurant Sales", "value": 1200},
-        ]
+def load_sales_data(living_lab, dummy=False):
+    # Note: for some reason the dummy mode does not work anymore, remove it for now
+    # if dummy:
+    #     rows = [
+    #         {"date": pd.to_datetime("2025-01-05"), "source": "Production Sales", "value": 300},
+    #         {"date": pd.to_datetime("2025-01-18"), "source": "Production Sales", "value": 450},
+    #         {"date": pd.to_datetime("2025-02-02"), "source": "Production Sales", "value": 520},
+    #         {"date": pd.to_datetime("2025-03-01"), "source": "Production Sales", "value": 600},
+    #         {"date": pd.to_datetime("2025-03-15"), "source": "Production Sales", "value": 480},
+    #         {"date": pd.to_datetime("2025-04-05"), "source": "Production Sales", "value": 550},
+    #         {"date": pd.to_datetime("2025-04-20"), "source": "Production Sales", "value": 620},
+    #         {"date": pd.to_datetime("2025-05-02"), "source": "Production Sales", "value": 530},
+    #         {"date": pd.to_datetime("2025-05-15"), "source": "Production Sales", "value": 700},
+    #         {"date": pd.to_datetime("2025-01-01"), "source": "Restaurant Sales", "value": 800},
+    #         {"date": pd.to_datetime("2025-02-01"), "source": "Restaurant Sales", "value": 950},
+    #         {"date": pd.to_datetime("2025-03-01"), "source": "Restaurant Sales", "value": 1050},
+    #         {"date": pd.to_datetime("2025-04-01"), "source": "Restaurant Sales", "value": 1100},
+    #         {"date": pd.to_datetime("2025-05-01"), "source": "Restaurant Sales", "value": 1200},
+    #     ]
 
-        df = pd.DataFrame(rows)
-        df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
-        df["month_year"] = pd.to_datetime(df["month_year"])
-        return df
+    #     df = pd.DataFrame(rows)
+    #     df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
+    #     df["month_year"] = pd.to_datetime(df["month_year"])
+    #     return df
+
+    # Getting information about the date
+    today = now()
+    year = today.year
 
     rows = []
 
-    qs = SalesReportDetails.objects.select_related("report_id", "product")
+    qs = SalesReportDetails.objects.select_related("report_id").filter(report_id__city=living_lab, sale_date__year=year)
 
     for r in qs:
         if not r.sale_date:
@@ -45,12 +52,15 @@ def load_sales_data(dummy=False):
             "value": r.quantity * r.price,
         })
 
-    qs_fin = FinancialReport.objects.all()
+    qs_fin = FinancialReport.objects.filter(city=living_lab, year=year)
 
     for f in qs_fin:
-        if not f.start_date:
-            continue
-        month_start = pd.to_datetime(f.start_date)
+        if f.start_date:
+            month_start = pd.to_datetime(f.start_date)
+        else:
+            # By default take the first day of the month
+            month_num = list(reportUtils.Months.values).index(f.month) + 1 
+            month_start = pd.Timestamp(year=f.year, month=month_num, day=1)
         rows.append({
             "date": month_start,
             "source": "Restaurant Sales",
@@ -67,11 +77,13 @@ def load_sales_data(dummy=False):
     df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
     df["month_year"] = pd.to_datetime(df["month_year"])
 
+    print("Final", df, flush=True)
+
     return df
 
 
-def build_sales_figure(mode="line", dummy=False):
-    df = load_sales_data(dummy=dummy)
+def build_sales_figure(living_lab, mode="line", dummy=False):
+    df = load_sales_data(living_lab, dummy=dummy)
 
     if df.empty:
         return px.line(title="No data available")
@@ -119,8 +131,8 @@ def build_sales_figure(mode="line", dummy=False):
 
 
 class KA1_SalesRevenueLineCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        fig = build_sales_figure(dummy=dummy)
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        fig = build_sales_figure(living_lab, dummy=dummy) 
 
         super().__init__(
             children=[

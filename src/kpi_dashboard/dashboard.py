@@ -376,7 +376,7 @@ def create_kpi_layout(kpi_name, ll_value):
                     dbc.CardHeader(html.H4("Revenue and Sales")),
                     dbc.CardBody([
                         KA1_EventRevenueScatterCard("Revenue per Event", id="revenue-ka1", dummy=False),
-                        KA1_SalesRevenueLineCard("Production Sales and Sales in Restaurant", id="prodsales-ka1", dummy=False)
+                        KA1_SalesRevenueLineCard("Production Sales and Sales in Restaurant", id="prodsales-ka1", living_lab=ll_value, dummy=False)
                     ]),
                 ]), sm=12, md=4),
                 dbc.Col(dbc.Card([
@@ -926,9 +926,10 @@ def update_costs_card_chart(mode):
 @app.callback(
     Output({"type": "salesrevenue-graph", "index": MATCH}, "figure"),
     Input({"type": "salesrevenue-graph-mode", "index": MATCH}, "value"),
+    Input('ll-selector', 'value'),
 )
-def update_sales_revenue_chart(mode):
-    return build_sales_figure(mode=mode, dummy=True)
+def update_sales_revenue_chart(mode, living_lab):
+    return build_sales_figure(living_lab=living_lab, mode=mode, dummy=True)
 
 @app.callback(
     Output({"type": "surfacecultivated-graph", "index": MATCH}, "figure"),
