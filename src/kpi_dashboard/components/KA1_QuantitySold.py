@@ -4,9 +4,10 @@ import plotly.express as px
 import plotly.graph_objs as go
 import pandas as pd
 from salesReport.models import SalesReportDetails
+from django.utils.timezone import now
 
 
-def build_quantitysold_figure(mode="bar", dummy=False):
+def build_quantitysold_figure(living_lab, mode="bar", dummy=False):
     if dummy:
         data = [
             {"product": "Tomatoes", "quantity": 40, "price": 2.5, "month": "1-2025"},
@@ -27,7 +28,10 @@ def build_quantitysold_figure(mode="bar", dummy=False):
         ]
         df = pd.DataFrame(data)
     else:
-        qs = SalesReportDetails.objects.select_related("product").all()
+        # Only show for this year
+        today = now()
+        year = today.year
+        qs = SalesReportDetails.objects.select_related("product").filter(report_id__city=living_lab, sale_date__year=year)
         if not qs.exists():
             return go.Figure()
 
@@ -57,6 +61,7 @@ def build_quantitysold_figure(mode="bar", dummy=False):
             labels={"month_year": "Month-Year", "revenue": "Revenue", "product": "Product"},
         )
     else:
+        # OBS: Will print only if at least 2 data points
         fig = px.area(
             df,
             x="month_year",
@@ -76,8 +81,8 @@ def build_quantitysold_figure(mode="bar", dummy=False):
 
 
 class KA1_QuantitySold(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        fig = build_quantitysold_figure(dummy=dummy)
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        fig = build_quantitysold_figure(living_lab=living_lab, dummy=dummy)
 
         super().__init__(
             children=[

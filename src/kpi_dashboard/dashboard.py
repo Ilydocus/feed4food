@@ -389,7 +389,7 @@ def create_kpi_layout(kpi_name, ll_value):
                 dbc.Col([
                     dbc.Card([
                         dbc.CardHeader(html.H4("Product Sales")),
-                        dbc.CardBody([KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-ka1", dummy=False)]),
+                        dbc.CardBody([KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-ka1", living_lab=ll_value, dummy=False)]),
                     ]),
                     dbc.Card([
                         dbc.CardHeader(html.H4("Funding")),
@@ -913,9 +913,10 @@ def update_monthly_breakdown_graph(month_key, living_lab):
 @app.callback(
     Output({"type": "quantitysold-graph", "index": MATCH}, "figure"),
     Input({"type": "quantitysold-graph-mode", "index": MATCH}, "value"),
+    Input('ll-selector', 'value'),
 )
-def callback_update_KA1_QuantitySold(mode):
-    return build_quantitysold_figure(mode=mode, dummy=False)
+def callback_update_KA1_QuantitySold(mode, living_lab):
+    return build_quantitysold_figure(living_lab=living_lab, mode=mode, dummy=False)
 
 @app.callback(
     Output({"type": "costscard-graph", "index": MATCH}, "figure"),

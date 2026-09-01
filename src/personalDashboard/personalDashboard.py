@@ -62,7 +62,7 @@ def make_sales_card():
                     dbc.CardHeader(html.H4("Sales Overview")),
                     dbc.CardBody([
                         dbc.Row([
-                            dbc.Col(KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-gard", dummy=True), sm=12, md=6),
+                            #dbc.Col(KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-gard", dummy=True), sm=12, md=6), #TODO put back in with the LL
                             #dbc.Col(KA1_SalesRevenueLineCard("Production Sales", id="sales-gard", dummy=True), sm=12, md=6), #TODO put back in
                         ])
                     ]),
