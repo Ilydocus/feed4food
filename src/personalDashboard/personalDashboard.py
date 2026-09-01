@@ -50,10 +50,10 @@ items = [
 ]
 
 def make_balance_card():
-    return dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=True), sm=12, md=12, className="mb-4")])
+    return #dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=True), sm=12, md=12, className="mb-4")]) #TODO put back in with LL
 
 def make_breakdown_card():
-    return dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=True), sm=12, md=12)])
+    return #dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=True), sm=12, md=12)]) #TODO put back in with LL
 
 
 def make_sales_card():
@@ -63,7 +63,7 @@ def make_sales_card():
                     dbc.CardBody([
                         dbc.Row([
                             dbc.Col(KA1_QuantitySold("Quantity Sold per Product", id="quantitysold-gard", dummy=True), sm=12, md=6),
-                            dbc.Col(KA1_SalesRevenueLineCard("Production Sales", id="sales-gard", dummy=True), sm=12, md=6),
+                            #dbc.Col(KA1_SalesRevenueLineCard("Production Sales", id="sales-gard", dummy=True), sm=12, md=6), #TODO put back in
                         ])
                     ]),
                 ]), sm=12, md=8),

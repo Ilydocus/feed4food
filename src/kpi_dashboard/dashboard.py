@@ -369,8 +369,8 @@ def show_hide_dashboards(kpi_value):
 def create_kpi_layout(kpi_name, ll_value):
     if kpi_name == 'ka1':
         return html.Div([
-            dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", dummy=False), sm=12, md=12, className="mb-4")]),
-            dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", dummy=False), sm=12, md=12)]),
+            dbc.Row([dbc.Col(KA1_BalanceCard(id="balance-ka1", living_lab=ll_value, dummy=False), sm=12, md=12, className="mb-4")]),
+            dbc.Row([dbc.Col(KA1_MonthlyBreakdownCard("Monthly Financial Breakdown", id="monthly-breakdown-ka1", living_lab=ll_value, dummy=False), sm=12, md=12)]),
             dbc.Row([
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Revenue and Sales")),
@@ -393,7 +393,7 @@ def create_kpi_layout(kpi_name, ll_value):
                     ]),
                     dbc.Card([
                         dbc.CardHeader(html.H4("Funding")),
-                        dbc.CardBody([KA1_FundingCard("Project Funding and Other Funding", id="funding-ka1", dummy=False)])
+                        dbc.CardBody([KA1_FundingCard("Project Funding and Other Funding", id="funding-ka1", living_lab=ll_value, dummy=False)])
                     ], style={'marginTop': '20px'})
                 ], sm=12, md=4)
             ]),
@@ -905,9 +905,10 @@ def display_native_count(kpi_value, **kwargs):
 @app.callback(
     Output({"type": "graph", "index": MATCH}, "figure"),
     Input({"type": "month-dropdown", "index": MATCH}, "value"),
+    Input('ll-selector', 'value'),
 )
-def update_monthly_breakdown_graph(month_key):
-    return build_monthly_breakdown_figure(month_key, dummy=True)
+def update_monthly_breakdown_graph(month_key, living_lab):
+    return build_monthly_breakdown_figure(month_key=month_key, living_lab=living_lab, dummy=True)
 
 @app.callback(
     Output({"type": "quantitysold-graph", "index": MATCH}, "figure"),

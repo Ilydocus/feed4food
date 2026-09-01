@@ -72,7 +72,7 @@ def build_dummy_monthly_breakdown_figure(month_key):
 
 
 
-def build_monthly_breakdown_figure(month_key="01", dummy=False):
+def build_monthly_breakdown_figure(living_lab, month_key="01", dummy=False):
     """
     month_key: string "01".."12"
     dummy: if True, return dummy figure for the month_key
@@ -90,7 +90,7 @@ def build_monthly_breakdown_figure(month_key="01", dummy=False):
     year = datetime.date.today().year
 
     # original aggregations 
-    fr = FinancialReport.objects.filter(month=month_key, year=year).aggregate(
+    fr = FinancialReport.objects.filter(city=living_lab, month=month_key, year=year).aggregate(
         workforce=Sum("exp_workforce"),
         purchase=Sum("exp_purchase"),
         other_exp=Sum("exp_others"),
@@ -114,6 +114,7 @@ def build_monthly_breakdown_figure(month_key="01", dummy=False):
     try:
         from eventReport.models import EventReport
         events_total = EventReport.objects.filter(
+            city=living_lab,
             event_date__year=year,
             event_date__month=month,
         ).aggregate(t=Sum("event_revenues"))
@@ -123,6 +124,7 @@ def build_monthly_breakdown_figure(month_key="01", dummy=False):
 
     product_sales_total = (
         SalesReportDetails.objects.filter(
+            report_id__city=living_lab,
             sale_date__year=year,
             sale_date__month=month,
         )
@@ -186,13 +188,13 @@ def build_monthly_breakdown_figure(month_key="01", dummy=False):
 
 
 class KA1_MonthlyBreakdownCard(dbc.Card):
-    def __init__(self, title, id, dummy=False):
+    def __init__(self, title, id, living_lab, dummy=False):
         if dummy:
             default_month = "01"
         else:
             default_month = datetime.date.today().strftime("%m")
 
-        fig = build_monthly_breakdown_figure(default_month, dummy=dummy)
+        fig = build_monthly_breakdown_figure(living_lab, default_month, dummy=dummy)
 
         super().__init__(
             [

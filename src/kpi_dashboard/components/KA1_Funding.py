@@ -4,11 +4,17 @@ from dash import html, dcc
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
+from django.utils.timezone import now
+
 from financialReport.models import FinancialReport
 
 
-def load_funding_data():
-    qs = FinancialReport.objects.all()
+def load_funding_data(living_lab):
+    # Getting information about the date
+    today = now()
+    year = today.year
+
+    qs = FinancialReport.objects.filter(city=living_lab, year=year)
 
     rows = [
         {
@@ -31,7 +37,7 @@ def load_funding_data():
     return df
 
 
-def build_figure(dummy=False):
+def build_figure(living_lab, dummy=False):
     if dummy:
         data = [
             {"month_year": "1-2025", "Project Funding": 500,  "Other Funding": 80},
@@ -46,7 +52,7 @@ def build_figure(dummy=False):
         df["month_year"] = pd.to_datetime(df["month_year"], format="%m-%Y")
 
     else:
-        df = load_funding_data()
+        df = load_funding_data(living_lab)
         if df.empty:
             return go.Figure()
 
@@ -73,8 +79,8 @@ def build_figure(dummy=False):
 
 
 class KA1_FundingCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        fig = build_figure(dummy=dummy)
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        fig = build_figure(living_lab=living_lab, dummy=dummy)
 
         super().__init__(
             children=[

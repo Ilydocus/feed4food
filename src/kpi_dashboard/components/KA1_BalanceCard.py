@@ -39,7 +39,7 @@ def comparison(prev_year, curr_year, color):
                 return "+/-0%", "=", "black"
 
 class KA1_BalanceCard(dbc.Card):
-    def __init__(self, id, dummy=False):
+    def __init__(self, id, living_lab, dummy=False):
         today = now()
         year = today.year
         month = today.month
@@ -50,7 +50,7 @@ class KA1_BalanceCard(dbc.Card):
             total_revenue, total_expenses, net_balance = build_dummy_balance_data()
             year = 2025  # keep dummy consistent
         else:
-            qs = FinancialReport.objects.filter(year=year)
+            qs = FinancialReport.objects.filter(year=year, city=living_lab)
             totals = qs.aggregate(
                 exp_workforce=Sum("exp_workforce"),
                 exp_purchase=Sum("exp_purchase"),
@@ -62,7 +62,7 @@ class KA1_BalanceCard(dbc.Card):
             )
             fin = {k: float(v or 0) for k, v in totals.items()}
 
-            sales_qs = SalesReportDetails.objects.filter(sale_date__year=year)
+            sales_qs = SalesReportDetails.objects.filter(report_id__city=living_lab, sale_date__year=year)
             sales_revenue = float(sales_qs.aggregate(total=Sum(F("quantity") * F("price")))["total"] or 0)
 
             total_revenue = (
@@ -86,7 +86,7 @@ class KA1_BalanceCard(dbc.Card):
             bal_pct, bal_arrow, bal_color = dummy_bal_trend()
         else:
             # Get reference values from previous year (compare year cy)
-            qs_cy = FinancialReport.objects.filter(year=compare_year)
+            qs_cy = FinancialReport.objects.filter(city=living_lab, year=compare_year)
             totals_cy = qs_cy.aggregate(
                 exp_workforce=Sum("exp_workforce"),
                 exp_purchase=Sum("exp_purchase"),
@@ -98,7 +98,7 @@ class KA1_BalanceCard(dbc.Card):
             )
             fin_cy = {k: float(v or 0) for k, v in totals_cy.items()}
 
-            sales_qs_cy = SalesReportDetails.objects.filter(sale_date__year=compare_year)
+            sales_qs_cy = SalesReportDetails.objects.filter(report_id__city=living_lab, sale_date__year=compare_year)
             sales_revenue_cy = float(sales_qs_cy.aggregate(total=Sum(F("quantity") * F("price")))["total"] or 0)
 
             total_revenue_cy = (
