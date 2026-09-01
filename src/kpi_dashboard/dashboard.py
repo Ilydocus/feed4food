@@ -382,7 +382,7 @@ def create_kpi_layout(kpi_name, ll_value):
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Cost and Revenue")),
                     dbc.CardBody([
-                        KA1_CostsCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1", dummy=False),
+                        KA1_CostsCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1", living_lab=ll_value, dummy=False),
                         KA1_EventsAndOtherRevenuesBarCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1", dummy=False)
                     ]),
                 ]), sm=12, md=4),
@@ -908,21 +908,22 @@ def display_native_count(kpi_value, **kwargs):
     Input('ll-selector', 'value'),
 )
 def update_monthly_breakdown_graph(month_key, living_lab):
-    return build_monthly_breakdown_figure(month_key=month_key, living_lab=living_lab, dummy=True)
+    return build_monthly_breakdown_figure(month_key=month_key, living_lab=living_lab, dummy=False)
 
 @app.callback(
     Output({"type": "quantitysold-graph", "index": MATCH}, "figure"),
     Input({"type": "quantitysold-graph-mode", "index": MATCH}, "value"),
 )
 def callback_update_KA1_QuantitySold(mode):
-    return build_quantitysold_figure(mode=mode, dummy=True)
+    return build_quantitysold_figure(mode=mode, dummy=False)
 
 @app.callback(
     Output({"type": "costscard-graph", "index": MATCH}, "figure"),
     Input({"type": "costscard-graph-mode", "index": MATCH}, "value"),
+    Input('ll-selector', 'value'),
 )
-def update_costs_card_chart(mode):
-    return build_costs_figure(mode=mode, dummy=True)
+def update_costs_card_chart(mode, living_lab):
+    return build_costs_figure(mode=mode, living_lab=living_lab, dummy=False)
 
 @app.callback(
     Output({"type": "salesrevenue-graph", "index": MATCH}, "figure"),
@@ -930,32 +931,32 @@ def update_costs_card_chart(mode):
     Input('ll-selector', 'value'),
 )
 def update_sales_revenue_chart(mode, living_lab):
-    return build_sales_figure(living_lab=living_lab, mode=mode, dummy=True)
+    return build_sales_figure(living_lab=living_lab, mode=mode, dummy=False)
 
 @app.callback(
     Output({"type": "surfacecultivated-graph", "index": MATCH}, "figure"),
     Input({"type": "surfacecultivated-graph-mode", "index": MATCH}, "value"),
 )
 def callback_update_surfacecultivated_chart(chart_type):
-    return build_surface_cultivation_figure(chart_type=chart_type, dummy=True)
+    return build_surface_cultivation_figure(chart_type=chart_type, dummy=False)
 
 @app.callback(
     Output({"type": "plantscultivated-graph", "index": MATCH}, "figure"),
     Input({"type": "plantscultivated-graph-mode", "index": MATCH}, "value"),
 )
 def callback_update_plantscultivated_chart(chart_type):
-    return build_plants_cultivated_figure(chart_type=chart_type, dummy=True)
+    return build_plants_cultivated_figure(chart_type=chart_type, dummy=False)
 
 @app.callback(
     Output({"type": "rainwater-graph", "index": MATCH}, "figure"),
     Input({"type": "rainwater-graph-mode", "index": MATCH}, "value"),
 )
 def callback_update_rainwater_chart(chart_type):
-    return build_rainwater_figure(chart_type=chart_type, dummy=True)
+    return build_rainwater_figure(chart_type=chart_type, dummy=False)
 
 @app.callback(
     Output({"type": "wateruse-graph", "index": MATCH}, "figure"),
     Input({"type": "wateruse-graph-mode", "index": MATCH}, "value"),
 )
 def callback_update_wateruse_chart(chart_type):
-    return build_wateruse_figure(chart_type=chart_type, dummy=True)
+    return build_wateruse_figure(chart_type=chart_type, dummy=False)

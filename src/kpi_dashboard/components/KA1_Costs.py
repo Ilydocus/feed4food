@@ -4,10 +4,11 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 from financialReport.models import FinancialReport
+from django.utils.timezone import now
 
 
-def load_costs_data():
-    qs = FinancialReport.objects.all()
+def load_costs_data(living_lab, year):
+    qs = FinancialReport.objects.filter(city=living_lab, year=year)
 
     rows = [
         {
@@ -33,7 +34,7 @@ def load_costs_data():
     return df
 
 
-def build_costs_figure(mode="line", dummy=False):
+def build_costs_figure(living_lab, mode="line", dummy=False):
     if dummy:
         data = [
             {"month_year": "1-2025", "exp_workforce": 1200, "exp_purchase": 800, "exp_others": 300},
@@ -46,7 +47,9 @@ def build_costs_figure(mode="line", dummy=False):
         df["month_dt"] = pd.to_datetime(df["month_year"], format="%m-%Y", errors="coerce")
 
     else:
-        df = load_costs_data()
+        today = now()
+        year = today.year
+        df = load_costs_data(living_lab, year)
         if df.empty:
             return go.Figure()
 
@@ -80,8 +83,8 @@ def build_costs_figure(mode="line", dummy=False):
 
 
 class KA1_CostsCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        fig = build_costs_figure(dummy=dummy)
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        fig = build_costs_figure(living_lab, dummy=dummy)
 
         super().__init__(
             children=[
