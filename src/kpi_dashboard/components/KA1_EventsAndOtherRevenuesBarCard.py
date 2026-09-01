@@ -3,15 +3,20 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
 import plotly.express as px
+from django.utils.timezone import now
 
 from eventReport.models import EventReport
 from financialReport.models import FinancialReport
+from core import reportUtils
 
 
-def load_event_other_revenues_data():
+def load_event_other_revenues_data(living_lab):
     rows = []
 
-    qs_events = EventReport.objects.all()
+    # Only show for this year
+    today = now()
+    year = today.year
+    qs_events = EventReport.objects.filter(city=living_lab, event_date__year=year)
 
     for e in qs_events:
         if not e.event_date:
@@ -22,7 +27,7 @@ def load_event_other_revenues_data():
             "value": e.event_revenues,
         })
 
-    qs_fin = FinancialReport.objects.all()
+    qs_fin = FinancialReport.objects.filter(city=living_lab, year=year)
 
     for f in qs_fin:
         if not f.start_date:
@@ -33,6 +38,19 @@ def load_event_other_revenues_data():
             "source": "Other Revenues",
             "value": f.rev_others,
         })
+
+    for f in qs_fin:
+            if f.start_date:
+                month_start = pd.to_datetime(f.start_date)
+            else:
+                # By default take the first day of the month
+                month_num = list(reportUtils.Months.values).index(f.month) + 1 
+                month_start = pd.Timestamp(year=f.year, month=month_num, day=1)
+            rows.append({
+                "date": month_start,
+                "source": "Other Revenues",
+                "value": f.rev_others,
+            })
 
     if not rows:
         return pd.DataFrame(columns=["date", "source", "value"])
@@ -47,7 +65,7 @@ def load_event_other_revenues_data():
     return df
 
 
-def build_events_other_bar_figure(title=None, dummy=False):
+def build_events_other_bar_figure(living_lab, title=None, dummy=False):
     if dummy:
         dummy_data = [
             {"month_year": "2025-01", "source": "Event Revenues",  "value": 1200},
@@ -70,7 +88,7 @@ def build_events_other_bar_figure(title=None, dummy=False):
         df["month_year"] = pd.to_datetime(df["month_year"])
 
     else:
-        df = load_event_other_revenues_data()
+        df = load_event_other_revenues_data(living_lab)
 
         if df.empty:
             return px.bar(title=title or "No data available")
@@ -111,8 +129,8 @@ def build_events_other_bar_figure(title=None, dummy=False):
 
 
 class KA1_EventsAndOtherRevenuesBarCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        fig = build_events_other_bar_figure(title=title, dummy=dummy)
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        fig = build_events_other_bar_figure(living_lab=living_lab, title=title, dummy=dummy)
 
         super().__init__(
             children=[

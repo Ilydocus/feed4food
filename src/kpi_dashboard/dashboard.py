@@ -383,7 +383,7 @@ def create_kpi_layout(kpi_name, ll_value):
                     dbc.CardHeader(html.H4("Cost and Revenue")),
                     dbc.CardBody([
                         KA1_CostsCard("Workforce Costs, Purchase Costs, and Other Costs", id="costs-ka1", living_lab=ll_value, dummy=False),
-                        KA1_EventsAndOtherRevenuesBarCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1", dummy=False)
+                        KA1_EventsAndOtherRevenuesBarCard("Revenues from Events vs. Other Revenues", id="revenueevents-ka1", living_lab=ll_value, dummy=False)
                     ]),
                 ]), sm=12, md=4),
                 dbc.Col([
