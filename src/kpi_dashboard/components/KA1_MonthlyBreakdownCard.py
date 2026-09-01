@@ -122,6 +122,17 @@ def build_monthly_breakdown_figure(living_lab, month_key="01", dummy=False):
     except Exception:
         events_revenue = 0
 
+    try:
+        from eventReport.models import EventReport
+        events_total_c = EventReport.objects.filter(
+            city=living_lab,
+            event_date__year=year,
+            event_date__month=month,
+        ).aggregate(t=Sum("event_costs"))
+        events_cost = nz(events_total_c.get("t"))
+    except Exception:
+        events_cost = 0
+
     product_sales_total = (
         SalesReportDetails.objects.filter(
             report_id__city=living_lab,
@@ -151,6 +162,7 @@ def build_monthly_breakdown_figure(living_lab, month_key="01", dummy=False):
     expenses = {
         "Workforce Costs": workforce * -1,
         "Purchase Costs": purchase * -1,
+        "Event Costs": events_cost * -1,
         "Other Costs": other_costs * -1,
     }
     for k, v in expenses.items():

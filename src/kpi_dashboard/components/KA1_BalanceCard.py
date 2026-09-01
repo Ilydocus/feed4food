@@ -4,6 +4,7 @@ from dash import html
 from django.utils.timezone import now
 from financialReport.models import FinancialReport
 from salesReport.models import SalesReportDetails
+from eventReport.models import EventReport
 from django.db.models import Sum, F
 import calendar
 
@@ -65,15 +66,22 @@ class KA1_BalanceCard(dbc.Card):
             sales_qs = SalesReportDetails.objects.filter(report_id__city=living_lab, sale_date__year=year)
             sales_revenue = float(sales_qs.aggregate(total=Sum(F("quantity") * F("price")))["total"] or 0)
 
+            events_qs = qs = EventReport.objects.filter(city=living_lab, event_date__year=year)
+            events_revenue = float(events_qs.aggregate(total=Sum("event_revenues"))["total"] or 0)
+            events_costs = float(events_qs.aggregate(total=Sum("event_costs"))["total"] or 0)
+
+
             total_revenue = (
                 sales_revenue
+                + events_revenue
                 + fin["rev_restaurant"]
                 + fin["rev_others"]
                 + fin["fun_feed4food"]
                 + fin["fun_others"]
             )
             total_expenses = (
-                fin["exp_workforce"]
+                events_costs
+                + fin["exp_workforce"]
                 + fin["exp_purchase"]
                 + fin["exp_others"]
             )
@@ -101,15 +109,21 @@ class KA1_BalanceCard(dbc.Card):
             sales_qs_cy = SalesReportDetails.objects.filter(report_id__city=living_lab, sale_date__year=compare_year)
             sales_revenue_cy = float(sales_qs_cy.aggregate(total=Sum(F("quantity") * F("price")))["total"] or 0)
 
+            events_qs_cy = qs = EventReport.objects.filter(city=living_lab, event_date__year=compare_year)
+            events_revenue_cy = float(events_qs_cy.aggregate(total=Sum("event_revenues"))["total"] or 0)
+            events_costs_cy = float(events_qs_cy.aggregate(total=Sum("event_costs"))["total"] or 0)
+            
             total_revenue_cy = (
                 sales_revenue_cy
+                + events_revenue_cy
                 + fin_cy["rev_restaurant"]
                 + fin_cy["rev_others"]
                 + fin_cy["fun_feed4food"]
                 + fin_cy["fun_others"]
             )
             total_expenses_cy = (
-                fin_cy["exp_workforce"]
+                events_costs_cy
+                + fin_cy["exp_workforce"]
                 + fin_cy["exp_purchase"]
                 + fin_cy["exp_others"]
             )
