@@ -4,10 +4,14 @@ from dash import html, dcc
 import pandas as pd
 from dash.dash_table import DataTable
 from salesReport.models import SalesReportDetails
+from django.utils.timezone import now
 
 
-def load_sales_data():
-    qs = SalesReportDetails.objects.select_related("product").all()
+def load_sales_data(living_lab):
+    # Only show for one year
+    today = now()
+    year = today.year
+    qs = SalesReportDetails.objects.select_related("product").filter(report_id__city=living_lab, sale_date__year=year)
     rows = [
         {"product": r.product.name, "price": r.price}
         for r in qs
@@ -18,8 +22,8 @@ def load_sales_data():
 
 
 class KA1_PriceProduct(dbc.Card):
-    def __init__(self, title, id, description=None):
-        df = load_sales_data() 
+    def __init__(self, title, id, living_lab description=None):
+        df = load_sales_data(living_lab) 
 
         super().__init__(
             children=[
