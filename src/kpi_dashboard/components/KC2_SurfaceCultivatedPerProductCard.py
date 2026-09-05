@@ -44,7 +44,8 @@ def load_latest_area_per_product_by_garden_month(living_lab):
     # 3. Get area per product per report, then bucket into the right month
     qs = (
         CultivationReportDetails.objects
-        .filter(report_id__in=report_id_to_month.keys())
+        .filter(report_id__in=report_id_to_month.keys(),
+                name__cultivation_type="m²",) #Only include for this graphs the products cultivated with a surface
         .values("report_id", "name__name")
         .annotate(total_area=Sum("area_cultivated"))
     )
