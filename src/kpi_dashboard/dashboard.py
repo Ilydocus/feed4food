@@ -319,7 +319,7 @@ def create_kpi_layout(kpi_name, ll_value):
             dbc.Row([
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Water Reuse")),
-                    dbc.CardBody([KC5_YearlyWaterCard("Irrigation Details", id="graph1-kc5", living_lab=ll_value, dummy=True)]),
+                    dbc.CardBody([KC5_YearlyWaterCard("Irrigation Details", id="graph1-kc5", living_lab=ll_value, dummy=False)]),
                 ]), sm=12, md=12),
             ], className="mb-4"),
             dbc.Row([

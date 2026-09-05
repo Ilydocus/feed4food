@@ -14,20 +14,22 @@ def current_year():
     return now().year
 
 
-def load_totals_rainfall_current_year(dummy=False):
+def load_totals_rainfall_current_year(living_lab, dummy=False):
     if dummy:
         return 420.0
     year = current_year()
     total = (
         WaterReportRainfall.objects
-        .filter(start_date__year=year)
+        .filter(
+            report_id__city=living_lab,
+            start_date__year=year)
         .aggregate(total=Sum("quantity"))
         .get("total") or 0
     )
     return float(total)
 
 
-def load_totals_irrigation_current_year(dummy=False):
+def load_totals_irrigation_current_year(living_lab, dummy=False):
     if dummy:
         data = {
             "source": ["harvested", "tap", "other"],
@@ -37,7 +39,9 @@ def load_totals_irrigation_current_year(dummy=False):
     year = current_year()
     qs = (
         WaterReportIrrigation.objects
-        .filter(start_date__year=year)
+        .filter(
+            report_id__city=living_lab,
+            start_date__year=year)
         .values("source")
         .annotate(quantity=Sum("quantity"))
     )
@@ -45,12 +49,12 @@ def load_totals_irrigation_current_year(dummy=False):
     return pd.DataFrame(rows)
 
 
-def build_two_bar_water_figures_current_year(dummy=False):
-    rainfall_total = load_totals_rainfall_current_year(dummy=dummy)
-    df_irr = load_totals_irrigation_current_year(dummy=dummy)
+def build_two_bar_water_figures_current_year(living_lab, dummy=False):
+    rainfall_total = load_totals_rainfall_current_year(living_lab, dummy=dummy)
+    df_irr = load_totals_irrigation_current_year(living_lab, dummy=dummy)
 
     irrigation_total = df_irr["quantity"].sum() if not df_irr.empty else 0
-    target_quantity = irrigation_total * 0.15
+    target_quantity = rainfall_total * 0.15
 
     x_max = max(rainfall_total, irrigation_total) * 1.1
 
@@ -74,13 +78,13 @@ def build_two_bar_water_figures_current_year(dummy=False):
     )
 
     fig_out = go.Figure()
-    for source in ["harvested", "tap", "other"]:
+    for source in WaterReportIrrigation.WaterSources:
         qty = df_irr[df_irr["source"] == source]["quantity"].sum()
         fig_out.add_trace(
             go.Bar(
                 y=["Irrigation Water Use"],
                 x=[qty],
-                name=f"Irrigation – {source}",
+                name=f"Irrigation – {str(source)}",
                 orientation="h",
             )
         )
@@ -109,9 +113,9 @@ def build_two_bar_water_figures_current_year(dummy=False):
     return fig_in, fig_out
 
 
-def irrigation_coverage_stat(dummy=False):
-    rainfall = load_totals_rainfall_current_year(dummy=dummy)
-    df_irr = load_totals_irrigation_current_year(dummy=dummy)
+def irrigation_coverage_stat(living_lab, dummy=False):
+    rainfall = load_totals_rainfall_current_year(living_lab, dummy=dummy)
+    df_irr = load_totals_irrigation_current_year(living_lab, dummy=dummy)
 
     harvested_irr = (
         df_irr[df_irr["source"] == "harvested"]["quantity"].sum()
@@ -140,13 +144,13 @@ def irrigation_coverage_stat(dummy=False):
     )
 
 
-class KA5_YearlyWaterCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
+class KC5_YearlyWaterCard(dbc.Card):
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
         year = current_year()
         title_with_year = f"{title} (Jan {year} to Present)"
 
-        fig_in, fig_out = build_two_bar_water_figures_current_year(dummy=dummy)
-        stat_ui = irrigation_coverage_stat(dummy=dummy)
+        fig_in, fig_out = build_two_bar_water_figures_current_year(living_lab, dummy=dummy)
+        stat_ui = irrigation_coverage_stat(living_lab, dummy=dummy)
 
         super().__init__(
             children=[
