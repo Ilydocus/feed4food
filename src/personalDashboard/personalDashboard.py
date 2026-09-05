@@ -10,7 +10,7 @@ import pandas as pd
 # The personal display is using the same visualization as the KPI display but with different data
 from kpi_dashboard.components.KA1_Costs import KA1_CostsCard, build_costs_figure
 from kpi_dashboard.components.KA1_Funding import KA1_FundingCard
-from kpi_dashboard.components.KA5_IrrigationWaterUse import KA5_WaterUseCard, build_wateruse_figure
+from kpi_dashboard.components.KC5_IrrigationWaterUse import KC5_WaterUseCard, build_wateruse_figure
 from kpi_dashboard.components.KC5_RainwaterHarvested import KC5_RainwaterCard, build_rainwater_figure
 from kpi_dashboard.components.KC5_YearlyWaterCard import KC5_YearlyWaterCard
 from kpi_dashboard.components.KA1_BalanceCard import KA1_BalanceCard 
@@ -97,7 +97,7 @@ def make_water_card():
                     dbc.CardBody([
                         dbc.Row([
                             #dbc.Col(KA5_RainwaterCard("Rainwater Harvested", id="rain-gard", dummy=True), sm=12, md=6),
-                            dbc.Col(KA5_WaterUseCard("Water Use per Source", id="wateruse-gard", dummy=True), sm=12, md=6),
+                            #dbc.Col(KA5_WaterUseCard("Water Use per Source", id="wateruse-gard", dummy=True), sm=12, md=6),
                         ]),
                         #KA5_YearlyWaterCard("Irrigation Frequency", id="freq-gard", dummy=True),
                     ]),

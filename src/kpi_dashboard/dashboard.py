@@ -14,7 +14,7 @@ from core.kpiUtils import DAILY_NUTRIENT_REQUIREMENTS
 
 from .components.KA1_Costs import KA1_CostsCard, build_costs_figure
 from .components.KA1_Funding import KA1_FundingCard
-from .components.KA5_IrrigationWaterUse import KA5_WaterUseCard, build_wateruse_figure
+from .components.KC5_IrrigationWaterUse import KC5_WaterUseCard, build_wateruse_figure
 from .components.KC2_GardensInUse import KC2_GardensInUseCard
 from .components.KC5_RainwaterHarvested import KC5_RainwaterCard, build_rainwater_figure
 from .components.KC5_YearlyWaterCard import KC5_YearlyWaterCard
@@ -329,7 +329,7 @@ def create_kpi_layout(kpi_name, ll_value):
                 ]), sm=12, md=6),
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Irrigation Water Use per Source")),
-                    dbc.CardBody([KA5_WaterUseCard("Irrigation Water Use per Source", id="graph3-kc5", dummy=True)]),
+                    dbc.CardBody([KC5_WaterUseCard("Irrigation Water Use per Source", id="graph3-kc5", living_lab=ll_value, dummy=False)]),
                 ]), sm=12, md=6),
             ])
         ])
@@ -499,9 +499,10 @@ def callback_update_rainwater_chart(chart_type, living_lab):
 @app.callback(
     Output({"type": "wateruse-graph", "index": MATCH}, "figure"),
     Input({"type": "wateruse-graph-mode", "index": MATCH}, "value"),
+    Input('ll-selector', 'value'),
 )
-def callback_update_wateruse_chart(chart_type):
-    return build_wateruse_figure(chart_type=chart_type, dummy=False)
+def callback_update_wateruse_chart(chart_type,living_lab):
+    return build_wateruse_figure(living_lab=living_lab, chart_type=chart_type, dummy=False)
 
 @app.callback(
     Output({"type": "extent-graph", "index": MATCH}, "figure"),

@@ -38,7 +38,7 @@ class WaterReportIrrigation(models.Model):
     start_date = models.DateField()
     end_date = models.DateField(null=True)
     period = models.BooleanField()
-    source = frequency_interval= models.CharField(max_length=30, choices=WaterSources,null=True)
+    source = models.CharField(max_length=30, choices=WaterSources,null=True)
     frequency_times = models.FloatField(default=0)
     frequency_interval= models.CharField(max_length=10, choices=FrequencyInterval,null=True)
     report_id = models.ForeignKey(
