@@ -11,12 +11,10 @@ import pandas as pd
 from kpi_dashboard.components.KA1_Costs import KA1_CostsCard, build_costs_figure
 from kpi_dashboard.components.KA1_Funding import KA1_FundingCard
 from kpi_dashboard.components.KA5_IrrigationWaterUse import KA5_WaterUseCard, build_wateruse_figure
-from kpi_dashboard.components.KC2_GardensInUse import KC2_GardensInUseCard
 from kpi_dashboard.components.KA5_RainwaterHarvested import KA5_RainwaterCard, build_rainwater_figure
 from kpi_dashboard.components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
 from kpi_dashboard.components.KA1_BalanceCard import KA1_BalanceCard 
 from kpi_dashboard.components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard, build_monthly_breakdown_figure
-from kpi_dashboard.components.KC2_AreaChemicalCard import KC2_AreaChemicalCard
 from kpi_dashboard.components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
 from kpi_dashboard.components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard, build_plants_cultivated_figure
 from kpi_dashboard.components.KA2_ChemicalUsePerProductCard import KA2_ChemicalUsePerProductCard
@@ -24,10 +22,7 @@ from kpi_dashboard.components.KA2_SurfaceCultivatedPerProductCard import KA2_Sur
 from kpi_dashboard.components.KA1_EventRevenueScatterCard import KA1_EventRevenueScatterCard
 from kpi_dashboard.components.KA1_SalesRevenueLineCard import KA1_SalesRevenueLineCard, build_sales_figure
 from kpi_dashboard.components.KA1_EventsAndOtherRevenuesBarCard import KA1_EventsAndOtherRevenuesBarCard
-from kpi_dashboard.components.KA2_FertilizerActiveIngredientTable import KA2_FertilizerActiveIngredientTable
 from kpi_dashboard.components.KA1_QuantitySold import KA1_QuantitySold, build_quantitysold_figure
-from kpi_dashboard.components.KC2_FertilizerIntensityCard import KC2_FertilizerIntensityCard
-from kpi_dashboard.components.KC2_PesticideSharePieCard import KC2_PesticideSharePieCard
 
 
 # ─────────────────────────────────────────────

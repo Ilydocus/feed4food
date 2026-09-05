@@ -28,7 +28,7 @@ from .components.KA2_SurfaceCultivatedPerProductCard import KA2_SurfaceCultivate
 from .components.KA1_EventRevenueScatterCard import KA1_EventRevenueScatterCard
 from .components.KA1_SalesRevenueLineCard import KA1_SalesRevenueLineCard, build_sales_figure
 from .components.KA1_EventsAndOtherRevenuesBarCard import KA1_EventsAndOtherRevenuesBarCard
-from .components.KA2_FertilizerActiveIngredientTable import KA2_FertilizerActiveIngredientTable
+from .components.KC2_FertilizerActiveIngredientTable import KC2_FertilizerActiveIngredientTable
 from .components.KA1_QuantitySold import KA1_QuantitySold, build_quantitysold_figure
 from .components.KC2_FertilizerIntensityCard import KC2_FertilizerIntensityCard
 from .components.KC2_PesticideSharePieCard import KC2_PesticideSharePieCard
@@ -366,7 +366,7 @@ def create_kpi_layout(kpi_name, ll_value):
                     dbc.CardBody([
                         dbc.Row([
                             dbc.Col(KC2_GardensInUseCard("Gardens/Holdings in Use", id="metric-InUse-kc2", living_lab=ll_value, dummy=False), sm=6, md=6),
-                            dbc.Col(KA2_FertilizerActiveIngredientTable("Active Ingredient in Pesticide/Fertilizer Commercial Product", id="metric4-trend-kc2", dummy=True), sm=6, md=6),
+                            dbc.Col(KC2_FertilizerActiveIngredientTable("Active Ingredient in Pesticide/Fertilizer Commercial Product", id="metric-ingredient-kc2", living_lab=ll_value, dummy=False), sm=6, md=6),
                         ])
                     ]),
                 ]), sm=12, md=6),

@@ -1,10 +1,16 @@
 import dash_bootstrap_components as dbc
 from dash import html
+from django.utils.timezone import now
+from django.db.models import Q
+
 from inputReport.models import Input, InputReportDetails  
 
-class KA2_FertilizerActiveIngredientTable(dbc.Card):
-    def __init__(self, title, id, dummy=False):
-        rows = self.build_rows(dummy)
+def current_year():
+    return now().year
+
+class KC2_FertilizerActiveIngredientTable(dbc.Card):
+    def __init__(self, title, id, living_lab, dummy=False):
+        rows = self.build_rows(living_lab, dummy)
 
         table = dbc.Table(
             [
@@ -33,7 +39,7 @@ class KA2_FertilizerActiveIngredientTable(dbc.Card):
             className="mb-3 p-0",
         )
 
-    def build_rows(self, dummy):
+    def build_rows(self, living_lab, dummy):
         if dummy:
             dummy_data = [
                 {"name": "NitroX", "active": "Nitrogen / Phosphorus / Potassium"},
@@ -45,7 +51,13 @@ class KA2_FertilizerActiveIngredientTable(dbc.Card):
                 for d in dummy_data
             ]
 
-        qs = InputReportDetails.objects.select_related("name_input").all()
+        year = current_year()
+
+        qs = InputReportDetails.objects.select_related("name_input").filter(
+                    Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
+                    report_id__city =living_lab,
+                    report_id__application_date__year=year,  
+                )
 
         if not qs.exists():
             return [html.Tr([html.Td("—"), html.Td("—")])]
