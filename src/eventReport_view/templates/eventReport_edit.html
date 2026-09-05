@@ -8,3 +8,10 @@
     {% crispy form %}
 {% endfor %}
 {% endblock %}
+
+{% block participants_block %}
+{{ formset2.management_form }}
+{% for form in formset2 %}
+    {% crispy form %}
+{% endfor %}
+{% endblock %}

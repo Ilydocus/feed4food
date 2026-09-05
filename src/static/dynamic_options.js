@@ -46,14 +46,14 @@ function addItem() {
     totalForms.value = formCount + 1;
 }
 
-function addNewRow() {
-    const template = document.getElementById('form-template').textContent;
-    const container = document.getElementById('form-container');
-    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+function addNewRow(templateId, containerId, totalFormsId) {
+    const template = document.getElementById(templateId).textContent;
+    const container = document.getElementById(containerId);
+    const totalForms = document.getElementById(totalFormsId);
     const formCount = parseInt(totalForms.value, 10);
     const newFormRow = document.createElement('div');
 
-    newFormRow.class = `row`;
+    newFormRow.className = `row`;
     newFormRow.innerHTML = template;
 
     // Append the new row and increment TOTAL_FORMS
@@ -62,8 +62,13 @@ function addNewRow() {
 }
 
 function addGroup() {
-    addNewRow();
+    addNewRow('group-form-template', 'group-form-container', 'id_group-form-TOTAL_FORMS');
     updateGroupOptions();
+}
+
+function addParticipant(){
+    addNewRow('participant-form-template', 'participant-form-container', 'id_participant-form-TOTAL_FORMS');
+    updateGroupOptionsWithDefaultNoGroup();
 }
 
 function addInput() {
@@ -376,7 +381,7 @@ function submitEventForm() {
 
 
     const eventGroupDetails = [];
-    document.querySelectorAll('#form-container > div').forEach((eventInvitedDetailsDiv) => {
+    document.querySelectorAll('#group-form-container > div').forEach((eventInvitedDetailsDiv) => {
         
         const name = eventInvitedDetailsDiv.querySelector('select[name$="name"]').value;
         const number_invited = eventInvitedDetailsDiv.querySelector('input[name$="number_invited"]').value;
@@ -390,6 +395,22 @@ function submitEventForm() {
 
     
     });
+
+    const eventParticipantDetails = [];
+    document.querySelectorAll('#participant-form-container > div').forEach((participantDiv) => {
+        const participant_id = participantDiv.querySelector('input[name$="participant_id"]').value;
+        const group = participantDiv.querySelector('select[name$="group"]').value;
+        const test_result = participantDiv.querySelector('select[name$="test_result"]').value;
+        const event_grade = participantDiv.querySelector('input[name$="event_grade"]').value;
+
+        eventParticipantDetails.push({
+            participant_id: participant_id,
+            group: group,
+            test_result: test_result,
+            event_grade: event_grade,
+        });
+    });
+
     fetch('', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 
@@ -399,7 +420,7 @@ function submitEventForm() {
             event_name: event_name.value, event_loc: event_loc.value, event_type: event_type.value,
             event_desc: event_desc.value, event_costs: event_costs.value, event_costs_desc: event_costs_desc.value,
             event_revenues: event_revenues.value, event_revenues_desc: event_revenues_desc.value, total_invited: total_invited.value,
-            total_participants: total_participants.value, eventGroupDetails: eventGroupDetails
+            total_participants: total_participants.value, eventGroupDetails: eventGroupDetails, eventParticipantDetails: eventParticipantDetails
         })
     })
     .then(response => {
@@ -418,48 +439,56 @@ function submitEventForm() {
     });
 }
 
-function updateGroupOptions() {
+function updateGroupOptionsGeneric(containerSelector, emptyLabel) {
     const citySelect = document.getElementById('id_city');
-    const groupSelects = document.querySelectorAll('.group-name-select');
-    //const groupSelects = document.getElementById('id_name');
-    
+    const groupSelects = document.querySelectorAll(`${containerSelector} .group-name-select`);
+
     if (!citySelect.value) {
-        // Clear all group select options if no city selected
         groupSelects.forEach(select => {
-            select.innerHTML = '<option value="">---------</option>';
+            select.innerHTML = `<option value="">------------</option>`;
         });
         return;
     }
-    
-    // Make AJAX request to get filtered groups
+
     fetch(`/demographicReport/get-groups-by-city/?city=${citySelect.value}`, {
         method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-        }
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(response => response.json())
     .then(data => {
-        // Update all group select dropdowns
         groupSelects.forEach(select => {
             const currentValue = select.value;
-            //console.log('Current value before clearing:', currentValue);
-            select.innerHTML = '<option value=""> Select group </option>';
-            
+
+            select.innerHTML = '';
+
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = emptyLabel;
+            if (currentValue === '') {
+                emptyOption.selected = true;
+            }
+            select.appendChild(emptyOption);
+
             data.groups.forEach(group => {
                 const option = document.createElement('option');
-                option.value = group.name;
+                option.value = group.pk;
                 option.textContent = group.name;
-                if (group.name === currentValue) {
+                if (String(option.value) === String(currentValue)) {
                     option.selected = true;
                 }
                 select.appendChild(option);
             });
         });
     })
-    .catch(error => {
-        console.error('Error fetching groups:', error);
-    });
+    .catch(error => console.error('Error fetching groups:', error));
+}
+
+function updateGroupOptions() {
+    updateGroupOptionsGeneric('#group-form-container', 'Select group');
+}
+
+function updateGroupOptionsWithDefaultNoGroup() {
+    updateGroupOptionsGeneric('#participant-form-container', 'Not part of an underrepresented group');
 }
 
 // Update group options when new forms are added dynamically

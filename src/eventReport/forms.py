@@ -1,4 +1,4 @@
-from .models import EventReport, EventPersonDetails, UnderrepresentedGroup
+from .models import EventReport, EventPersonDetails, UnderrepresentedGroup, EventParticipantDetails
 from core import reportUtils
 from django import forms
 from django.forms.widgets import Select
@@ -32,7 +32,7 @@ class EventReportForm(forms.ModelForm):
 
         self.fields['city'].widget.attrs.update({
             'id': 'id_city',
-            'onchange': 'updateGroupOptions()',
+            'onchange': 'updateGroupOptions(); updateGroupOptionsWithDefaultNoGroup();'
         })
 
         self.helper.layout = Layout(
@@ -96,10 +96,10 @@ class EventPersonDetailsForm(forms.ModelForm):
     class Meta:
         model = EventPersonDetails
         fields = ["name", "number_invited", "number_participant"]
-
-    number_invited = forms.IntegerField(label="Number of invited persons for this group")
-    number_participant = forms.IntegerField(label="Number of participants for this group")
-    
+        labels = {
+                    "number_invited": "Number of invited persons for this group",
+                    "number_participant": "Number of participants for this group",
+                }   
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -128,6 +128,64 @@ class EventPersonDetailsForm(forms.ModelForm):
                 ),
                 Column(
                     Field("number_participant", wrapper_class="d-flex align-items-center"),
+                    css_class="col-md-3",
+                ),
+                Column(
+                    Button(
+                        "delete",
+                        "Delete",
+                        css_class="btn btn-danger",
+                        onclick="deleteRow(this)",
+                    ),
+                    css_class="col-md-3",
+                ),
+            )
+        )
+
+class EventParticipantDetailsForm(forms.ModelForm):
+    class Meta:
+        model = EventParticipantDetails
+        fields = ["participant_id", "group", "test_result", "event_grade"]
+        labels = {
+            "test_result": "Participant's test result",
+            "event_grade": "Grade given to the event by the participant",
+        }    
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['group'].empty_label = 'Not part of an underrepresented group'
+        
+        # Add CSS class for JavaScript targeting
+        self.fields['group'].widget.attrs.update({
+            'class': 'group-name-select'
+        })
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+        self.helper.form_tag = False
+        #self.fields['name'].choices = get_underrepresentedgroup_choices()
+
+        self.helper.layout = Layout(
+            Row(
+                Column(
+                    Field(
+                        "participant_id",
+                        wrapper_class="d-flex align-items-center",
+                    ),
+                    css_class="col-md-3",
+                ),
+                Column(
+                    Field(
+                        "group",
+                        wrapper_class="d-flex align-items-center",
+                    ),
+                    css_class="col-md-3",
+                ),
+                Column(
+                    Field("test_result", wrapper_class="d-flex align-items-center"),
+                    css_class="col-md-3",
+                ),
+                Column(
+                    Field("event_grade", wrapper_class="d-flex align-items-center"),
                     css_class="col-md-3",
                 ),
                 Column(

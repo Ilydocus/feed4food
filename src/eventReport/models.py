@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from demographicReport.models import UnderrepresentedGroup
 
+from decimal import Decimal
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class EventReport(models.Model):
@@ -49,6 +51,18 @@ class EventPersonDetails(models.Model):
     )
     number_invited = models.IntegerField()
     number_participant = models.IntegerField()
+
+class EventParticipantDetails(models.Model):
+    class EventTestResultsOptions(models.TextChoices):
+            test_passed = 'PASS', 'Passed'
+            test_failed = 'FAIL', 'Failed'
+    participant_id = models.IntegerField()
+    group = models.ForeignKey(UnderrepresentedGroup, on_delete=models.CASCADE, null=True, blank=True)
+    report_id = models.ForeignKey(
+        EventReport, on_delete=models.CASCADE, related_name="participants"
+    )
+    test_result = models.CharField(max_length=100,choices=EventTestResultsOptions)
+    event_grade = models.DecimalField(max_digits=3, decimal_places=1,validators=[MinValueValidator(Decimal("0.0")), MaxValueValidator(Decimal("10.0"))],) #TODO Restrict to 0-10
 
 
 

@@ -38,6 +38,16 @@
             {% endfor %}
         </ul>
     </div>
+    <h2>Participant details</h2>
+    <div class="centered-list">
+        <ul>
+            {% for report_item2 in report.participants.all %}
+            <li>Participant id {{ report_item2.participant_id }}, 
+                from group {% if report_item2.group %}{{ report_item2.group.name }}{% else %}Not part of an underrepresented group{% endif %} : 
+                test result is {{ report_item2.test_result }}, grade given to the event is {{ report_item2.event_grade }} </li>
+            {% endfor %}
+        </ul>
+    </div>
 
     <div class="container">
         <div class="row justify-content-center g-4 mt-4">

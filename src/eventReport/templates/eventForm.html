@@ -30,17 +30,30 @@
                 {% csrf_token %}
                 {% block report_block %} {% crispy event_form %} {% endblock %}
                 <h3>Detail per group </h3>
-                <div id="form-container">
-                    <script type="application/json" id="form-template">
+                <div id="group-form-container">
+                    <script type="application/json" id="group-form-template">
                         {% crispy eventGroupList_form %}
                     </script>
                     {% block groups_block %}
-                    <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS">
+                    <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_group-form-TOTAL_FORMS">
                     {% endblock %}
                 </div>
-                <button type="button" id="add-item" class="btn btn-secondary" onclick="addGroup()">Add underrepresented group</button>
+                <button type="button" id="group-add-item" class="btn btn-secondary" onclick="addGroup()">Add underrepresented group</button>
                 
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <h3>Participants details </h3>
+                <div id="participant-form-container">
+                    <script type="application/json" id="participant-form-template">
+                        {% crispy eventParticipantList_form %}
+                    </script>
+                    {% block participants_block %}
+                    <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_participant-form-TOTAL_FORMS">
+                    {% endblock %}
+                </div>
+                <button type="button" id="participant-add-item" class="btn btn-secondary" onclick="addParticipant()">Add participant details</button>
+                
+                <div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
             </form>
         </div>    
     </div>
@@ -52,6 +65,7 @@
             // If city is already selected on page load, update group options
             if (citySelect.value) {
                 updateGroupOptions();
+                updateGroupOptionsWithDefaultNoGroup();
             }
         }
     }); 

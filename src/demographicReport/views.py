@@ -18,7 +18,7 @@ def get_groups_by_city(request):
     # Get the groups registered to this city
     groups = UnderrepresentedGroup.objects.filter(
         living_lab=city  
-    ).values('name')
+    ).values('pk', 'name')
     
     return JsonResponse({
         'groups': list(groups)
