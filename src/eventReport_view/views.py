@@ -83,10 +83,10 @@ def edit_report(request, report_id):
                 'event_grade': item.event_grade,
             })
         formset = formset_factory(EventPersonDetailsForm, extra=0)(
-            initial=initial_data
+            initial=initial_data, prefix='group-form'
         )
         formset2 = formset_factory(EventParticipantDetailsForm, extra=0)(
-                    initial=initial_data2
+                    initial=initial_data2, prefix='participant-form'
                 )
         return render(
             request,
