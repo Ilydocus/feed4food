@@ -51,13 +51,12 @@ function addNewRow(templateId, containerId, totalFormsId) {
     const container = document.getElementById(containerId);
     const totalForms = document.getElementById(totalFormsId);
     const formCount = parseInt(totalForms.value, 10);
-    const newFormRow = document.createElement('div');
+    
+    // Parse the template into real DOM nodes without adding an extra wrapper
+    const temp = document.createElement('template');
+    temp.innerHTML = template.trim();
 
-    newFormRow.className = `row`;
-    newFormRow.innerHTML = template;
-
-    // Append the new row and increment TOTAL_FORMS
-    container.appendChild(newFormRow);
+    container.appendChild(temp.content);
     totalForms.value = formCount + 1;
 }
 
@@ -393,7 +392,10 @@ function submitEventForm() {
     const eventGroupDetails = [];
     document.querySelectorAll('#group-form-container > div').forEach((eventInvitedDetailsDiv) => {
         
-        const name = eventInvitedDetailsDiv.querySelector('select[name$="name"]').value;
+        const nameEl = eventInvitedDetailsDiv.querySelector('select[name$="name"]');
+        if (!nameEl) return; // skip rows without the expected field
+
+        const name = nameEl.value;
         const number_invited = eventInvitedDetailsDiv.querySelector('input[name$="number_invited"]').value;
         const number_participant = eventInvitedDetailsDiv.querySelector('input[name$="number_participant"]').value;
 
@@ -409,7 +411,11 @@ function submitEventForm() {
     const eventParticipantDetails = [];
     document.querySelectorAll('#participant-form-container > div').forEach((participantDiv) => {
         const participant_id = participantDiv.querySelector('input[name$="participant_id"]').value;
-        const group = participantDiv.querySelector('select[name$="group"]').value;
+        
+        const groupEl = participantDiv.querySelector('select[name$="group"]');
+        if (!groupEl) return; // skip rows without the expected field
+
+        const group = groupEl.value;
         const test_result = participantDiv.querySelector('select[name$="test_result"]').value;
         const event_grade = participantDiv.querySelector('input[name$="event_grade"]').value;
 
