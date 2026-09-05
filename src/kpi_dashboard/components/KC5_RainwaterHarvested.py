@@ -3,10 +3,11 @@ from dash import html, dcc
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
+from django.utils.timezone import now
 from waterReport.models import WaterReportRainfall
 
 
-def load_rainfall_data(dummy=False):
+def load_rainfall_data(living_lab, dummy=False):
     if dummy:
         data = [
             {"month": "Jan-2025", "quantity": 120},
@@ -17,7 +18,11 @@ def load_rainfall_data(dummy=False):
         ]
         return pd.DataFrame(data)
 
-    qs = WaterReportRainfall.objects.all()
+    year=now().year
+    qs = WaterReportRainfall.objects.filter(
+        report_id__city=living_lab,
+        start_date__year=year
+    )
 
     rows = [
         {
@@ -33,8 +38,8 @@ def load_rainfall_data(dummy=False):
     return pd.DataFrame(rows)
 
 
-def build_rainwater_figure(chart_type="bar", dummy=False):
-    df = load_rainfall_data(dummy=dummy)
+def build_rainwater_figure(living_lab, chart_type="bar", dummy=False):
+    df = load_rainfall_data(living_lab, dummy=dummy)
 
     if df.empty:
         return go.Figure()
@@ -69,9 +74,9 @@ def build_rainwater_figure(chart_type="bar", dummy=False):
     return fig
 
 
-class KA5_RainwaterCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        fig = build_rainwater_figure("bar", dummy=dummy)
+class KC5_RainwaterCard(dbc.Card):
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        fig = build_rainwater_figure(chart_type="bar", living_lab=living_lab, dummy=dummy)
 
         super().__init__(
             children=[

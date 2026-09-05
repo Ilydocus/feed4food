@@ -16,8 +16,8 @@ from .components.KA1_Costs import KA1_CostsCard, build_costs_figure
 from .components.KA1_Funding import KA1_FundingCard
 from .components.KA5_IrrigationWaterUse import KA5_WaterUseCard, build_wateruse_figure
 from .components.KC2_GardensInUse import KC2_GardensInUseCard
-from .components.KA5_RainwaterHarvested import KA5_RainwaterCard, build_rainwater_figure
-from .components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
+from .components.KC5_RainwaterHarvested import KC5_RainwaterCard, build_rainwater_figure
+from .components.KC5_YearlyWaterCard import KC5_YearlyWaterCard
 from .components.KA1_BalanceCard import KA1_BalanceCard 
 from .components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard, build_monthly_breakdown_figure
 from .components.KC2_AreaChemicalCard import KC2_AreaChemicalCard
@@ -319,13 +319,13 @@ def create_kpi_layout(kpi_name, ll_value):
             dbc.Row([
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Water Reuse")),
-                    dbc.CardBody([KA5_YearlyWaterCard("Irrigation Details", id="graph1-kc5", dummy=True)]),
+                    dbc.CardBody([KC5_YearlyWaterCard("Irrigation Details", id="graph1-kc5", living_lab=ll_value, dummy=True)]),
                 ]), sm=12, md=12),
             ], className="mb-4"),
             dbc.Row([
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Rainwater Harvested")),
-                    dbc.CardBody([KA5_RainwaterCard("Rainwater Harvested", id="graph2-kc5", dummy=True)]),
+                    dbc.CardBody([KC5_RainwaterCard("Rainwater Harvested", id="graph2-kc5", living_lab=ll_value, dummy=False)]),
                 ]), sm=12, md=6),
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Irrigation Water Use per Source")),
@@ -491,9 +491,10 @@ def callback_update_plantscultivated_chart(chart_type, living_lab):
 @app.callback(
     Output({"type": "rainwater-graph", "index": MATCH}, "figure"),
     Input({"type": "rainwater-graph-mode", "index": MATCH}, "value"),
+    Input('ll-selector', 'value'),
 )
-def callback_update_rainwater_chart(chart_type):
-    return build_rainwater_figure(chart_type=chart_type, dummy=False)
+def callback_update_rainwater_chart(chart_type, living_lab):
+    return build_rainwater_figure(chart_type=chart_type, living_lab=living_lab, dummy=False)
 
 @app.callback(
     Output({"type": "wateruse-graph", "index": MATCH}, "figure"),
