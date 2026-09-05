@@ -33,6 +33,7 @@ from .components.KA1_QuantitySold import KA1_QuantitySold, build_quantitysold_fi
 from .components.KA2_FertilizerIntensityCard import KA2_FertilizerIntensityCard
 from .components.KA2_PesticideSharePieCard import KA2_PesticideSharePieCard
 from .components.KC1P_Extent import KC1P_ExtentCard, build_training_extent_figure, DEFAULT_TRAINING_EXTENT_OTHER_TARGET, DEFAULT_TRAINING_EXTENT_TOTAL_TARGET
+from .components.KC1P_Attractivity import KC1P_AttractivityCard, build_training_attractivity_figure, DEFAULT_TRAINING_ATTRACTIVITY_OTHER_TARGET, DEFAULT_TRAINING_ATTRACTIVITY_TOTAL_TARGET
 from .components.KC4_NativeCultivationCard import KC4_NativeCultivationCard
 
 # ─────────────────────────────────────────────
@@ -403,9 +404,15 @@ def create_kpi_layout(kpi_name, ll_value):
     elif kpi_name == 'kc1p':
         return html.Div([
             dbc.Row([
-                dbc.Col(KC1P_ExtentCard(title="Extent of the training", id="extent-kc1p", living_lab=ll_value,dummy=False), #Check wether the title appears as I want to
+                dbc.Col(KC1P_ExtentCard(title="Extent of the training", id="extent-kc1p", living_lab=ll_value,dummy=False), 
                     sm=12, md=6),
-                dbc.Col(KC1P_ExtentCard(title="Extent2 of the training", id="extent-kc1p-2", living_lab=ll_value,dummy=False), #Check wether the title appears as I want to
+                dbc.Col(KC1P_AttractivityCard(title="Attractivity of the training", id="attractivity-kc1p", living_lab=ll_value,dummy=False), 
+                                    sm=12, md=6),                          
+            ]),
+            dbc.Row([
+                 dbc.Col(KC1P_ExtentCard(title="Extent of the training", id="extent-kc1p-3", living_lab=ll_value,dummy=False), #Check wether the title appears as I want to
+                    sm=12, md=6),
+                dbc.Col(KC1P_ExtentCard(title="Extent2 of the training", id="extent-kc1p-4", living_lab=ll_value,dummy=False), #Check wether the title appears as I want to
                                     sm=12, md=6),                          
             ]),
         ])
@@ -986,3 +993,20 @@ def update_extent_graph(selected_group, stored_data, city_targets):
         target = city_targets.get('other', DEFAULT_TRAINING_EXTENT_OTHER_TARGET)
 
     return build_training_extent_figure(df, selected_group, target)
+
+@app.callback(
+    Output({"type": "attractivity-graph", "index": MATCH}, "figure"),
+    Input({"type": "group-toggle", "index": MATCH}, "value"),
+    State({"type": "attractivity-data", "index": MATCH}, "data"),
+    State({"type": "attractivity-target", "index": MATCH}, "data"),
+)
+def update_attractivity_graph(selected_group, stored_data, city_targets):
+    df = pd.DataFrame(stored_data)
+    city_targets = city_targets or {}
+
+    if selected_group == 'Total population':
+        target = city_targets.get('total', DEFAULT_TRAINING_ATTRACTIVITY_TOTAL_TARGET)
+    else:
+        target = city_targets.get('other', DEFAULT_TRAINING_ATTRACTIVITY_OTHER_TARGET)
+
+    return build_training_attractivity_figure(df, selected_group, target)
