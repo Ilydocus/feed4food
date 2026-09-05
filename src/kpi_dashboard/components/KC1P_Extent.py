@@ -31,15 +31,15 @@ def load_training_extent_data(living_lab):
     today = now()
     year = today.year
 
-    # Get the data from the reports
-    qs = EventReport.objects.filter(city=living_lab, event_date__year=year)
+    # # Get the data from the reports
+    # qs = EventReport.objects.filter(city=living_lab, event_date__year=year)
 
-    rows = [
-        {
-            "total_participants": r.total_participants,
-        }
-        for r in qs
-    ]
+    # rows = [
+    #     {
+    #         "total_participants": r.total_participants,
+    #     }
+    #     for r in qs
+    # ]
 
     # For the demographic, get the latest data for this year
     latest_report = DemographicReport.objects.filter(city=living_lab, data_date__year=year).order_by('-data_date', '-creation_time').prefetch_related('perunderrepresentedgroups__name').first()
@@ -175,7 +175,7 @@ def build_training_extent_figure(df, group, target):
     fig.update_layout(
         margin=dict(l=20, r=20, t=40, b=20),
         annotations=[dict(
-            text=f"{participants} / {population} participants — target {target}%",
+            text=f"{participants}  participants / {population} (existing population) — target {target}%",
             x=0.5, y=0.05,
             xref="paper", yref="paper",
             showarrow=False,
