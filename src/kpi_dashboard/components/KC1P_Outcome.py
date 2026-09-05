@@ -63,7 +63,7 @@ def load_training_outcome_data(living_lab):
 
     for g in per_group:
         rows.append({
-            'group': g['group__name'] or 'unknown',
+            'group': g['group__name'] or 'Not part of an underrepresented group',
             'count': g['count'],
             'passed': g['passed'],
         })
