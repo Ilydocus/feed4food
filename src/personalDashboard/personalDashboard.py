@@ -11,7 +11,7 @@ import pandas as pd
 from kpi_dashboard.components.KA1_Costs import KA1_CostsCard, build_costs_figure
 from kpi_dashboard.components.KA1_Funding import KA1_FundingCard
 from kpi_dashboard.components.KA5_IrrigationWaterUse import KA5_WaterUseCard, build_wateruse_figure
-from kpi_dashboard.components.KA2_MetricCard_2 import KA2_MetricCard
+from kpi_dashboard.components.KC2_GardensInUse import KC2_GardensInUseCard
 from kpi_dashboard.components.KA5_RainwaterHarvested import KA5_RainwaterCard, build_rainwater_figure
 from kpi_dashboard.components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
 from kpi_dashboard.components.KA1_BalanceCard import KA1_BalanceCard 

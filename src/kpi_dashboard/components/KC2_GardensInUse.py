@@ -1,10 +1,29 @@
 import dash_bootstrap_components as dbc
 from dash import html
+from django.utils.timezone import now
+
+from cultivationReport.models import CultivationReport
+
+def current_year():
+    return now().year
+
+def load_total_gardens_in_use(living_lab, dummy=False):
+    if dummy:
+        return 9
+    year = current_year()
+    return set(
+        CultivationReport.objects
+        .filter(
+            city=living_lab, 
+            cultivation_date__year=year)
+        .values_list("garden", flat=True)
+        .distinct()
+    )
 
 
-class KA2_MetricCard(dbc.Card):
-    def __init__(self, title, id, dummy=False):
-        value = "9" if dummy else "-"
+class KC2_GardensInUseCard(dbc.Card):
+    def __init__(self, title, id, living_lab, dummy=False):
+        value = len(load_total_gardens_in_use(living_lab, dummy=dummy))
 
         super().__init__(
             children=[
@@ -23,7 +42,7 @@ class KA2_MetricCard(dbc.Card):
                             style={"fontWeight": "700"},
                         ),
                         html.P(
-                            title,
+                            "Gardens/Holdings in Use have a cultivation report for the current year",
                             id={"type": "metric-text", "index": id},
                             className="text-muted mt-1",
                         ),
