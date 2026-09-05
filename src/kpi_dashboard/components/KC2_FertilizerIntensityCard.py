@@ -3,7 +3,6 @@ from dash import html
 from django.utils.timezone import now
 from django.db.models import Q, Sum
 
-from productionReport.models import ProductionReportDetails
 from inputReport.models import InputReportDetails
 
 
