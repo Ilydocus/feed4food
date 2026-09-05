@@ -20,7 +20,7 @@ from .components.KA5_RainwaterHarvested import KA5_RainwaterCard, build_rainwate
 from .components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
 from .components.KA1_BalanceCard import KA1_BalanceCard 
 from .components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard, build_monthly_breakdown_figure
-from .components.KA2_AreaChemicalCard import KA2_AreaChemicalCard
+from .components.KC2_AreaChemicalCard import KC2_AreaChemicalCard
 from .components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
 from .components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard, build_plants_cultivated_figure
 from .components.KA2_ChemicalUsePerProductCard import KA2_ChemicalUsePerProductCard
@@ -355,7 +355,7 @@ def create_kpi_layout(kpi_name, ll_value):
                     dbc.CardHeader(html.H4("Cultivated Area")),
                     dbc.CardBody([
                         dbc.Row([
-                            dbc.Col(KA2_AreaChemicalCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2", dummy=True), sm=6, md=6),
+                            dbc.Col(KC2_AreaChemicalCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric-area-kc2", living_lab=ll_value, dummy=False), sm=6, md=6),
                             dbc.Col(KA2_FertilizerIntensityCard("Quantity of Chemical Fertilizer/Pesticides over Cultivated Area", id="metric1-kc2", dummy=True), sm=6, md=6),
                         ]),
                         dbc.Row([dbc.Col(KA2_PesticideSharePieCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2", dummy=True), sm=12, md=12)])

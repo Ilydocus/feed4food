@@ -16,7 +16,7 @@ from kpi_dashboard.components.KA5_RainwaterHarvested import KA5_RainwaterCard, b
 from kpi_dashboard.components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
 from kpi_dashboard.components.KA1_BalanceCard import KA1_BalanceCard 
 from kpi_dashboard.components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard, build_monthly_breakdown_figure
-from kpi_dashboard.components.KA2_AreaChemicalCard import KA2_AreaChemicalCard
+from kpi_dashboard.components.KC2_AreaChemicalCard import KC2_AreaChemicalCard
 from kpi_dashboard.components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
 from kpi_dashboard.components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard, build_plants_cultivated_figure
 from kpi_dashboard.components.KA2_ChemicalUsePerProductCard import KA2_ChemicalUsePerProductCard
@@ -74,7 +74,7 @@ def make_treated_card():
                 dbc.Col(dbc.Card([
                     dbc.CardHeader(html.H4("Treated Areas")),
                     dbc.CardBody([
-                        KA2_AreaChemicalCard("Surface Treated with Chemicals", id="areatreat-gard", dummy=True),
+                        #KA2_AreaChemicalCard("Surface Treated with Chemicals", id="areatreat-gard", dummy=True),
                         KA2_PlantChemicalCard("Plants Treated with Chemicals", id="planttreat-gard", dummy=True),
                     ]),
                 ]), sm=12, md=4),

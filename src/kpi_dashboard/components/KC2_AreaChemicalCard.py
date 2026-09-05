@@ -1,8 +1,9 @@
 import dash_bootstrap_components as dbc
 from dash import html
 from django.utils.timezone import now
+from django.db.models import Q, Sum
 
-from productionReport.models import ProductionReportDetails
+from cultivationReport.models import CultivationReport
 from inputReport.models import InputReportDetails
 
 
@@ -10,60 +11,75 @@ def current_year():
     return now().year
 
 
-def load_surface_area_current_year(dummy=False):
-    if dummy:
-        return [1, 2, 3]
-    return (
-        ProductionReportDetails.objects
-        .filter(name__cultivation_type="m²")
-        .values_list("report_id__garden", flat=True)
-        .distinct()
-    )
+# def load_surface_area_current_year(dummy=False):
+#     if dummy:
+#         return [1, 2, 3]
+#     return (
+#         ProductionReportDetails.objects
+#         .filter(name__cultivation_type="m²")
+#         .values_list("report_id__garden", flat=True)
+#         .distinct()
+#     )
 
 
-def load_total_surface_area(dummy=False):
+def load_total_cultivated_area(living_lab, dummy=False):
     if dummy:
         return 1200
-    qs = (
-        ProductionReportDetails.objects
-        .filter(name__cultivation_type="m²")
-        .values_list("quantity", flat=True)
+    latest_report = (
+        CultivationReport.objects
+        .filter(city=living_lab)
+        .order_by("-cultivation_date", "-creation_time")
+        .first()
     )
-    return sum(qs) if qs else 0
+
+    if not latest_report:
+        return 0
+
+    total = (
+        latest_report.details
+        .aggregate(total=Sum("area_cultivated"))
+        ["total"]
+    )
+
+    return total or 0
 
 
-def load_chemical_treated_area(dummy=False):
+def load_chemical_treated_area(living_lab, dummy=False):
     if dummy:
         return 450
     year = current_year()
-    surface_gardens = load_surface_area_current_year()
-    qs = (
+    #surface_gardens = load_surface_area_current_year()
+    total = (
         InputReportDetails.objects
         .filter(
+            Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
+            report_id__city=living_lab,
             report_id__application_date__year=year,
-            name_input__input_category__in=["Chemical Fertilizer", "Pesticide"],
-            report_id__garden__in=surface_gardens,
+            #report_id__garden__in=surface_gardens,
         )
-        .values_list("area", flat=True)
+        .aggregate(total=Sum("area"))
+        ["total"]
     )
-    return sum(qs) if qs else 0
+    return total or 0
 
 
-def load_last_year_treated_area(dummy=False):
+def load_last_year_treated_area(living_lab, dummy=False):
     if dummy:
         return 380  # placeholder
     year = current_year() - 1
-    surface_gardens = load_surface_area_current_year()
-    qs = (
-        InputReportDetails.objects
-        .filter(
-            report_id__application_date__year=year,
-            name_input__input_category__in=["Chemical Fertilizer", "Pesticide"],
-            report_id__garden__in=surface_gardens,
+    #surface_gardens = load_surface_area_current_year()
+    total = (
+            InputReportDetails.objects
+            .filter(
+               Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
+                report_id__city=living_lab,
+                report_id__application_date__year=year,
+                #report_id__garden__in=surface_gardens,
+            )
+            .aggregate(total=Sum("area"))
+            ["total"]
         )
-        .values_list("area", flat=True)
-    )
-    return sum(qs) if qs else 0
+    return total or 0
 
 
 def trend_arrow(curr, prev):
@@ -74,11 +90,12 @@ def trend_arrow(curr, prev):
     return "►", "gray"
 
 
-class KA2_AreaChemicalCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        treated = load_chemical_treated_area(dummy=dummy)
-        total = load_total_surface_area(dummy=dummy)
-        last_year = load_last_year_treated_area(dummy=dummy)
+class KC2_AreaChemicalCard(dbc.Card):
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        
+        treated = load_chemical_treated_area(living_lab, dummy=dummy)
+        total = load_total_cultivated_area(living_lab, dummy=dummy)
+        last_year = load_last_year_treated_area(living_lab, dummy=dummy)
 
         percentage = (treated / total * 100) if total else 0
 
@@ -120,8 +137,12 @@ class KA2_AreaChemicalCard(dbc.Card):
                         ),
 
                         html.Div(
-                            f"Compared to same period last year",
+                            f"Compared to last year",
                             className="text-muted mt-1",
+                        ),
+                        html.Div(
+                                f"Note: treating the same surface twice counts twice",
+                                className="text-muted mt-1",
                         ),
                     ],
                     className="p-3 pt-0",
