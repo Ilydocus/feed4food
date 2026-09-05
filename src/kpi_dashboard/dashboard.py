@@ -34,6 +34,7 @@ from .components.KA2_FertilizerIntensityCard import KA2_FertilizerIntensityCard
 from .components.KA2_PesticideSharePieCard import KA2_PesticideSharePieCard
 from .components.KC1P_Extent import KC1P_ExtentCard, build_training_extent_figure, DEFAULT_TRAINING_EXTENT_OTHER_TARGET, DEFAULT_TRAINING_EXTENT_TOTAL_TARGET
 from .components.KC1P_Attractivity import KC1P_AttractivityCard, build_training_attractivity_figure, DEFAULT_TRAINING_ATTRACTIVITY_OTHER_TARGET, DEFAULT_TRAINING_ATTRACTIVITY_TOTAL_TARGET
+from .components.KC1P_Outcome import KC1P_OutcomeCard, build_training_outcome_figure, DEFAULT_TRAINING_OUTCOME_OTHER_TARGET, DEFAULT_TRAINING_OUTCOME_TOTAL_TARGET
 from .components.KC4_NativeCultivationCard import KC4_NativeCultivationCard
 
 # ─────────────────────────────────────────────
@@ -410,7 +411,7 @@ def create_kpi_layout(kpi_name, ll_value):
                                     sm=12, md=6),                          
             ]),
             dbc.Row([
-                 dbc.Col(KC1P_ExtentCard(title="Extent of the training", id="extent-kc1p-3", living_lab=ll_value,dummy=False), #Check wether the title appears as I want to
+                 dbc.Col(KC1P_OutcomeCard(title="Outcome of the training", id="outcome-kc1p", living_lab=ll_value,dummy=False), #Check wether the title appears as I want to
                     sm=12, md=6),
                 dbc.Col(KC1P_ExtentCard(title="Extent2 of the training", id="extent-kc1p-4", living_lab=ll_value,dummy=False), #Check wether the title appears as I want to
                                     sm=12, md=6),                          
@@ -1010,3 +1011,20 @@ def update_attractivity_graph(selected_group, stored_data, city_targets):
         target = city_targets.get('other', DEFAULT_TRAINING_ATTRACTIVITY_OTHER_TARGET)
 
     return build_training_attractivity_figure(df, selected_group, target)
+
+@app.callback(
+    Output({"type": "outcome-graph", "index": MATCH}, "figure"),
+    Input({"type": "group-toggle", "index": MATCH}, "value"),
+    State({"type": "outcome-data", "index": MATCH}, "data"),
+    State({"type": "outcome-target", "index": MATCH}, "data"),
+)
+def update_outcome_graph(selected_group, stored_data, city_targets):
+    df = pd.DataFrame(stored_data)
+    city_targets = city_targets or {}
+
+    if selected_group == 'Total population':
+        target = city_targets.get('total', DEFAULT_TRAINING_OUTCOME_TOTAL_TARGET)
+    else:
+        target = city_targets.get('other', DEFAULT_TRAINING_OUTCOME_OTHER_TARGET)
+
+    return build_training_outcome_figure(df, selected_group, target)
