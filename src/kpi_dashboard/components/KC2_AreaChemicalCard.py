@@ -68,9 +68,9 @@ def load_last_year_treated_area(living_lab, dummy=False):
 
 def trend_arrow(curr, prev):
     if curr > prev:
-        return "▲", "green"
+        return "▲", "red"
     if curr < prev:
-        return "▼", "red"
+        return "▼", "green"
     return "►", "gray"
 
 
