@@ -5,18 +5,33 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 
+from django.utils.timezone import now
 from django.db.models import Count, Sum, F, Q
 
 from productionReport.models import ProductionReportDetails, Product, ProductionReport
+
+CITY_NATIVE_VARIETIES_TARGETS = {
+    'Strovolos': {'total': 5},
+    'Drama': {'total': 5},
+    'Bucharest': {'total': 5},
+}
+
+DEFAULT_NATIVE_VARIETIES_TOTAL_TARGET = 5  
+
+def get_native_varieties_target(city):
+    city_targets = CITY_NATIVE_VARIETIES_TARGETS.get(city, {})
+    return city_targets.get('total', DEFAULT_NATIVE_VARIETIES_TOTAL_TARGET)
 
 
 def load_native_cultivation_data(ll):
     #Get the data from the database
     # First get all the production reports for the actual LL, group them by product
+    year = now().year
     qs = (
         ProductionReportDetails.objects
         .filter(
-            report_id__city=ll
+            report_id__city=ll,
+            report_id__production_date__year = year
         )
         .values(
             "name"#Group by product
@@ -58,8 +73,7 @@ def load_native_cultivation_data(ll):
     return df
 
 
-def build_native_progress_figure(dummy=False, ll='strovolos'):
-    #TODO remove the dummy
+def build_native_progress_figure(ll, target, dummy=False):
     if dummy:
         dummy_data = [ #lab, native, total, target
             ('Bucharest', 12, 20, 15),
@@ -76,9 +90,8 @@ def build_native_progress_figure(dummy=False, ll='strovolos'):
             return px.bar(title="No data available")
 
     value = df["native_products"][0]
-    target = 10 #TODO make it more generic
     max_val=df["total_products"][0]
-    total=df["total_products"][0]
+    #total=df["total_products"][0]
 
     if max_val is None:
         max_val = max(value, target) * 1.5 if max(value, target) > 0 else 20 #?
@@ -117,26 +130,14 @@ def build_native_progress_figure(dummy=False, ll='strovolos'):
 
 
 class KC4_NativeCultivationCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False, ll='strovolos'):
-        fig = build_native_progress_figure(dummy=dummy, ll=ll)
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        default_target = get_native_varieties_target(living_lab)
+        fig = build_native_progress_figure(dummy=dummy, ll=living_lab, target=default_target)
 
         #For the text under, could probably done in a nicer way
-        if dummy:
-            dummy_data = [ #lab, native, total, target
-                ('Bucharest', 12, 20, 15),
-                ('Strovolos',  8, 14, 10),
-                ('Drama',     15, 25, 20),
-            ]
-
-            df = pd.DataFrame(dummy_data, columns=["LL", "native", "total", "target"])
-        else:
-            df = load_native_cultivation_data(ll)
-
-        if df.empty:
-            return px.bar(title="No data available")
+        df = load_native_cultivation_data(living_lab)
 
         value = df["native_products"][0]
-        target = 10
         total=df["total_products"][0]
 
         super().__init__(
@@ -159,8 +160,8 @@ class KC4_NativeCultivationCard(dbc.Card):
                     delay_show=750,
                 ),
                 html.P(
-                    f"{'✅ Target met' if value >= target else '❌ Below target'}  ({value}/{total} varieties are native)",
-                    style={"color": "green" if value >= target else "red", "text-align": "center", "font-weight": "bold"},
+                    f"{'✅ Target met' if value >= default_target else '❌ Below target'}  ({value}/{total} varieties are native)",
+                    style={"color": "green" if value >= default_target else "red", "text-align": "center", "font-weight": "bold"},
                 ),
                 dbc.Modal(
                     [

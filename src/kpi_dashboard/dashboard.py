@@ -304,13 +304,13 @@ def create_kpi_layout(kpi_name, ll_value):
         return html.Div([
             dbc.Row([
                 dbc.Col(dbc.Card([
-                    dbc.CardHeader(html.H4("Native varieties cultivation progress")),
+                    dbc.CardHeader(html.H4("Native varieties cultivation")),
                     dbc.CardBody([
                         dbc.Row([
-                            dbc.Col(KC4_NativeCultivationCard("Progress", id="metric1-kc4", dummy=False, ll=ll_value), sm=6, md=6),
+                            dbc.Col(KC4_NativeCultivationCard("Progress", id="metric1-kc4", dummy=False, living_lab=ll_value), sm=12, md=12),
                         ]),
                     ]),
-                ]), sm=6, md=6),      
+                ]), sm=12, md=12),      
             ]),
         ])
 
