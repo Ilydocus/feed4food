@@ -22,7 +22,7 @@ from .components.KA1_BalanceCard import KA1_BalanceCard
 from .components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard, build_monthly_breakdown_figure
 from .components.KC2_AreaChemicalCard import KC2_AreaChemicalCard
 from .components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
-from .components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard, build_plants_cultivated_figure
+from .components.KC2_PlantsPerProductCard import KC2_PlantsPerProductCard, build_plants_cultivated_figure
 from .components.KC2_ChemicalUsePerProductCard import KC2_ChemicalUsePerProductCard
 from .components.KC2_SurfaceCultivatedPerProductCard import KC2_SurfaceCultivatedPerProductCard, build_surface_cultivation_figure
 from .components.KA1_EventRevenueScatterCard import KA1_EventRevenueScatterCard
@@ -379,7 +379,7 @@ def create_kpi_layout(kpi_name, ll_value):
                             dbc.Row([
                                 dbc.Col(KC2_ChemicalUsePerProductCard("Quantity of Chemical Fertilizer/Pesticide Used per Commercial Product", id="metric-chemicaluse-kc2", living_lab=ll_value, dummy=False), sm=4, md=4),
                                 dbc.Col(KC2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated per Product", id="metric-surfaceActively-kc2", living_lab=ll_value, dummy=False), sm=4, md=4),
-                                dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated per Product", id="graph3-kc2", dummy=True), sm=4, md=4),
+                                dbc.Col(KC2_PlantsPerProductCard("Plants Actively Cultivated per Product", id="graph3-kc2", living_lab=ll_value, dummy=False), sm=4, md=4),
                             ])
                         ])
                     ]), sm=12, style={'marginTop': '20px'}
@@ -861,9 +861,10 @@ def callback_update_surfacecultivated_chart(chart_type, living_lab):
 @app.callback(
     Output({"type": "plantscultivated-graph", "index": MATCH}, "figure"),
     Input({"type": "plantscultivated-graph-mode", "index": MATCH}, "value"),
+    Input('ll-selector', 'value'),
 )
-def callback_update_plantscultivated_chart(chart_type):
-    return build_plants_cultivated_figure(chart_type=chart_type, dummy=False)
+def callback_update_plantscultivated_chart(chart_type, living_lab):
+    return build_plants_cultivated_figure(chart_type=chart_type, living_lab=living_lab, dummy=False)
 
 @app.callback(
     Output({"type": "rainwater-graph", "index": MATCH}, "figure"),

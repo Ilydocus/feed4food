@@ -16,7 +16,7 @@ from kpi_dashboard.components.KA5_YearlyWaterCard import KA5_YearlyWaterCard
 from kpi_dashboard.components.KA1_BalanceCard import KA1_BalanceCard 
 from kpi_dashboard.components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard, build_monthly_breakdown_figure
 from kpi_dashboard.components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
-from kpi_dashboard.components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard, build_plants_cultivated_figure
+from kpi_dashboard.components.KC2_PlantsPerProductCard import KC2_PlantsPerProductCard, build_plants_cultivated_figure
 from kpi_dashboard.components.KC2_ChemicalUsePerProductCard import KC2_ChemicalUsePerProductCard
 from kpi_dashboard.components.KC2_SurfaceCultivatedPerProductCard import KC2_SurfaceCultivatedPerProductCard, build_surface_cultivation_figure
 from kpi_dashboard.components.KA1_EventRevenueScatterCard import KA1_EventRevenueScatterCard
@@ -84,7 +84,7 @@ def make_cultivation_card():
                 dbc.Row([
                     #dbc.Col(KA2_ChemicalUsePerProductCard("Chemical Use per Product", id="chemical-gard", dummy=True), sm=12, md=4),
                     #dbc.Col(KA2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated", id="surface-gard", dummy=True), sm=12, md=4),
-                    dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated", id="plants-gard", dummy=True), sm=12, md=4),
+                    #dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated", id="plants-gard", dummy=True), sm=12, md=4),
                 ])
             ]),
         ]), sm=12, md=12),
