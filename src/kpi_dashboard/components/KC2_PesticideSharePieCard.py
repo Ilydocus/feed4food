@@ -1,8 +1,9 @@
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 from django.utils.timezone import now
+from django.db.models import Q
 
-from productionReport.models import ProductionReport
+from cultivationReport.models import CultivationReport
 from inputReport.models import InputReportDetails
 
 
@@ -10,37 +11,40 @@ def current_year():
     return now().year
 
 
-def load_total_gardens_in_use(dummy=False):
+def load_total_gardens_in_use(living_lab, dummy=False):
     if dummy:
         return {"Garden A", "Garden B", "Garden C", "Garden D"}
     year = current_year()
     return set(
-        ProductionReport.objects
-        .filter(production_date__year=year)
+        CultivationReport.objects
+        .filter(
+            city=living_lab, 
+            cultivation_date__year=year)
         .values_list("garden", flat=True)
         .distinct()
     )
 
 
-def load_gardens_using_pesticides(dummy=False):
+def load_gardens_using_pesticides(living_lab, dummy=False):
     if dummy:
         return {"Garden A", "Garden C"}
     year = current_year()
     return set(
         InputReportDetails.objects
         .filter(
-            report_id__application_date__year=year,
-            name_input__input_category="Pesticide",
+            Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
+            report_id__city =living_lab,
+            report_id__application_date__year=year,  
         )
         .values_list("report_id__garden", flat=True)
         .distinct()
     )
 
 
-class KA2_PesticideSharePieCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        total_gardens = load_total_gardens_in_use(dummy=dummy)
-        pesticide_gardens = load_gardens_using_pesticides(dummy=dummy)
+class KC2_PesticideSharePieCard(dbc.Card):
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        total_gardens = load_total_gardens_in_use(living_lab, dummy=dummy)
+        pesticide_gardens = load_gardens_using_pesticides(living_lab, dummy=dummy)
 
         using_pesticides = len(pesticide_gardens & total_gardens)
         not_using = len(total_gardens) - using_pesticides

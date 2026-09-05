@@ -27,7 +27,7 @@ from kpi_dashboard.components.KA1_EventsAndOtherRevenuesBarCard import KA1_Event
 from kpi_dashboard.components.KA2_FertilizerActiveIngredientTable import KA2_FertilizerActiveIngredientTable
 from kpi_dashboard.components.KA1_QuantitySold import KA1_QuantitySold, build_quantitysold_figure
 from kpi_dashboard.components.KC2_FertilizerIntensityCard import KC2_FertilizerIntensityCard
-from kpi_dashboard.components.KA2_PesticideSharePieCard import KA2_PesticideSharePieCard
+from kpi_dashboard.components.KC2_PesticideSharePieCard import KC2_PesticideSharePieCard
 
 
 # ─────────────────────────────────────────────

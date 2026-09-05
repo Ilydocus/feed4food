@@ -31,7 +31,7 @@ from .components.KA1_EventsAndOtherRevenuesBarCard import KA1_EventsAndOtherReve
 from .components.KA2_FertilizerActiveIngredientTable import KA2_FertilizerActiveIngredientTable
 from .components.KA1_QuantitySold import KA1_QuantitySold, build_quantitysold_figure
 from .components.KC2_FertilizerIntensityCard import KC2_FertilizerIntensityCard
-from .components.KA2_PesticideSharePieCard import KA2_PesticideSharePieCard
+from .components.KC2_PesticideSharePieCard import KC2_PesticideSharePieCard
 from .components.KC1P_Extent import KC1P_ExtentCard, build_training_extent_figure, DEFAULT_TRAINING_EXTENT_OTHER_TARGET, DEFAULT_TRAINING_EXTENT_TOTAL_TARGET
 from .components.KC1P_Attractivity import KC1P_AttractivityCard, build_training_attractivity_figure, DEFAULT_TRAINING_ATTRACTIVITY_OTHER_TARGET, DEFAULT_TRAINING_ATTRACTIVITY_TOTAL_TARGET
 from .components.KC1P_Outcome import KC1P_OutcomeCard, build_training_outcome_figure, DEFAULT_TRAINING_OUTCOME_OTHER_TARGET, DEFAULT_TRAINING_OUTCOME_TOTAL_TARGET
@@ -358,7 +358,7 @@ def create_kpi_layout(kpi_name, ll_value):
                             dbc.Col(KC2_AreaChemicalCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric-area-kc2", living_lab=ll_value, dummy=False), sm=6, md=6),
                             dbc.Col(KC2_FertilizerIntensityCard("Quantity of Chemical Fertilizer/Pesticides over Cultivated Area", id="metric-intensity-kc2", living_lab=ll_value, dummy=False), sm=6, md=6),
                         ]),
-                        dbc.Row([dbc.Col(KA2_PesticideSharePieCard("Surface of Cultivated Area Treated with Chemical Fertilizers/Pesticides", id="metric1-kc2", dummy=True), sm=12, md=12)])
+                        dbc.Row([dbc.Col(KC2_PesticideSharePieCard("Share of Gardens Treated with Chemical Fertilizers/Pesticides", id="metric-sharepie-kc2", living_lab=ll_value, dummy=False), sm=12, md=12)])
                     ]),
                 ]), sm=12, md=6),
                 dbc.Col(dbc.Card([
