@@ -1,6 +1,7 @@
 import dash_bootstrap_components as dbc
 from dash import html
 from django.utils.timezone import now
+from django.db.models import Q, Sum
 
 from productionReport.models import ProductionReportDetails
 from inputReport.models import InputReportDetails
@@ -9,69 +10,57 @@ from inputReport.models import InputReportDetails
 def current_year():
     return now().year
 
-
-def load_surface_area_current_year(dummy=False):
-    if dummy:
-        return [1, 2, 3]
-    return (
-        ProductionReportDetails.objects
-        .filter(name__cultivation_type="m²")
-        .values_list("report_id__garden", flat=True)
-        .distinct()
-    )
-
-
-def load_chemical_fertilizer_area(dummy=False, year=None):
+def load_chemical_fertilizer_area(living_lab, dummy=False, year=None):
     if dummy:
         return 450 if year == current_year() else 360
-    surface_gardens = load_surface_area_current_year()
-    qs = (
+    total = (
         InputReportDetails.objects
         .filter(
+            Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
+            report_id__city=living_lab,
             report_id__application_date__year=year,
-            name_input__input_category="Chemical Fertilizer",
-            report_id__garden__in=surface_gardens,
         )
-        .values_list("area", flat=True)
+        .aggregate(total=Sum("area"))
+        ["total"]
     )
-    return sum(qs) if qs else 0
+    return total or 0
 
 
-def load_chemical_fertilizer_quantity(dummy=False, year=None):
+def load_chemical_fertilizer_quantity(living_lab, dummy=False, year=None):
     if dummy:
         return 900 if year == current_year() else 760
-    surface_gardens = load_surface_area_current_year()
-    qs = (
-        InputReportDetails.objects
-        .filter(
-            report_id__application_date__year=year,
-            name_input__input_category="Chemical Fertilizer",
-            report_id__garden__in=surface_gardens,
+    total = (
+            InputReportDetails.objects
+            .filter(
+                Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
+                report_id__city=living_lab,
+                report_id__application_date__year=year,
+            )
+            .aggregate(total=Sum("quantity"))
+            ["total"]
         )
-        .values_list("quantity", flat=True)
-    )
-    return sum(qs) if qs else 0
+    return total or 0
 
 
 def trend_arrow(curr, prev):
     if curr > prev:
-        return "▲", "green"
+        return "▲", "red"
     if curr < prev:
-        return "▼", "red"
+        return "▼", "green"
     return "►", "gray"
 
 
-class KA2_FertilizerIntensityCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
+class KC2_FertilizerIntensityCard(dbc.Card):
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
         year = current_year()
         last_year = year - 1
 
-        quantity = load_chemical_fertilizer_quantity(dummy=dummy, year=year)
-        area = load_chemical_fertilizer_area(dummy=dummy, year=year)
+        quantity = load_chemical_fertilizer_quantity(living_lab, dummy=dummy, year=year)
+        area = load_chemical_fertilizer_area(living_lab, dummy=dummy, year=year)
         intensity = (quantity / area) if area else 0
 
-        prev_quantity = load_chemical_fertilizer_quantity(dummy=dummy, year=last_year)
-        prev_area = load_chemical_fertilizer_area(dummy=dummy, year=last_year)
+        prev_quantity = load_chemical_fertilizer_quantity(living_lab, dummy=dummy, year=last_year)
+        prev_area = load_chemical_fertilizer_area(living_lab, dummy=dummy, year=last_year)
         prev_intensity = (prev_quantity / prev_area) if prev_area else 0
 
         arrow, arrow_color = trend_arrow(intensity, prev_intensity)
@@ -112,7 +101,12 @@ class KA2_FertilizerIntensityCard(dbc.Card):
                         ),
 
                         html.Div(
-                            "Compared to same period last year",
+                            "Compared to last year",
+                            className="text-muted mt-1",
+                        ),
+
+                        html.Div(
+                            "Note: treating the same surface twice counts twice",
                             className="text-muted mt-1",
                         ),
                     ],
