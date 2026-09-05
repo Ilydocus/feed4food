@@ -1,6 +1,6 @@
 from productionReport.models import ProductionReport, ProductionReportDetails, Product
 from dash import dcc, html
-from dash.dependencies import Input, Output, MATCH
+from dash.dependencies import Input, Output, MATCH, State
 import plotly.graph_objs as go
 import plotly.express as px
 from django_plotly_dash import DjangoDash
@@ -32,6 +32,7 @@ from .components.KA2_FertilizerActiveIngredientTable import KA2_FertilizerActive
 from .components.KA1_QuantitySold import KA1_QuantitySold, build_quantitysold_figure
 from .components.KA2_FertilizerIntensityCard import KA2_FertilizerIntensityCard
 from .components.KA2_PesticideSharePieCard import KA2_PesticideSharePieCard
+from .components.KC1P_Extent import KC1P_ExtentCard, build_training_extent_figure, DEFAULT_TRAINING_EXTENT_OTHER_TARGET, DEFAULT_TRAINING_EXTENT_TOTAL_TARGET
 from .components.KC4_NativeCultivationCard import KC4_NativeCultivationCard
 
 # ─────────────────────────────────────────────
@@ -400,7 +401,14 @@ def create_kpi_layout(kpi_name, ll_value):
         ])
 
     elif kpi_name == 'kc1p':
-        return html.Div(kc1p_content, style={"background-color": "white", "padding": "20px", "border-radius": "8px"})
+        return html.Div([
+            dbc.Row([
+                dbc.Col(KC1P_ExtentCard(title="Extent of the training", id="extent-kc1p", living_lab=ll_value,dummy=False), #Check wether the title appears as I want to
+                    sm=12, md=6),
+                dbc.Col(KC1P_ExtentCard(title="Extent2 of the training", id="extent-kc1p-2", living_lab=ll_value,dummy=False), #Check wether the title appears as I want to
+                                    sm=12, md=6),                          
+            ]),
+        ])
 
     elif kpi_name == 'kc2':
         return html.Div([
@@ -961,3 +969,20 @@ def callback_update_rainwater_chart(chart_type):
 )
 def callback_update_wateruse_chart(chart_type):
     return build_wateruse_figure(chart_type=chart_type, dummy=False)
+
+@app.callback(
+    Output({"type": "extent-graph", "index": MATCH}, "figure"),
+    Input({"type": "group-toggle", "index": MATCH}, "value"),
+    State({"type": "extent-data", "index": MATCH}, "data"),
+    State({"type": "extent-target", "index": MATCH}, "data"),
+)
+def update_extent_graph(selected_group, stored_data, city_targets):
+    df = pd.DataFrame(stored_data)
+    city_targets = city_targets or {}
+
+    if selected_group == 'Total population':
+        target = city_targets.get('total', DEFAULT_TRAINING_EXTENT_TOTAL_TARGET)
+    else:
+        target = city_targets.get('other', DEFAULT_TRAINING_EXTENT_OTHER_TARGET)
+
+    return build_training_extent_figure(df, selected_group, target)
