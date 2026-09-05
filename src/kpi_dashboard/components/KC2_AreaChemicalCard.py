@@ -10,18 +10,6 @@ from inputReport.models import InputReportDetails
 def current_year():
     return now().year
 
-
-# def load_surface_area_current_year(dummy=False):
-#     if dummy:
-#         return [1, 2, 3]
-#     return (
-#         ProductionReportDetails.objects
-#         .filter(name__cultivation_type="m²")
-#         .values_list("report_id__garden", flat=True)
-#         .distinct()
-#     )
-
-
 def load_total_cultivated_area(living_lab, dummy=False):
     if dummy:
         return 1200
@@ -48,14 +36,12 @@ def load_chemical_treated_area(living_lab, dummy=False):
     if dummy:
         return 450
     year = current_year()
-    #surface_gardens = load_surface_area_current_year()
     total = (
         InputReportDetails.objects
         .filter(
             Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
             report_id__city=living_lab,
             report_id__application_date__year=year,
-            #report_id__garden__in=surface_gardens,
         )
         .aggregate(total=Sum("area"))
         ["total"]
@@ -67,14 +53,12 @@ def load_last_year_treated_area(living_lab, dummy=False):
     if dummy:
         return 380  # placeholder
     year = current_year() - 1
-    #surface_gardens = load_surface_area_current_year()
     total = (
             InputReportDetails.objects
             .filter(
                Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
                 report_id__city=living_lab,
                 report_id__application_date__year=year,
-                #report_id__garden__in=surface_gardens,
             )
             .aggregate(total=Sum("area"))
             ["total"]
