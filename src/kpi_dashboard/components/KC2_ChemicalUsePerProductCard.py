@@ -3,20 +3,27 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 import pandas as pd
 import plotly.express as px
+from django.db.models import Q
+from django.utils.timezone import now
 
 from inputReport.models import InputReportDetails
 
 
-def load_chemical_quantity_data():
+def load_chemical_quantity_data(living_lab):
+
+    year = now().year
+
     qs = (
         InputReportDetails.objects
         .select_related("report_id", "name_product", "name_input")
         .filter(
-            name_input__input_category="Synthetic"
+            Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
+            report_id__city =living_lab,
+            report_id__application_date__year=year, 
         )
         .values(
             "report_id__application_date",
-            "name_product__name",
+            "name_input__name",
             "quantity",
         )
     )
@@ -27,7 +34,7 @@ def load_chemical_quantity_data():
     df = pd.DataFrame(qs)
     df = df.rename(columns={
         "report_id__application_date": "date",
-        "name_product__name": "product"
+        "name_input__name": "product"
     })
 
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
@@ -37,7 +44,7 @@ def load_chemical_quantity_data():
     return df
 
 
-def build_chemical_bar_figure(dummy=False):
+def build_chemical_bar_figure(living_lab, dummy=False):
     if dummy:
         dummy_data = [
             {"month_year": "2025-01", "product": "NitroX",  "quantity": 40},
@@ -65,7 +72,7 @@ def build_chemical_bar_figure(dummy=False):
         df["month_year"] = pd.to_datetime(df["month_year"])
 
     else:
-        df = load_chemical_quantity_data()
+        df = load_chemical_quantity_data(living_lab)
 
         if df.empty:
             return px.bar(title="No data available")
@@ -92,9 +99,9 @@ def build_chemical_bar_figure(dummy=False):
     return fig
 
 
-class KA2_ChemicalUsePerProductCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        fig = build_chemical_bar_figure(dummy=dummy)
+class KC2_ChemicalUsePerProductCard(dbc.Card):
+    def __init__(self, title, id, living_lab, description=None, dummy=False):
+        fig = build_chemical_bar_figure(living_lab, dummy=dummy)
 
         super().__init__(
             children=[

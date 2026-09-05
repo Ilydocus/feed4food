@@ -23,7 +23,7 @@ from .components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard, build
 from .components.KC2_AreaChemicalCard import KC2_AreaChemicalCard
 from .components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
 from .components.KA2_PlantsPerProductCard import KA2_PlantsPerProductCard, build_plants_cultivated_figure
-from .components.KA2_ChemicalUsePerProductCard import KA2_ChemicalUsePerProductCard
+from .components.KC2_ChemicalUsePerProductCard import KC2_ChemicalUsePerProductCard
 from .components.KA2_SurfaceCultivatedPerProductCard import KA2_SurfaceCultivatedPerProductCard, build_surface_cultivation_figure
 from .components.KA1_EventRevenueScatterCard import KA1_EventRevenueScatterCard
 from .components.KA1_SalesRevenueLineCard import KA1_SalesRevenueLineCard, build_sales_figure
@@ -377,7 +377,7 @@ def create_kpi_layout(kpi_name, ll_value):
                         dbc.CardHeader(html.H4("Usage Overview")),
                         dbc.CardBody([
                             dbc.Row([
-                                dbc.Col(KA2_ChemicalUsePerProductCard("Quantity of Chemical Fertilizer/Pesticide Used per Commercial Product", id="graph1-kc2", dummy=True), sm=4, md=4),
+                                dbc.Col(KC2_ChemicalUsePerProductCard("Quantity of Chemical Fertilizer/Pesticide Used per Commercial Product", id="metric-chemicaluse-kc2", living_lab=ll_value, dummy=False), sm=4, md=4),
                                 dbc.Col(KA2_SurfaceCultivatedPerProductCard("Surface Actively Cultivated per Product", id="graph2-kc2", dummy=True), sm=4, md=4),
                                 dbc.Col(KA2_PlantsPerProductCard("Plants Actively Cultivated per Product", id="graph3-kc2", dummy=True), sm=4, md=4),
                             ])
