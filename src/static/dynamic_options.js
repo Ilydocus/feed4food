@@ -72,7 +72,7 @@ function addParticipant(){
 }
 
 function addInput() {
-    addNewRow();
+    addNewRow('form-template', 'form-container', 'id_form-TOTAL_FORMS');
     updateInputChoices();
 }
 
@@ -225,15 +225,25 @@ function updateCurrency(currencySelect) {
 }
 
 function deleteRow(button) {
-    const container = document.getElementById('form-container');
-    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
-    const formCount = parseInt(totalForms.value, 10);
+    const row = button.closest('.row');
+    if (!row) return;
 
-    // Remove the row
-    button.closest(".row").remove();
+    // Walk up to find the ancestor container whose id ends in "-container"
+    let container = row.parentElement;
+    while (container && !(container.id && container.id.endsWith('-container'))) {
+        container = container.parentElement;
+    }
 
-    // Decrement TOTAL_FORMS
-    totalForms.value = formCount - 1;
+    row.remove();
+
+    if (container) {
+        const prefix = container.id.replace(/-container$/, ''); // e.g. 'group-form', 'form', 'participant-form'
+        const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+        if (totalForms) {
+            const formCount = parseInt(totalForms.value, 10);
+            totalForms.value = formCount - 1;
+        }
+    }
 }
 
 function submitProductionForm() {
@@ -507,7 +517,7 @@ function submitDemographicForm() {
 
 
     const demographicGroupDetails = [];
-    document.querySelectorAll('#form-container > div').forEach((groupDetailsDiv) => {
+    document.querySelectorAll('#group-form-container > div').forEach((groupDetailsDiv) => {
         
         const name = groupDetailsDiv.querySelector('select[name$="name"]').value;
         const population = groupDetailsDiv.querySelector('input[name$="population"]').value;

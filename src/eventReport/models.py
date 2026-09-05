@@ -29,6 +29,7 @@ class EventReport(models.Model):
     event_name = models.CharField(max_length=100,default="")
     event_loc = models.CharField(max_length=100,choices=EventLocationOptions)
     event_type = models.CharField(max_length=100,choices=EventTypeOptions)
+    #event_nat = models.BooleanField() #TODO adding "native varieties checkbox" feature
     event_desc = models.CharField(max_length=500,default="")
     
     #Participants

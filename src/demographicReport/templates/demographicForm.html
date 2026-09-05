@@ -31,12 +31,12 @@
                 {% block report_block %} {% crispy demographicForm %} {% endblock %}
 
                 <h3>Population per underrepresented group </h3>
-                <div id="form-container">
-                    <script type="application/json" id="form-template">
+                <div id="group-form-container">
+                    <script type="application/json" id="group-form-template">
                         {% crispy demographicGroup_form %}
                     </script>
                     {% block groups_block %}
-                    <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_form-TOTAL_FORMS">
+                    <input type="hidden" name="form-TOTAL_FORMS" value="0" id="id_group-form-TOTAL_FORMS">
                     {% endblock %}
                 </div>
                 <button type="button" id="add-item" class="btn btn-secondary" onclick="addGroup()">Add underrepresented group</button>
