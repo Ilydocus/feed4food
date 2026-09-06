@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% block title %}Feed4Food - Review Row{% endblock %}
+
+{% block content %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2">
+<h2 class="text-white center mt-4">Review Row {{ row.source_row_number }} ({{ row.action_type }})</h2>
+
+<div class="container mt-4" style="max-width: 700px;">
+
+  {% if row.message %}
+  <div class="alert alert-warning">{{ row.message }}</div>
+  {% endif %}
+
+  <h5 class="text-white">Raw value (from Excel)</h5>
+  <pre class="text-white">{{ row.raw_data }}</pre>
+
+  {% if row.corrected_data.suggestions %}
+  <h5 class="text-white mt-3">Did you mean?</h5>
+  <div class="mb-3">
+    {% for suggestion in row.corrected_data.suggestions %}
+    <form method="post" action="{% url 'uploadFile_suggestion' row.id %}" class="d-inline">
+      {% csrf_token %}
+      <input type="hidden" name="field" value="{{ row.corrected_data.suggestion_field }}">
+      <input type="hidden" name="value" value="{{ suggestion }}">
+      <button type="submit" class="btn btn-sm btn-outline-info me-2 mb-2">{{ suggestion }}</button>
+    </form>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if split_preview %}
+  <h5 class="text-white mt-4">Split into {{ split_preview|length }} rows - review and save</h5>
+  <form method="post" action="{% url 'uploadFile_confirm_split' row.id %}">
+    {% csrf_token %}
+
+    {% for item in split_preview %}
+    <div class="border rounded p-3 mb-3">
+      <h6 class="text-white">Row {{ forloop.counter }}</h6>
+      {% for key, value in item.fields.items %}
+      <div class="mb-2">
+        <label class="form-label text-white">{{ key }}</label>
+        <input type="text" class="form-control" name="row__{{ item.index }}__{{ key }}" value="{{ value|default_if_none:"" }}">
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-success">Save All</button>
+    <a href="{% url 'uploadFile_details' row.id %}" class="btn btn-outline-secondary">Cancel</a>
+  </form>
+
+  {% else %}
+
+  <h5 class="text-white">Edit and re-check</h5>
+  <form method="post" action="{% url 'uploadFile_edit' row.id %}">
+    {% csrf_token %}
+
+    {% for key, value in row.corrected_data.items %}
+    {% if key != "matched_product" and key != "matched_input" and key != "resolved_quantity" and key != "suggestions" and key != "suggestion_field" and key != "report_type" and key != "planting_unit" %}
+    <div class="mb-3">
+      <label class="form-label text-white">{{ key }}</label>
+      <input type="text" class="form-control" name="{{ key }}" value="{{ value|default_if_none:"" }}">
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <button type="submit" class="btn btn-success">Save and Re-check</button>
+  </form>
+
+  <form method="post" action="{% url 'uploadFile_reject' row.id %}" class="mt-2">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Reject Row</button>
+  </form>
+
+  {% if can_split %}
+  <a href="?split=1" class="btn btn-warning mt-2">Split into Multiple Rows</a>
+  <span class="form-text text-white">This row's crop field looks like it contains more than one crop.</span>
+  {% endif %}
+
+  {% endif %}
+
+  <a href="{% url 'uploadFile_list_batch' row.upload_batch %}" class="btn btn-outline-secondary mt-3">Back to batch</a>
+
+</div>
+{% endblock %}

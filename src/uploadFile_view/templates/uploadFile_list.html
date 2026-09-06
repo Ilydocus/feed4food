@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% block title %}Feed4Food - Review Upload{% endblock %}
+
+{% block content %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<img src="{% static 'images/Feed4Food_Logo_02.png' %}" alt="Feed4Food logo" class="center2">
+<h2 class="center mt-4">Review Upload</h2>
+
+<div class="container mt-4">
+
+  {% if can_commit %}
+  <form method="post" action="{% url 'uploadFile_commit' batch_id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success mb-3">Commit to Database</button>
+  </form>
+  {% else %}
+  <div class="alert alert-warning">
+    {{ blocking_count }} row(s) still need review before this batch can be entered into the database.
+  </div>
+  {% endif %}
+
+  {% for status, rows in grouped.items %}
+  <h5 class="mt-4 text-white">{{ status|title }} ({{ rows|length }})</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Row #</th>
+        <th>Action Type</th>
+        <th>Message</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.source_row_number }}</td>
+        <td>{{ row.action_type }}</td>
+        <td>{{ row.message }}</td>
+        <td>
+          {% if row.status == "needs_review" %}
+          <a href="{% url 'uploadFile_details' row.id %}" class="btn btn-sm btn-info">Review</a>
+          {% else %}
+          <a href="{% url 'uploadFile_details' row.id %}" class="btn btn-sm btn-outline-secondary">View</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+
+</div>
+{% endblock %}

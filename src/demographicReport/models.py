@@ -8,9 +8,15 @@ class UnderrepresentedGroup(models.Model):
         max_length=100, blank=False, null=False, unique=True, primary_key=True
     )
     living_lab = models.CharField(max_length=100, choices=reportUtils.PartnerCities)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
+
     def __str__(self):
-        return self.name
+            return self.name
 
 class DemographicReport(models.Model):
         

@@ -414,7 +414,6 @@ def update_kpi_layout(kpi_value, ll_value):
 # KC4? CALLBACKS
 # ─────────────────────────────────────────────
 
-
 @app.callback(
     Output({"type": "metric-value", "index": "species-count"}, "children"),
     Input("kpi-selector", "value"),
