@@ -40,7 +40,7 @@ def comparison(prev_year, curr_year, color):
                 return "+/-0%", "=", "black"
 
 class KA1_BalanceCard(dbc.Card):
-    def __init__(self, id, living_lab, dummy=False):
+    def __init__(self, id, living_lab, user=None, dummy=False, personalDashboard=False):
         today = now()
         year = today.year
         month = today.month
@@ -51,7 +51,15 @@ class KA1_BalanceCard(dbc.Card):
             total_revenue, total_expenses, net_balance = build_dummy_balance_data()
             year = 2025  # keep dummy consistent
         else:
-            qs = FinancialReport.objects.filter(year=year, city=living_lab)
+            if personalDashboard:
+                qs = FinancialReport.objects.filter(year=year, user=user)
+                sales_qs = SalesReportDetails.objects.filter(report_id__user=user, sale_date__year=year)
+                events_qs = EventReport.objects.filter(user=user, event_date__year=year)
+            else:
+                qs = FinancialReport.objects.filter(year=year, city=living_lab)
+                sales_qs = SalesReportDetails.objects.filter(report_id__city=living_lab, sale_date__year=year)
+                events_qs = EventReport.objects.filter(city=living_lab, event_date__year=year)
+
             totals = qs.aggregate(
                 exp_workforce=Sum("exp_workforce"),
                 exp_purchase=Sum("exp_purchase"),
@@ -63,10 +71,8 @@ class KA1_BalanceCard(dbc.Card):
             )
             fin = {k: float(v or 0) for k, v in totals.items()}
 
-            sales_qs = SalesReportDetails.objects.filter(report_id__city=living_lab, sale_date__year=year)
             sales_revenue = float(sales_qs.aggregate(total=Sum(F("quantity") * F("price")))["total"] or 0)
 
-            events_qs = qs = EventReport.objects.filter(city=living_lab, event_date__year=year)
             events_revenue = float(events_qs.aggregate(total=Sum("event_revenues"))["total"] or 0)
             events_costs = float(events_qs.aggregate(total=Sum("event_costs"))["total"] or 0)
 
@@ -94,7 +100,15 @@ class KA1_BalanceCard(dbc.Card):
             bal_pct, bal_arrow, bal_color = dummy_bal_trend()
         else:
             # Get reference values from previous year (compare year cy)
-            qs_cy = FinancialReport.objects.filter(city=living_lab, year=compare_year)
+            if personalDashboard:
+                qs_cy = FinancialReport.objects.filter(user=user, year=compare_year)
+                sales_qs_cy = SalesReportDetails.objects.filter(report_id__user=user, sale_date__year=compare_year)
+                events_qs_cy = EventReport.objects.filter(user=user, event_date__year=compare_year)
+            else:
+                qs_cy = FinancialReport.objects.filter(city=living_lab, year=compare_year)
+                sales_qs_cy = SalesReportDetails.objects.filter(report_id__city=living_lab, sale_date__year=compare_year)
+                events_qs_cy = EventReport.objects.filter(city=living_lab, event_date__year=compare_year)
+              
             totals_cy = qs_cy.aggregate(
                 exp_workforce=Sum("exp_workforce"),
                 exp_purchase=Sum("exp_purchase"),
@@ -106,10 +120,8 @@ class KA1_BalanceCard(dbc.Card):
             )
             fin_cy = {k: float(v or 0) for k, v in totals_cy.items()}
 
-            sales_qs_cy = SalesReportDetails.objects.filter(report_id__city=living_lab, sale_date__year=compare_year)
             sales_revenue_cy = float(sales_qs_cy.aggregate(total=Sum(F("quantity") * F("price")))["total"] or 0)
 
-            events_qs_cy = qs = EventReport.objects.filter(city=living_lab, event_date__year=compare_year)
             events_revenue_cy = float(events_qs_cy.aggregate(total=Sum("event_revenues"))["total"] or 0)
             events_costs_cy = float(events_qs_cy.aggregate(total=Sum("event_costs"))["total"] or 0)
             

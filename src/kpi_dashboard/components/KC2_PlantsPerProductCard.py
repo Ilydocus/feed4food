@@ -6,15 +6,22 @@ import plotly.express as px
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 from collections import defaultdict
+from django.utils.timezone import now
 
 from cultivationReport.models import CultivationReportDetails, CultivationReport
 
-def load_latest_area_per_product_by_garden_month(living_lab):
+def load_latest_area_per_product_by_garden_month(living_lab, user, personalDashboard):
+
+    year=now().year
 
         # 1. Find all distinct (garden, month) combinations with reports in this city
+    if personalDashboard:
+        qs = CultivationReport.objects.filter(user=user, garden__isnull=False, cultivation_date__isnull=False, cultivation_date__year=year)
+    else:
+        qs = CultivationReport.objects.filter(city=living_lab, garden__isnull=False, cultivation_date__isnull=False, cultivation_date__year=year)
+
     combos = (
-        CultivationReport.objects
-        .filter(city=living_lab, garden__isnull=False, cultivation_date__isnull=False)
+        qs
         .annotate(month_start=TruncMonth("cultivation_date"))
         .values_list("garden_id", "month_start")
         .distinct()
@@ -23,14 +30,23 @@ def load_latest_area_per_product_by_garden_month(living_lab):
     # 2. For each (garden, month) combo, find the latest report and record its month
     report_id_to_month = {}
     for garden_id, month_start in combos:
+        if personalDashboard:
+            qs_2= CultivationReport.objects.filter(
+                            user=user,
+                            garden_id=garden_id,
+                            cultivation_date__year=month_start.year,
+                            cultivation_date__month=month_start.month,
+                        )
+        else:
+            qs_2= CultivationReport.objects.filter(
+                            city=living_lab,
+                            garden_id=garden_id,
+                            cultivation_date__year=month_start.year,
+                            cultivation_date__month=month_start.month,
+                        )
+
         latest_report = (
-            CultivationReport.objects
-            .filter(
-                city=living_lab,
-                garden_id=garden_id,
-                cultivation_date__year=month_start.year,
-                cultivation_date__month=month_start.month,
-            )
+            qs_2
             .order_by("-cultivation_date", "-creation_time")
             .first()
         )
@@ -57,9 +73,9 @@ def load_latest_area_per_product_by_garden_month(living_lab):
 
     return {month: dict(products) for month, products in results.items()}
 
-def load_plants_cultivation_data(living_lab):
+def load_plants_cultivation_data(living_lab, user, personalDashboard):
 
-    monthly_data = load_latest_area_per_product_by_garden_month(living_lab)
+    monthly_data = load_latest_area_per_product_by_garden_month(living_lab, user, personalDashboard)
 
     if not monthly_data:
         return pd.DataFrame(columns=["date", "product", "plants", "month_year"])
@@ -80,7 +96,7 @@ def load_plants_cultivation_data(living_lab):
     return df
 
 
-def build_plants_cultivated_figure(living_lab, chart_type="line", dummy=False):
+def build_plants_cultivated_figure(living_lab, chart_type="line", dummy=False, user=None, personalDashboard=False):
     if dummy:
         dummy_data = [
             {"month_year": "2025-01", "product": "Tomato",    "plants": 120},
@@ -98,7 +114,7 @@ def build_plants_cultivated_figure(living_lab, chart_type="line", dummy=False):
         df["month_year"] = pd.to_datetime(df["month_year"])
 
     else:
-        df = load_plants_cultivation_data(living_lab)
+        df = load_plants_cultivation_data(living_lab, user=user, personalDashboard=personalDashboard)
         if df.empty:
             return px.line(title="No data available")
 
@@ -144,8 +160,8 @@ def build_plants_cultivated_figure(living_lab, chart_type="line", dummy=False):
 
 
 class KC2_PlantsPerProductCard(dbc.Card):
-    def __init__(self, title, id, living_lab, description=None, dummy=False):
-        fig = build_plants_cultivated_figure(living_lab=living_lab, chart_type="line", dummy=dummy)
+    def __init__(self, title, id, living_lab, description=None, dummy=False, user=None, personalDashboard=False):
+        fig = build_plants_cultivated_figure(living_lab=living_lab, chart_type="line", dummy=dummy, user=user, personalDashboard=personalDashboard)
 
         super().__init__(
             children=[

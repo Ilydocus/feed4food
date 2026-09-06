@@ -21,7 +21,7 @@ from .components.KC5_YearlyWaterCard import KC5_YearlyWaterCard
 from .components.KA1_BalanceCard import KA1_BalanceCard 
 from .components.KA1_MonthlyBreakdownCard import KA1_MonthlyBreakdownCard, build_monthly_breakdown_figure
 from .components.KC2_AreaChemicalCard import KC2_AreaChemicalCard
-from .components.KA2_PlantChemicalCard import KA2_PlantChemicalCard
+from .components.KC2_PlantChemicalCard import KC2_PlantChemicalCard
 from .components.KC2_PlantsPerProductCard import KC2_PlantsPerProductCard, build_plants_cultivated_figure
 from .components.KC2_ChemicalUsePerProductCard import KC2_ChemicalUsePerProductCard
 from .components.KC2_SurfaceCultivatedPerProductCard import KC2_SurfaceCultivatedPerProductCard, build_surface_cultivation_figure
@@ -48,66 +48,66 @@ fig = go.Figure()
 
 
 
-def fetch_user_data(item, user_id):
-    user_reports = ProductionReport.objects.filter(user=user_id)
-    report_ids = [report.report_id for report in user_reports]
-    timestamps = [report.creation_time for report in user_reports]
-    date_produced = [report.start_date for report in user_reports]
-    total_quantity = []
-    for report_id in report_ids:
-        detailed_reports = ProductionReportDetails.objects.filter(
-            report_id=report_id, name=item
-        )
-        total_quantity.append(sum([x.quantity for x in detailed_reports]))
-    return date_produced, total_quantity
+# def fetch_user_data(item, user_id):
+#     user_reports = ProductionReport.objects.filter(user=user_id)
+#     report_ids = [report.report_id for report in user_reports]
+#     timestamps = [report.creation_time for report in user_reports]
+#     date_produced = [report.start_date for report in user_reports]
+#     total_quantity = []
+#     for report_id in report_ids:
+#         detailed_reports = ProductionReportDetails.objects.filter(
+#             report_id=report_id, name=item
+#         )
+#         total_quantity.append(sum([x.quantity for x in detailed_reports]))
+#     return date_produced, total_quantity
 
-try:
-    item_options = list(Product.objects.all().values_list("name", flat=True))
-except Exception as e:
-    item_options = []
-item_options2 = ['All varieties']
+# try:
+#     item_options = list(Product.objects.all().values_list("name", flat=True))
+# except Exception as e:
+#     item_options = []
+# item_options2 = ['All varieties']
 
-def make_gauge(value, target, title, max_val=None):
-    """Return a Plotly gauge+number+delta figure."""
-    if max_val is None:
-        max_val = max(value, target) * 1.5 if max(value, target) > 0 else 20
-    delta_val = value - target
-    color = "green" if delta_val >= 0 else "red"
-    fig = go.Figure(go.Indicator(
-        domain={'x': [0, 1], 'y': [0, 1]},
-        value=value,
-        mode="gauge+number+delta",
-        title={'text': title, 'font': {'color': 'black', 'size': 13}},
-        delta={
-            'reference': target,
-            'valueformat': '.0f',
-            'increasing': {'color': 'green'},
-            'decreasing': {'color': 'red'},
-        },
-        gauge={
-            'axis': {'range': [0, max_val], 'tickcolor': 'black'},
-            'bar': {'color': '#1f77b4'},
-            'threshold': {
-                'line': {'color': 'red', 'width': 4},
-                'thickness': 0.75,
-                'value': target,
-            },
-        },
-        number={'font': {'color': 'black'}},
-    ))
-    fig.update_layout(
-        paper_bgcolor='white',
-        font_color='black',
-        margin=dict(t=60, b=20, l=20, r=20),
-        height=220,
-    )
-    return fig
+# def make_gauge(value, target, title, max_val=None):
+#     """Return a Plotly gauge+number+delta figure."""
+#     if max_val is None:
+#         max_val = max(value, target) * 1.5 if max(value, target) > 0 else 20
+#     delta_val = value - target
+#     color = "green" if delta_val >= 0 else "red"
+#     fig = go.Figure(go.Indicator(
+#         domain={'x': [0, 1], 'y': [0, 1]},
+#         value=value,
+#         mode="gauge+number+delta",
+#         title={'text': title, 'font': {'color': 'black', 'size': 13}},
+#         delta={
+#             'reference': target,
+#             'valueformat': '.0f',
+#             'increasing': {'color': 'green'},
+#             'decreasing': {'color': 'red'},
+#         },
+#         gauge={
+#             'axis': {'range': [0, max_val], 'tickcolor': 'black'},
+#             'bar': {'color': '#1f77b4'},
+#             'threshold': {
+#                 'line': {'color': 'red', 'width': 4},
+#                 'thickness': 0.75,
+#                 'value': target,
+#             },
+#         },
+#         number={'font': {'color': 'black'}},
+#     ))
+#     fig.update_layout(
+#         paper_bgcolor='white',
+#         font_color='black',
+#         margin=dict(t=60, b=20, l=20, r=20),
+#         height=220,
+#     )
+#     return fig
 
-KC4_DATA = [
-    ('Bucharest', 12, 20, 15),
-    ('Strovolos',  8, 14, 10),
-    ('Drama',     15, 25, 20),
-]
+# KC4_DATA = [
+#     ('Bucharest', 12, 20, 15),
+#     ('Strovolos',  8, 14, 10),
+#     ('Drama',     15, 25, 20),
+# ]
 
 # kc4_content = [
 #     html.H5("KC4: Native Varieties Cultivation — Progress per Living Lab", style={"color": "black", "padding": "10px"}),

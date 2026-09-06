@@ -9,31 +9,44 @@ from inputReport.models import InputReportDetails
 def current_year():
     return now().year
 
+#TODO This card is currently not working. Needs to filter on living_lab user depending on the dashboard
+#TODO Also need to decide how to count the treated plants, e.g. using the cultivation report? does it actually make sense?
 
-def load_surface_gardens(dummy=False):
-    if dummy:
-        return [1, 2, 3]
-    return (
-        ProductionReportDetails.objects
-        .filter(name__cultivation_type="plants")
-        .values_list("report_id__garden", flat=True)
-        .distinct()
-    )
+# def load_surface_gardens(living_lab, dummy=False, user=None, personalDashboard=False):
+#     if dummy:
+#         return [1, 2, 3]
+#     return (
+#         ProductionReportDetails.objects
+#         .filter(name__cultivation_type="plants")
+#         .values_list("report_id__garden", flat=True)
+#         .distinct()
+#     )
 
 
-def load_total_plants(dummy=False):
+def load_total_plants(living_lab, dummy=False, user=None, personalDashboard=False):
     if dummy:
         return 15
-    qs = (
-        ProductionReportDetails.objects
-        .filter(name__cultivation_type="plants")
-        .values_list("name", flat=True)
-        .distinct()
-    )
+    if personalDashboard:
+        qs = (
+                ProductionReportDetails.objects
+                .filter(report_id__user=user,
+                        name__cultivation_type="plants")
+                .values_list("name", flat=True)
+                .distinct()
+            )
+    else:
+        qs = (
+                ProductionReportDetails.objects
+                .filter(report_id__city=living_lab,
+                    name__cultivation_type="plants")
+                .values_list("name", flat=True)
+                .distinct()
+            )
+    
     return len(qs)
 
 
-def load_treated_plants(dummy=False):
+def load_treated_plants(living_lab, dummy=False, user=None, personalDashboard=False):
     if dummy:
         return 6
     year = current_year()
@@ -60,7 +73,7 @@ def load_treated_plants(dummy=False):
     return len(qs)
 
 
-def load_treated_plants_last_year(dummy=False):
+def load_treated_plants_last_year(living_lab, dummy=False, user=None, personalDashboard=False):
     if dummy:
         return 4
     year = current_year() - 1
@@ -87,12 +100,12 @@ def load_treated_plants_last_year(dummy=False):
     return len(qs)
 
 
-class KA2_PlantChemicalCard(dbc.Card):
-    def __init__(self, title, id, description=None, dummy=False):
-        treated = load_treated_plants(dummy=dummy)
-        total = load_total_plants(dummy=dummy)
+class KC2_PlantChemicalCard(dbc.Card):
+    def __init__(self, title, id, living_lab, user=None, description=None, dummy=False, personalDashboard=False):
+        treated = load_treated_plants(living_lab=living_lab, user=user, personalDashboard=personalDashboard, dummy=dummy)
+        total = load_total_plants(living_lab=living_lab, user=user, personalDashboard=personalDashboard, dummy=dummy)
 
-        last_year_value = load_treated_plants_last_year(dummy=dummy)
+        last_year_value = load_treated_plants_last_year(living_lab=living_lab, user=user, personalDashboard=personalDashboard, dummy=dummy)
         diff = treated - last_year_value
         arrow = "▲" if diff > 0 else ("▼" if diff < 0 else "▶")
         diff_abs = abs(diff)
@@ -140,7 +153,7 @@ class KA2_PlantChemicalCard(dbc.Card):
                                     className="text-muted",
                                 ),
                                 html.Div(
-                                    "Compared to same period last year",
+                                    "Compared to last year",
                                     className="text-muted mt-1",
                                 ),
                             ]

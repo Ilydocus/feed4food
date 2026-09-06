@@ -17,10 +17,15 @@ MONTH_NAMES = [
 ]
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-def load_kc3_production_data(living_lab):
+def load_kc3_production_data(living_lab, user, personalDashboard):
+
+    if personalDashboard:
+        qs= ProductionReportDetails.objects.filter(report_id__user=user)
+    else:
+        qs= ProductionReportDetails.objects.filter(report_id__city=living_lab)
+
     monthly_kg = (
-        ProductionReportDetails.objects
-        .filter(report_id__city=living_lab)
+        qs
         .annotate(month=TruncMonth('report_id__production_date'))
         .annotate(
             quantity_kg=ExpressionWrapper(
@@ -39,7 +44,7 @@ def load_kc3_production_data(living_lab):
     return df
  
  
-def load_kc3_nutrient_data(living_lab):
+def load_kc3_nutrient_data(living_lab, user, personalDashboard):
     nutrient_fields = list(DAILY_NUTRIENT_REQUIREMENTS.keys())
     aggregations = {
         nutrient: Sum(
@@ -50,9 +55,14 @@ def load_kc3_nutrient_data(living_lab):
         )
         for nutrient in nutrient_fields
     }
+
+    if personalDashboard:
+        qs= ProductionReportDetails.objects.filter(report_id__user=user)
+    else:
+        qs= ProductionReportDetails.objects.filter(report_id__city=living_lab)
+
     monthly = (
-        ProductionReportDetails.objects
-        .filter(report_id__city=living_lab)
+        qs
         .annotate(month=TruncMonth('report_id__production_date'))
         .values('month')
         .annotate(**aggregations)
@@ -65,10 +75,15 @@ def load_kc3_nutrient_data(living_lab):
     return df
  
  
-def load_kc3_colour_data(living_lab):
+def load_kc3_colour_data(living_lab, user, personalDashboard):
+
+    if personalDashboard:
+        qs= ProductionReportDetails.objects.filter(report_id__user=user)
+    else:
+        qs= ProductionReportDetails.objects.filter(report_id__city=living_lab)
+
     kg_by_color = (
-        ProductionReportDetails.objects
-        .filter(report_id__city=living_lab)
+        qs
         .annotate(month=TruncMonth('report_id__production_date'))
         .annotate(
             quantity_kg=ExpressionWrapper(
@@ -234,11 +249,11 @@ def build_kc3_people_figure(nutrient_records, view, selected_year, selected_mont
     return fig, adult_days
 
 class KC3_NutritiousFoodProductionCard(dbc.Card):
-    def __init__(self, title, id, living_lab, description=None, dummy=False, adult_days=1):
+    def __init__(self, title, id, living_lab, user=None, description=None, dummy=False, adult_days=1, personalDashboard=False):
 
-        production_df = load_kc3_production_data(living_lab)
-        nutrient_df = load_kc3_nutrient_data(living_lab)
-        colour_df = load_kc3_colour_data(living_lab)
+        production_df = load_kc3_production_data(living_lab, user=user, personalDashboard=personalDashboard)
+        nutrient_df = load_kc3_nutrient_data(living_lab, user=user, personalDashboard=personalDashboard)
+        colour_df = load_kc3_colour_data(living_lab, user=user, personalDashboard=personalDashboard)
         production_records = _records(production_df)
         nutrient_records = _records(nutrient_df)
         colour_records = _records(colour_df)

@@ -7,7 +7,7 @@ from salesReport.models import SalesReportDetails
 from django.utils.timezone import now
 
 
-def build_quantitysold_figure(living_lab, mode="bar", dummy=False):
+def build_quantitysold_figure(living_lab, mode="bar", dummy=False, user=None, personalDashboard=False):
     if dummy:
         data = [
             {"product": "Tomatoes", "quantity": 40, "price": 2.5, "month": "1-2025"},
@@ -31,7 +31,12 @@ def build_quantitysold_figure(living_lab, mode="bar", dummy=False):
         # Only show for this year
         today = now()
         year = today.year
-        qs = SalesReportDetails.objects.select_related("product").filter(report_id__city=living_lab, sale_date__year=year)
+
+        if personalDashboard:
+            qs = SalesReportDetails.objects.select_related("product").filter(report_id__user=user, sale_date__year=year)
+        else:
+            qs = SalesReportDetails.objects.select_related("product").filter(report_id__city=living_lab, sale_date__year=year)
+        
         if not qs.exists():
             return go.Figure()
 
@@ -81,8 +86,8 @@ def build_quantitysold_figure(living_lab, mode="bar", dummy=False):
 
 
 class KA1_QuantitySold(dbc.Card):
-    def __init__(self, title, id, living_lab, description=None, dummy=False):
-        fig = build_quantitysold_figure(living_lab=living_lab, dummy=dummy)
+    def __init__(self, title, id, living_lab, user = None, description=None, dummy=False, personalDashboard=False):
+        fig = build_quantitysold_figure(living_lab=living_lab, dummy=dummy, user=user, personalDashboard=personalDashboard)
 
         super().__init__(
             children=[

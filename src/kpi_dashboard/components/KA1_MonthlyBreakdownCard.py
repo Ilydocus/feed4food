@@ -8,6 +8,7 @@ import plotly.express as px
 
 from financialReport.models import FinancialReport
 from salesReport.models import SalesReportDetails
+from eventReport.models import EventReport
 
 
 
@@ -72,7 +73,7 @@ def build_dummy_monthly_breakdown_figure(month_key):
 
 
 
-def build_monthly_breakdown_figure(living_lab, month_key="01", dummy=False):
+def build_monthly_breakdown_figure(living_lab, month_key="01", dummy=False, user=None, personalDashboard=False):
     """
     month_key: string "01".."12"
     dummy: if True, return dummy figure for the month_key
@@ -90,7 +91,30 @@ def build_monthly_breakdown_figure(living_lab, month_key="01", dummy=False):
     year = datetime.date.today().year
 
     # original aggregations 
-    fr = FinancialReport.objects.filter(city=living_lab, month=month_key, year=year).aggregate(
+    if personalDashboard:
+        qs = FinancialReport.objects.filter(user=user, month=month_key, year=year)
+        qs_events = EventReport.objects.filter(user=user,
+            event_date__year=year,
+            event_date__month=month,
+        )
+        qs_sales=SalesReportDetails.objects.filter(
+                    report_id__user=user,
+                    sale_date__year=year,
+                    sale_date__month=month,
+                )
+    else:
+        qs = FinancialReport.objects.filter(city=living_lab, month=month_key, year=year)
+        qs_events = EventReport.objects.filter(city=living_lab,
+                    event_date__year=year,
+                    event_date__month=month,
+                )
+        qs_sales=SalesReportDetails.objects.filter(
+                            report_id__city=living_lab,
+                            sale_date__year=year,
+                            sale_date__month=month,
+                        )
+        
+    fr = qs.aggregate(
         workforce=Sum("exp_workforce"),
         purchase=Sum("exp_purchase"),
         other_exp=Sum("exp_others"),
@@ -112,34 +136,20 @@ def build_monthly_breakdown_figure(living_lab, month_key="01", dummy=False):
     other_revenues = nz(fr.get("other_revenues"))
 
     try:
-        from eventReport.models import EventReport
-        events_total = EventReport.objects.filter(
-            city=living_lab,
-            event_date__year=year,
-            event_date__month=month,
-        ).aggregate(t=Sum("event_revenues"))
+        events_total = qs_events.aggregate(t=Sum("event_revenues"))
         events_revenue = nz(events_total.get("t"))
     except Exception:
         events_revenue = 0
 
     try:
-        from eventReport.models import EventReport
-        events_total_c = EventReport.objects.filter(
-            city=living_lab,
-            event_date__year=year,
-            event_date__month=month,
-        ).aggregate(t=Sum("event_costs"))
+        events_total_c = qs_events.aggregate(t=Sum("event_costs"))
         events_cost = nz(events_total_c.get("t"))
     except Exception:
         events_cost = 0
 
     product_sales_total = (
-        SalesReportDetails.objects.filter(
-            report_id__city=living_lab,
-            sale_date__year=year,
-            sale_date__month=month,
-        )
-        .annotate(value=F("quantity") * F("price"))
+        
+        qs_sales.annotate(value=F("quantity") * F("price"))
         .aggregate(total=Sum("value"))
     )
     product_sales = nz(product_sales_total.get("total"))
@@ -200,13 +210,13 @@ def build_monthly_breakdown_figure(living_lab, month_key="01", dummy=False):
 
 
 class KA1_MonthlyBreakdownCard(dbc.Card):
-    def __init__(self, title, id, living_lab, dummy=False):
+    def __init__(self, title, id, living_lab, user = None, dummy=False, personalDashboard=False):
         if dummy:
             default_month = "01"
         else:
             default_month = datetime.date.today().strftime("%m")
 
-        fig = build_monthly_breakdown_figure(living_lab, default_month, dummy=dummy)
+        fig = build_monthly_breakdown_figure(living_lab, default_month, dummy=dummy, user=user, personalDashboard=personalDashboard)
 
         super().__init__(
             [

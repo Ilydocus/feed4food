@@ -9,24 +9,40 @@ from django.utils.timezone import now
 from inputReport.models import InputReportDetails
 
 
-def load_chemical_quantity_data(living_lab):
+def load_chemical_quantity_data(living_lab, user=None, personalDashboard=False):
 
     year = now().year
 
-    qs = (
-        InputReportDetails.objects
-        .select_related("report_id", "name_product", "name_input")
-        .filter(
-            Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
-            report_id__city =living_lab,
-            report_id__application_date__year=year, 
-        )
-        .values(
-            "report_id__application_date",
-            "name_input__name",
-            "quantity",
-        )
-    )
+    if personalDashboard:
+        qs = (
+                InputReportDetails.objects
+                .select_related("report_id", "name_product", "name_input")
+                .filter(
+                    Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
+                    report_id__user =user,
+                    report_id__application_date__year=year, 
+                )
+                .values(
+                    "report_id__application_date",
+                    "name_input__name",
+                    "quantity",
+                )
+            )
+    else:
+        qs = (
+                InputReportDetails.objects
+                .select_related("report_id", "name_product", "name_input")
+                .filter(
+                     Q(name_input__input_type="Pesticide") | Q(name_input__input_type="Fertilizer", name_input__input_category="Synthetic"),
+                    report_id__city =living_lab,
+                    report_id__application_date__year=year, 
+                )
+                .values(
+                    "report_id__application_date",
+                    "name_input__name",
+                    "quantity",
+                )
+            )
 
     if not qs:
         return pd.DataFrame(columns=["date", "product", "quantity"])
@@ -44,7 +60,7 @@ def load_chemical_quantity_data(living_lab):
     return df
 
 
-def build_chemical_bar_figure(living_lab, dummy=False):
+def build_chemical_bar_figure(living_lab, dummy=False, user=None, personalDashboard=False):
     if dummy:
         dummy_data = [
             {"month_year": "2025-01", "product": "NitroX",  "quantity": 40},
@@ -72,7 +88,7 @@ def build_chemical_bar_figure(living_lab, dummy=False):
         df["month_year"] = pd.to_datetime(df["month_year"])
 
     else:
-        df = load_chemical_quantity_data(living_lab)
+        df = load_chemical_quantity_data(living_lab, user, personalDashboard)
 
         if df.empty:
             return px.bar(title="No data available")
@@ -100,8 +116,8 @@ def build_chemical_bar_figure(living_lab, dummy=False):
 
 
 class KC2_ChemicalUsePerProductCard(dbc.Card):
-    def __init__(self, title, id, living_lab, description=None, dummy=False):
-        fig = build_chemical_bar_figure(living_lab, dummy=dummy)
+    def __init__(self, title, id, living_lab, user=None, description=None, dummy=False, personalDashboard=False):
+        fig = build_chemical_bar_figure(living_lab, dummy=dummy, user=user, personalDashboard=personalDashboard)
 
         super().__init__(
             children=[

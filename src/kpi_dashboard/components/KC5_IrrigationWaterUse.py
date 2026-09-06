@@ -7,7 +7,7 @@ from django.utils.timezone import now
 from waterReport.models import WaterReportIrrigation
 
 
-def load_water_data(living_lab, dummy=False):
+def load_water_data(living_lab, user, personalDashboard, dummy=False):
     if dummy:
         data = [
             {"month": "Jan-2025", "source": "Rainwater", "quantity": 500},
@@ -25,10 +25,16 @@ def load_water_data(living_lab, dummy=False):
         return pd.DataFrame(data)
 
     year=now().year
-    qs = WaterReportIrrigation.objects.select_related().filter(
-        report_id__city=living_lab,
-        start_date__year=year
-    )
+    if personalDashboard:
+        qs = WaterReportIrrigation.objects.select_related().filter(
+                report_id__user=user,
+                start_date__year=year
+            )
+    else:
+        qs = WaterReportIrrigation.objects.select_related().filter(
+                report_id__city=living_lab,
+                start_date__year=year
+            )
 
     rows = [
         {
@@ -45,8 +51,8 @@ def load_water_data(living_lab, dummy=False):
     return pd.DataFrame(rows)
 
 
-def build_wateruse_figure(living_lab, chart_type="stackedbar", dummy=False):
-    df = load_water_data(living_lab, dummy=dummy)
+def build_wateruse_figure(living_lab, user, personalDashboard, chart_type="stackedbar", dummy=False):
+    df = load_water_data(living_lab, user=user, personalDashboard=personalDashboard, dummy=dummy)
 
     if df.empty:
         return go.Figure()
@@ -87,8 +93,8 @@ def build_wateruse_figure(living_lab, chart_type="stackedbar", dummy=False):
 
 
 class KC5_WaterUseCard(dbc.Card):
-    def __init__(self, title, id, living_lab, description=None, dummy=False):
-        fig = build_wateruse_figure(chart_type="stackedbar", living_lab=living_lab, dummy=dummy)
+    def __init__(self, title, id, living_lab, user=None, description=None, dummy=False, personalDashboard=False):
+        fig = build_wateruse_figure(chart_type="stackedbar", living_lab=living_lab, dummy=dummy, user=user, personalDashboard=personalDashboard)
 
         super().__init__(
             children=[

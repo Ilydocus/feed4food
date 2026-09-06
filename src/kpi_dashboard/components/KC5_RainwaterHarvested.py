@@ -7,7 +7,7 @@ from django.utils.timezone import now
 from waterReport.models import WaterReportRainfall
 
 
-def load_rainfall_data(living_lab, dummy=False):
+def load_rainfall_data(living_lab, user, personalDashboard, dummy=False):
     if dummy:
         data = [
             {"month": "Jan-2025", "quantity": 120},
@@ -19,10 +19,17 @@ def load_rainfall_data(living_lab, dummy=False):
         return pd.DataFrame(data)
 
     year=now().year
-    qs = WaterReportRainfall.objects.filter(
-        report_id__city=living_lab,
-        start_date__year=year
-    )
+
+    if personalDashboard:
+        qs = WaterReportRainfall.objects.filter(
+                report_id__user=user,
+                start_date__year=year
+            )
+    else:
+        qs = WaterReportRainfall.objects.filter(
+                report_id__city=living_lab,
+                start_date__year=year
+            )
 
     rows = [
         {
@@ -38,8 +45,8 @@ def load_rainfall_data(living_lab, dummy=False):
     return pd.DataFrame(rows)
 
 
-def build_rainwater_figure(living_lab, chart_type="bar", dummy=False):
-    df = load_rainfall_data(living_lab, dummy=dummy)
+def build_rainwater_figure(living_lab, user, personalDashboard, chart_type="bar", dummy=False):
+    df = load_rainfall_data(living_lab, dummy=dummy, user=user, personalDashboard=personalDashboard)
 
     if df.empty:
         return go.Figure()
@@ -75,8 +82,8 @@ def build_rainwater_figure(living_lab, chart_type="bar", dummy=False):
 
 
 class KC5_RainwaterCard(dbc.Card):
-    def __init__(self, title, id, living_lab, description=None, dummy=False):
-        fig = build_rainwater_figure(chart_type="bar", living_lab=living_lab, dummy=dummy)
+    def __init__(self, title, id, living_lab, user=None, description=None, dummy=False, personalDashboard=False):
+        fig = build_rainwater_figure(chart_type="bar", living_lab=living_lab, dummy=dummy, user=user, personalDashboard=personalDashboard)
 
         super().__init__(
             children=[

@@ -10,12 +10,18 @@ from django.db.models.functions import TruncMonth
 
 from cultivationReport.models import CultivationReportDetails, CultivationReport
 
-def load_latest_area_per_product_by_garden_month(living_lab):
+def load_latest_area_per_product_by_garden_month(living_lab, user=None, personalDashboard=False):
+
+    year=now().year
 
         # 1. Find all distinct (garden, month) combinations with reports in this city
+    if personalDashboard:
+        qs = CultivationReport.objects.filter(user=user, garden__isnull=False, cultivation_date__isnull=False, cultivation_date__year=year)
+    else:
+        qs = CultivationReport.objects.filter(city=living_lab, garden__isnull=False, cultivation_date__isnull=False, cultivation_date__year=year)
+
     combos = (
-        CultivationReport.objects
-        .filter(city=living_lab, garden__isnull=False, cultivation_date__isnull=False)
+        qs
         .annotate(month_start=TruncMonth("cultivation_date"))
         .values_list("garden_id", "month_start")
         .distinct()
@@ -24,14 +30,23 @@ def load_latest_area_per_product_by_garden_month(living_lab):
     # 2. For each (garden, month) combo, find the latest report and record its month
     report_id_to_month = {}
     for garden_id, month_start in combos:
+        if personalDashboard:
+            qs = CultivationReport.objects.filter(
+                            user=user,
+                            garden_id=garden_id,
+                            cultivation_date__year=month_start.year,
+                            cultivation_date__month=month_start.month,
+                        )
+        else:
+            qs = CultivationReport.objects.filter(
+                            city=living_lab,
+                            garden_id=garden_id,
+                            cultivation_date__year=month_start.year,
+                            cultivation_date__month=month_start.month,
+                        )
+
         latest_report = (
-            CultivationReport.objects
-            .filter(
-                city=living_lab,
-                garden_id=garden_id,
-                cultivation_date__year=month_start.year,
-                cultivation_date__month=month_start.month,
-            )
+            qs
             .order_by("-cultivation_date", "-creation_time")
             .first()
         )
@@ -58,7 +73,7 @@ def load_latest_area_per_product_by_garden_month(living_lab):
 
     return {month: dict(products) for month, products in results.items()}
 
-def load_surface_cultivation_data(living_lab, dummy=False):
+def load_surface_cultivation_data(living_lab, dummy=False, user=None, personalDashboard=False):
     if dummy:
         data = [
             {"date": "2025-01-01", "product": "Lettuce", "surface": 120},
@@ -77,7 +92,7 @@ def load_surface_cultivation_data(living_lab, dummy=False):
         df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
         return df
 
-    monthly_data = load_latest_area_per_product_by_garden_month(living_lab)
+    monthly_data = load_latest_area_per_product_by_garden_month(living_lab, user=user, personalDashboard=personalDashboard)
 
     if not monthly_data:
         return pd.DataFrame(columns=["date", "product", "surface", "month_year"])
@@ -98,8 +113,8 @@ def load_surface_cultivation_data(living_lab, dummy=False):
     return df
 
 
-def build_surface_cultivation_figure(living_lab, chart_type="area", dummy=False):
-    df = load_surface_cultivation_data(living_lab, dummy=dummy)
+def build_surface_cultivation_figure(living_lab, chart_type="area", dummy=False, user=None, personalDashboard=False):
+    df = load_surface_cultivation_data(living_lab, dummy=dummy, user=user, personalDashboard=personalDashboard)
     if df.empty:
         return px.area(title="No data available")
 
@@ -140,8 +155,8 @@ def build_surface_cultivation_figure(living_lab, chart_type="area", dummy=False)
 
 
 class KC2_SurfaceCultivatedPerProductCard(dbc.Card):
-    def __init__(self, title, id, living_lab, description=None, dummy=False):
-        fig = build_surface_cultivation_figure(chart_type="area", living_lab=living_lab, dummy=dummy)
+    def __init__(self, title, id, living_lab, user=None, description=None, dummy=False, personalDashboard=False):
+        fig = build_surface_cultivation_figure(chart_type="area", living_lab=living_lab, dummy=dummy, user=user, personalDashboard=personalDashboard)
 
         super().__init__(
             children=[

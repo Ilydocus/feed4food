@@ -10,7 +10,7 @@ from django.utils.timezone import now
 from core import reportUtils
 
 
-def load_sales_data(living_lab, dummy=False):
+def load_sales_data(living_lab, user=None, dummy=False, personalDashboard=False):
     # Note: for some reason the dummy mode does not work anymore, remove it for now
     # if dummy:
     #     rows = [
@@ -41,7 +41,12 @@ def load_sales_data(living_lab, dummy=False):
 
     rows = []
 
-    qs = SalesReportDetails.objects.select_related("report_id").filter(report_id__city=living_lab, sale_date__year=year)
+    if personalDashboard:
+        qs = SalesReportDetails.objects.select_related("report_id").filter(report_id__user=user, sale_date__year=year)
+        qs_fin = FinancialReport.objects.filter(user=user, year=year)
+    else:
+        qs = SalesReportDetails.objects.select_related("report_id").filter(report_id__city=living_lab, sale_date__year=year)
+        qs_fin = FinancialReport.objects.filter(city=living_lab, year=year)
 
     for r in qs:
         if not r.sale_date:
@@ -51,8 +56,6 @@ def load_sales_data(living_lab, dummy=False):
             "source": "Production Sales",
             "value": r.quantity * r.price,
         })
-
-    qs_fin = FinancialReport.objects.filter(city=living_lab, year=year)
 
     for f in qs_fin:
         if f.start_date:
@@ -77,13 +80,11 @@ def load_sales_data(living_lab, dummy=False):
     df["month_year"] = df["date"].dt.to_period("M").dt.to_timestamp()
     df["month_year"] = pd.to_datetime(df["month_year"])
 
-    print("Final", df, flush=True)
-
     return df
 
 
-def build_sales_figure(living_lab, mode="line", dummy=False):
-    df = load_sales_data(living_lab, dummy=dummy)
+def build_sales_figure(living_lab, mode="line", dummy=False, user=None, personalDashboard=False):
+    df = load_sales_data(living_lab, dummy=dummy, personalDashboard=personalDashboard, user=user)
 
     if df.empty:
         return px.line(title="No data available")
@@ -131,8 +132,8 @@ def build_sales_figure(living_lab, mode="line", dummy=False):
 
 
 class KA1_SalesRevenueLineCard(dbc.Card):
-    def __init__(self, title, id, living_lab, description=None, dummy=False):
-        fig = build_sales_figure(living_lab, dummy=dummy) 
+    def __init__(self, title, id, living_lab, user=None, description=None, dummy=False, personalDashboard=False):
+        fig = build_sales_figure(living_lab, user=user, dummy=dummy, personalDashboard=personalDashboard) 
 
         super().__init__(
             children=[

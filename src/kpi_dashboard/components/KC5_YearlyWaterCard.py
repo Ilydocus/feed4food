@@ -14,22 +14,29 @@ def current_year():
     return now().year
 
 
-def load_totals_rainfall_current_year(living_lab, dummy=False):
+def load_totals_rainfall_current_year(living_lab, user, personalDashboard, dummy=False):
     if dummy:
         return 420.0
     year = current_year()
+
+    if personalDashboard:
+        qs= WaterReportRainfall.objects.filter(
+                    report_id__user=user,
+                    start_date__year=year)
+    else:
+        qs= WaterReportRainfall.objects.filter(
+                    report_id__city=living_lab,
+                    start_date__year=year)
+
     total = (
-        WaterReportRainfall.objects
-        .filter(
-            report_id__city=living_lab,
-            start_date__year=year)
+        qs
         .aggregate(total=Sum("quantity"))
         .get("total") or 0
     )
     return float(total)
 
 
-def load_totals_irrigation_current_year(living_lab, dummy=False):
+def load_totals_irrigation_current_year(living_lab, user, personalDashboard, dummy=False):
     if dummy:
         data = {
             "source": ["harvested", "tap", "other"],
@@ -37,21 +44,33 @@ def load_totals_irrigation_current_year(living_lab, dummy=False):
         }
         return pd.DataFrame(data)
     year = current_year()
-    qs = (
-        WaterReportIrrigation.objects
-        .filter(
-            report_id__city=living_lab,
-            start_date__year=year)
-        .values("source")
-        .annotate(quantity=Sum("quantity"))
-    )
+
+    if personalDashboard:
+        qs = (
+                WaterReportIrrigation.objects
+                .filter(
+                    report_id__user=user,
+                    start_date__year=year)
+                .values("source")
+                .annotate(quantity=Sum("quantity"))
+            )
+    else:
+        qs = (
+                WaterReportIrrigation.objects
+                .filter(
+                    report_id__city=living_lab,
+                    start_date__year=year)
+                .values("source")
+                .annotate(quantity=Sum("quantity"))
+            )
+        
     rows = [{"source": r["source"], "quantity": r["quantity"]} for r in qs]
     return pd.DataFrame(rows)
 
 
-def build_two_bar_water_figures_current_year(living_lab, dummy=False):
-    rainfall_total = load_totals_rainfall_current_year(living_lab, dummy=dummy)
-    df_irr = load_totals_irrigation_current_year(living_lab, dummy=dummy)
+def build_two_bar_water_figures_current_year(living_lab, user, personalDashboard, dummy=False):
+    rainfall_total = load_totals_rainfall_current_year(living_lab, dummy=dummy, user=user, personalDashboard=personalDashboard)
+    df_irr = load_totals_irrigation_current_year(living_lab, dummy=dummy, user=user, personalDashboard=personalDashboard)
 
     irrigation_total = df_irr["quantity"].sum() if not df_irr.empty else 0
     target_quantity = rainfall_total * 0.15
@@ -113,9 +132,9 @@ def build_two_bar_water_figures_current_year(living_lab, dummy=False):
     return fig_in, fig_out
 
 
-def irrigation_coverage_stat(living_lab, dummy=False):
-    rainfall = load_totals_rainfall_current_year(living_lab, dummy=dummy)
-    df_irr = load_totals_irrigation_current_year(living_lab, dummy=dummy)
+def irrigation_coverage_stat(living_lab, user, personalDashboard, dummy=False):
+    rainfall = load_totals_rainfall_current_year(living_lab, user=user, personalDashboard=personalDashboard, dummy=dummy)
+    df_irr = load_totals_irrigation_current_year(living_lab, user=user, personalDashboard=personalDashboard, dummy=dummy)
 
     harvested_irr = (
         df_irr[df_irr["source"] == "harvested"]["quantity"].sum()
@@ -145,12 +164,12 @@ def irrigation_coverage_stat(living_lab, dummy=False):
 
 
 class KC5_YearlyWaterCard(dbc.Card):
-    def __init__(self, title, id, living_lab, description=None, dummy=False):
+    def __init__(self, title, id, living_lab, user=None, description=None, dummy=False, personalDashboard=False):
         year = current_year()
         title_with_year = f"{title} (Jan {year} to Present)"
 
-        fig_in, fig_out = build_two_bar_water_figures_current_year(living_lab, dummy=dummy)
-        stat_ui = irrigation_coverage_stat(living_lab, dummy=dummy)
+        fig_in, fig_out = build_two_bar_water_figures_current_year(living_lab, user=user, personalDashboard=personalDashboard, dummy=dummy)
+        stat_ui = irrigation_coverage_stat(living_lab, user=user, personalDashboard=personalDashboard, dummy=dummy)
 
         super().__init__(
             children=[
