@@ -29,11 +29,11 @@ class InputCategory(models.TextChoices):
         Other = 'Other', 'Other'
 
 class NutrientColors(models.TextChoices):
-        BluePurple = 'Blue/Purple', 'Blue/Purple'
-        Red = 'Red', 'Red'
+        BluePurple = 'Blue', 'Blue'
+        Red = 'Red/Purple', 'Red/Purple'
         YellowOrange = 'Yellow/Orange', 'Yellow/Orange'
         White = 'White', 'White'
-        Green = 'Green', 'Green'
+        Green = 'Green', 'Green',
 
 class WasteActions(models.TextChoices):
         Reuse = 'Reuse', 'Reuse'
