@@ -40,11 +40,11 @@ def comparison(prev_year, curr_year, color):
                         return "", "▼", "red"
                     else:
                         return "", "▼", "black"    
-                decrease = round((1- (curr_year/prev_year))*100,2)
+                decrease = round((1- (curr_year/prev_year))*100,2) #Already with a minus sign
                 if color:
-                      return "-"+str(decrease)+"%", "▼", "red"
+                      return ""+str(decrease)+"%", "▼", "red"
                 else:
-                      return "-"+str(decrease)+"%", "▼", "black"
+                      return ""+str(decrease)+"%", "▼", "black"
                 
     else:
                 return "+/-0%", "=", "black"
