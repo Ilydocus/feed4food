@@ -591,6 +591,48 @@ function submitCultivationForm() {
     });
 }
 
+function submitPlantingForm() {
+    const plantingDate = document.getElementById('id_planting_date');
+
+    const city = document.getElementById('id_city');
+    const location = document.getElementById('id_location');
+    const garden = document.getElementById('id_garden');
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+    if (!plantingDate) {
+        alert('Please ensure the date fields are correctly filled out.');
+        return;
+    }
+
+    const items = [];
+    document.querySelectorAll('#form-container > div').forEach((itemDiv) => {
+        const itemName = itemDiv.querySelector('select[name$="name"]').value;
+        const area_quantity_planted = itemDiv.querySelector('input[name$="area_quantity_planted"]').value;
+        const planting_unit = itemDiv.querySelector('select[name$="planting_unit"]').value;
+        
+        items.push({
+            name: itemName,
+            area_quantity_planted: area_quantity_planted,
+            planting_unit: planting_unit,
+        });
+    });
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 
+                'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({planting_date: plantingDate.value, city : city.value, location : location.value, garden : garden.value, items
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Report submitted successfully!');
+        window.location.href = data.redirect_url;
+    });
+}
+
 function submitInputForm() {
     const applicationDate = document.getElementById('id_application_date');
 
