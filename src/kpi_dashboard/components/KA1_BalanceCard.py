@@ -24,12 +24,22 @@ def dummy_bal_trend():
 
 def comparison(prev_year, curr_year, color):
     if (curr_year > prev_year):
+                if (prev_year==0):
+                    if color:
+                        return "", "▲", "green"
+                    else:
+                        return "", "▲", "black"          
                 increase = round(((curr_year/prev_year) -1)*100,2)
                 if color:
                       return "+"+str(increase)+"%", "▲", "green"
                 else:
                       return "+"+str(increase)+"%", "▲", "black"
     elif (curr_year < prev_year):
+                if (prev_year==0):
+                    if color:
+                        return "", "▼", "red"
+                    else:
+                        return "", "▼", "black"    
                 decrease = round((1- (curr_year/prev_year))*100,2)
                 if color:
                       return "-"+str(decrease)+"%", "▼", "red"
