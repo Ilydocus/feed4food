@@ -98,7 +98,7 @@ def build_two_bar_water_figures_current_year(living_lab, user, personalDashboard
 
     fig_out = go.Figure()
     for source in WaterReportIrrigation.WaterSources:
-        qty = df_irr[df_irr["source"] == source]["quantity"].sum()
+        qty = df_irr[df_irr["source"] == source]["quantity"].sum() if not df_irr.empty else 0
         fig_out.add_trace(
             go.Bar(
                 y=["Irrigation Water Use"],
@@ -137,8 +137,7 @@ def irrigation_coverage_stat(living_lab, user, personalDashboard, dummy=False):
     df_irr = load_totals_irrigation_current_year(living_lab, user=user, personalDashboard=personalDashboard, dummy=dummy)
 
     harvested_irr = (
-        df_irr[df_irr["source"] == "harvested"]["quantity"].sum()
-        if not df_irr.empty else 0
+        df_irr[df_irr["source"] == "harvested"]["quantity"].sum() if not df_irr.empty else 0
     )
 
     if rainfall == 0:
