@@ -5,7 +5,7 @@ function addProduct() {
     const formCount = parseInt(totalForms.value, 10);
     const newFormRow = document.createElement('div');
 
-    newFormRow.class = `row`;
+    newFormRow.className = `row`;
     newFormRow.innerHTML = template;
 
     // Append the new row and increment TOTAL_FORMS
@@ -22,7 +22,7 @@ function addWasteAction() {
     const formCount = parseInt(totalForms.value, 10);
     const newFormRow = document.createElement('div');
 
-    newFormRow.class = `row`;
+    newFormRow.className = `row`;
     newFormRow.innerHTML = template;
 
     // Append the new row and increment TOTAL_FORMS
@@ -38,7 +38,7 @@ function addItem() {
     const formCount = parseInt(totalForms.value, 10);
     const newFormRow = document.createElement('div');
 
-    newFormRow.class = `row`;
+    newFormRow.className = `row`;
     newFormRow.innerHTML = template;
 
     // Append the new row and increment TOTAL_FORMS
@@ -82,7 +82,7 @@ function addRainfall() {
     const formCount = parseInt(totalForms.value, 10);
     const newFormRow = document.createElement('div');
 
-    newFormRow.class = `row`;
+    newFormRow.className = `row`;
     newFormRow.innerHTML = template;
 
     // Append the new row and increment TOTAL_FORMS
@@ -224,13 +224,19 @@ function updateCurrency(currencySelect) {
 }
 
 function deleteRow(button) {
-    const row = button.closest('.row');
-    if (!row) return;
+    // const row = button.closest('.row');
+    // if (!row) return;
 
     // Walk up to find the ancestor container whose id ends in "-container"
-    let container = row.parentElement;
+    let container = button.parentElement;
     while (container && !(container.id && container.id.endsWith('-container'))) {
         container = container.parentElement;
+    }
+    if (!container) return;
+
+    let row=button;
+    while (row.parentElement !== container) {
+        row = row.parentElement;
     }
 
     row.remove();
@@ -240,7 +246,7 @@ function deleteRow(button) {
         const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
         if (totalForms) {
             const formCount = parseInt(totalForms.value, 10);
-            totalForms.value = formCount - 1;
+            totalForms.value = Math.max(formCount - 1, 0);
         }
     }
 }
