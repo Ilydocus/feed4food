@@ -144,6 +144,8 @@ def confirm_split(request, row_id):
             source_row_number=row.source_row_number,
             action_type=row.action_type,
             living_lab=row.living_lab,
+            location=row.location,
+            garden=row.garden,
             raw_data=row.raw_data,  # keep original combined value for traceability
             corrected_data=corrected,
             message=message,
@@ -261,6 +263,8 @@ def commit_batch(request, batch_id):
         for row in insertable:
             data = row.corrected_data
             living_lab = row.living_lab
+            location = row.location
+            garden = row.garden 
             report_type = data.get("report_type")
 
             if report_type == "input":
@@ -268,6 +272,8 @@ def commit_batch(request, batch_id):
                 report, _ = InputReport.objects.get_or_create(
                     application_date=data.get("production_date"),
                     city=living_lab,
+                    location=location,
+                    garden=garden,
                     user=row.uploaded_by,
                 )
                 InputReportDetails.objects.create(
@@ -281,6 +287,8 @@ def commit_batch(request, batch_id):
                 report, _ = ProductionReport.objects.get_or_create(
                     production_date=data.get("production_date"),
                     city=living_lab,
+                    location=location,
+                    garden=garden,
                     user=row.uploaded_by,
                 )
                 ProductionReportDetails.objects.create(
@@ -292,6 +300,8 @@ def commit_batch(request, batch_id):
                 report, _ = PlantingReport.objects.get_or_create(
                     planting_date=data.get("production_date"),
                     city=living_lab,
+                    location=location,
+                    garden=garden,
                     user=row.uploaded_by,
                 )
                 PlantingReportDetails.objects.create(

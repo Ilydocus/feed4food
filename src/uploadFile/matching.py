@@ -272,7 +272,6 @@ def extract_quantity_and_unit(row: dict):
         return number, _singularize(_safe_str(unit_raw).strip().lower())
     return parse_quantity(row.get("quantity_raw", ""))
 
-
 def resolve_quantity_for_product(number: float, unit: str, product: Product):
     """
     Convert a parsed (number, unit) into the quantity expected by the
@@ -408,11 +407,12 @@ def is_duplicate_harvest(production_date, living_lab: str, product: Product, qua
     ).exists()
 
 
-def is_duplicate_input(application_date, living_lab: str, input_obj: Input, product: Product, quantity: float) -> bool:
+def is_duplicate_input(application_date, living_lab: str, input_obj: Input, product: Product, quantity: float, area:float) -> bool:
     return InputReportDetails.objects.filter(
         name_input=input_obj,
         name_product=product,
         quantity=quantity,
+        area=area,
         report_id__application_date=application_date,
         report_id__city=living_lab,
     ).exists()
@@ -470,14 +470,14 @@ def validate_row(row: dict, living_lab: str) -> dict:
                 return _suggestion_result("crop", "crop_raw", crop_raw, suggestions)
             return {
                 "bucket": "error",
-                "message": f"'{crop_raw}' does not match any known product. Fix in Excel and re-upload.",
+                "message": f"'{crop_raw}' does not match any known product. Review or fix in Excel and re-upload.",
             }
 
         number, unit = extract_quantity_and_unit(row)
         if number is None:
             return {
                 "bucket": "error",
-                "message": f"Could not read quantity '{row.get('quantity_raw')}'. Fix in Excel and re-upload.",
+                "message": f"Could not read quantity '{row.get('quantity_raw')}'. Review or fix in Excel and re-upload.",
             }
 
         quantity = resolve_quantity_for_product(number, unit, product)
@@ -486,7 +486,7 @@ def validate_row(row: dict, living_lab: str) -> dict:
                 "bucket": "error",
                 "message": (
                     f"Unit '{unit}' does not match expected unit '{product.unit}' "
-                    f"for '{product.name}'. Fix in Excel and re-upload."
+                    f"for '{product.name}'. Review or fix in Excel and re-upload."
                 ),
             }
 
@@ -516,7 +516,7 @@ def validate_row(row: dict, living_lab: str) -> dict:
                 return _suggestion_result("input/fertilizer", "input_name_raw", input_name_raw, input_suggestions)
             return {
                 "bucket": "error",
-                "message": f"'{input_name_raw}' does not match any known input. Fix in Excel and re-upload.",
+                "message": f"'{input_name_raw}' does not match any known input. Review or fix in Excel and re-upload.",
             }
 
         product, product_suggestions = match_product(crop_raw, living_lab)
@@ -525,17 +525,25 @@ def validate_row(row: dict, living_lab: str) -> dict:
                 return _suggestion_result("crop", "crop_raw", crop_raw, product_suggestions)
             return {
                 "bucket": "error",
-                "message": f"'{crop_raw}' does not match any known product. Fix in Excel and re-upload.",
+                "message": f"'{crop_raw}' does not match any known product. Review or fix in Excel and re-upload.",
             }
 
         number, unit = extract_quantity_and_unit(row)
         if number is None:
             return {
                 "bucket": "error",
-                "message": f"Missing or unreadable quantity '{row.get('quantity_raw')}'. Fix in Excel and re-upload.",
+                "message": f"Missing or unreadable quantity '{row.get('quantity_raw')}'. Review or fix in Excel and re-upload.",
             }
 
-        if is_duplicate_input(row.get("production_date"), living_lab, input_obj, product, number):
+        area = row.get("area")
+        if area is None:
+            return {
+                "bucket": "error",
+                "message": f"Missing or unreadable area '{row.get('area_raw')}'. Review or fix in Excel and re-upload.",
+            }
+
+
+        if is_duplicate_input(row.get("production_date"), living_lab, input_obj, product, number, area):
             return {"bucket": "duplicate", "message": f"'{input_obj.name}' on '{product.name}' already exists - skipped."}
 
         return {
@@ -544,7 +552,8 @@ def validate_row(row: dict, living_lab: str) -> dict:
             "input": input_obj,
             "product": product,
             "quantity": number,
-            "message": f"Matched '{input_obj.name}' applied to '{product.name}'. Quantity: {number}.",
+            "area": area,
+            "message": f"Matched '{input_obj.name}' applied to '{product.name}'. Quantity: {number}, area: {area}.",
         }
 
     if action == "planting":
@@ -557,7 +566,7 @@ def validate_row(row: dict, living_lab: str) -> dict:
         if number is None:
             return {
                 "bucket": "error",
-                "message": f"Could not read planting quantity from '{row.get('crop_raw')}'. Fix in Excel and re-upload.",
+                "message": f"Could not read planting quantity from '{row.get('crop_raw')}'. Review or fix in Excel and re-upload.",
             }
 
         product, suggestions = match_product(crop_name, living_lab)
@@ -566,7 +575,7 @@ def validate_row(row: dict, living_lab: str) -> dict:
                 return _suggestion_result("crop", "crop_raw", crop_name, suggestions)
             return {
                 "bucket": "error",
-                "message": f"'{crop_name}' does not match any known product. Fix in Excel and re-upload.",
+                "message": f"'{crop_name}' does not match any known product. Review or fix in Excel and re-upload.",
             }
 
         if is_duplicate_planting(row.get("production_date"), living_lab, product, number):

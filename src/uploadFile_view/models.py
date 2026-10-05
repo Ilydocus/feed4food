@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from core.reportUtils import PartnerCities
+from productionReport.models import LLLocation, Garden
 
 
 class StagedRow(models.Model):
@@ -25,6 +26,8 @@ class StagedRow(models.Model):
     source_row_number = models.IntegerField(null=True, blank=True)
     action_type = models.CharField(max_length=50)
     living_lab = models.CharField(max_length=100, choices=PartnerCities.choices, default=PartnerCities.Drama)
+    location = models.ForeignKey(LLLocation, on_delete=models.SET_NULL, null=True)
+    garden = models.ForeignKey(Garden, on_delete=models.SET_NULL, null=True)
 
     raw_data = models.JSONField()
     corrected_data = models.JSONField()

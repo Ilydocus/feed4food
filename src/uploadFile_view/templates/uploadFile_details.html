@@ -88,4 +88,12 @@
   <a href="{% url 'uploadFile_list_batch' row.upload_batch %}" class="btn btn-outline-secondary mt-3">Back to batch</a>
 
 </div>
+
+<div class="container">
+  <div class="row justify-content-center g-4 mt-4">
+    <div class="col-6 col-sm-4 col-md-3">
+      {% bootstrap_button "Back to data portal" button_type="link" button_class="btn-custom" href="/data_portal" extra_classes="w-100 py-3" %}
+    </div>
+  </div>
+</div>
 {% endblock %}

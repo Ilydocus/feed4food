@@ -28,10 +28,24 @@
     </div>
 
     <div class="mb-3">
+      <label for="locationSelect" class="form-label text-white">Location</label>
+      <select class="form-select" id="locationSelect" name="location" required disabled>
+        <option value="" disabled selected>Select a location</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="gardenSelect" class="form-label text-white">Garden</label>
+      <select class="form-select" id="gardenSelect" name="garden" required disabled>
+        <option value="" disabled selected>Select a garden</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
       <label for="templateSelect" class="form-label text-white">Select the template of the file you are uploading</label>
       <select class="form-select" id="templateSelect" name="template">
-        <option value="cultivation_tasks_v1" selected>"Cultivation tasks and PPP-ferti" Template</option>
-        <option value="crop_log_v1">Crop Log template</option>
+        <option value="cultivation_tasks_v1">"Cultivation tasks and PPP-ferti" Template</option>
+        <option value="crop_log_v1" selected>Crop Log template</option>
       </select>
     </div>
 
@@ -52,4 +66,36 @@
     </div>
   </div>
 </div>
+
+<script>
+  const livingLabSelect = document.getElementById("livingLabSelect");
+  const locationSelect = document.getElementById("locationSelect");
+  const gardenSelect = document.getElementById("gardenSelect");
+
+  function fill(select, names, placeholder) {
+    select.innerHTML = "";
+    select.add(new Option(placeholder, "", true, true));
+    select.options[0].disabled = true;
+    names.forEach(n => select.add(new Option(n, n)));
+    select.disabled = names.length === 0;
+  }
+
+  livingLabSelect.addEventListener("change", async () => {
+    fill(gardenSelect, [], "Select a garden");
+    fill(locationSelect, [], "Loading...");
+    const res = await fetch(
+      `{% url 'ajax_locations' %}?living_lab=${encodeURIComponent(livingLabSelect.value)}`
+    );
+    fill(locationSelect, await res.json(), "Select a location");
+  });
+
+  locationSelect.addEventListener("change", async () => {
+    fill(gardenSelect, [], "Loading...");
+    const res = await fetch(
+      `{% url 'ajax_gardens' %}?location=${encodeURIComponent(locationSelect.value)}`
+    );
+    fill(gardenSelect, await res.json(), "Select a garden");
+  });
+</script>
 {% endblock %}
+

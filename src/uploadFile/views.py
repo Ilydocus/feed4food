@@ -3,11 +3,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 import uuid
 import pandas as pd
+from django.http import JsonResponse
 
 from core.reportUtils import PartnerCities
 from uploadFile_view.models import StagedRow
 from .parser import parse_file
 from .matching import validate_row
+from productionReport.models import LLLocation, Garden
 
 # Buckets returned by validate_row() -> StagedRow status
 BUCKET_TO_STATUS = {
@@ -44,6 +46,8 @@ def upload_file_view(request):
         uploaded_file = request.FILES.get("file")
         template_id = request.POST.get("template")
         living_lab = request.POST.get("living_lab")
+        location = request.POST.get("location")
+        garden = request.POST.get("garden")
 
         if not uploaded_file:
             messages.error(request, "No file selected.")
@@ -52,6 +56,12 @@ def upload_file_view(request):
         if not living_lab:
             messages.error(request, "Please select a Living Lab.")
             return redirect("upload_file")
+        if not LLLocation.objects.filter(pk=location, living_lab=living_lab).exists():
+                    messages.error(request, "Please select a valid location.")
+                    return redirect("upload_file")
+        if not Garden.objects.filter(pk=garden, location_id=location).exists():
+                    messages.error(request, "Please select a valid garden.")
+                    return redirect("upload_file")
 
         try:
             parsed_rows = parse_file(uploaded_file, template_id)
@@ -95,6 +105,8 @@ def upload_file_view(request):
                 source_row_number=row_data.get("source_row_number"),
                 action_type=row_data.get("action_type_raw") or "unknown",
                 living_lab=living_lab,
+                location_id=location,
+                garden_id=garden,
                 raw_data=_json_safe(row_data),
                 corrected_data=corrected,
                 message=result.get("message", ""),
@@ -108,3 +120,21 @@ def upload_file_view(request):
     else:
         messages.error(request, "Only GET/POST allowed.")
         return redirect("upload_file")
+
+def locations_for_living_lab(request):
+    living_lab = request.GET.get("living_lab", "")
+    names = (
+        LLLocation.objects.filter(living_lab=living_lab)
+        .order_by("name")
+        .values_list("name", flat=True)
+    )
+    return JsonResponse(list(names), safe=False)
+
+def gardens_for_location(request):
+    location = request.GET.get("location", "")
+    names = (
+        Garden.objects.filter(location_id=location)
+        .order_by("name")
+        .values_list("name", flat=True)
+    )
+    return JsonResponse(list(names), safe=False)
